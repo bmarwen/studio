@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Mountain, Sparkles, TreePine, Waves, Snowflake } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -35,6 +35,7 @@ const getTileIcon = (tile: TileData) => {
 };
 
 const getTooltipContent = (tile: TileData) => {
+    if (tile.monster) return "You sense danger..."; // Hide monster details
     if (tile.item) return `Something catches your eye...`;
     if (tile.terrain === 'snow') return 'Snowy field';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
@@ -85,7 +86,7 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
 
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
-      <div className={`grid grid-cols-${VIEWPORT_SIZE} gap-1`}>
+      <div className={`grid grid-cols-9 gap-1`}>
         {viewport.map((row, y) =>
           row.map((tile, x) => (
             <motion.div

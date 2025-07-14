@@ -1,11 +1,14 @@
 import type { TileData, Monster, Item } from "@/types/game";
 import { MAP_SIZE } from "./game-constants";
 
-const ITEMS: Item[] = [
+export const ITEMS: Item[] = [
     { id: 'i1', name: 'Rusty Sword', type: 'weapon', attack: 2, description: 'A bit worn but better than nothing.', icon: '/icons/item-sword.svg' },
     { id: 'i2', name: 'Leather Tunic', type: 'armor', defense: 2, description: 'Basic leather protection.', icon: '/icons/item-tunic.svg' },
     { id: 'i3', name: 'Health Potion', type: 'consumable', hp: 20, description: 'Restores 20 health.', icon: '/icons/item-potion.svg'},
-    { id: 'i4', name: 'Energy Crystal', type: 'consumable', energyBoost: 1, description: 'Slightly increases passive energy regeneration.', icon: '/icons/item-crystal.svg'}
+    { id: 'i4', name: 'Energy Crystal', type: 'consumable', energyBoost: 1, description: 'Slightly increases passive energy regeneration.', icon: '/icons/item-crystal.svg'},
+    { id: 'i5', name: 'Iron Helmet', type: 'helmet', defense: 3, description: 'A sturdy iron helmet.', icon: '/icons/item-helmet.svg'},
+    { id: 'i6', name: 'Chainmail Armor', type: 'armor', defense: 5, description: 'Provides good protection against physical attacks.', icon: '/icons/item-armor.svg'},
+    { id: 'i7', name: 'Studded Belt', type: 'belt', defense: 1, description: 'A simple but effective belt.', icon: '/icons/item-belt.svg'},
 ];
 
 const MONSTERS: Omit<Monster, 'id'>[] = [
@@ -46,7 +49,7 @@ export function generateWorld(): TileData[][] {
       let monster: Monster | undefined;
       let item: Item | undefined;
       
-      if (terrain !== 'mountain') {
+      if (terrain !== 'mountain' && terrain !== 'town') {
         const monsterRoll = Math.random();
         if (terrain === 'tree' && monsterRoll < 0.3) { 
           const monsterTemplate = MONSTERS[Math.floor(Math.random() * (MONSTERS.length - 1))];
@@ -60,7 +63,7 @@ export function generateWorld(): TileData[][] {
         }
 
         const itemRoll = Math.random();
-        if (terrain === 'grass' && itemRoll < 0.05) {
+        if (monsterRoll > 0.95 && itemRoll < 0.2) { // Less common items
           item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
         }
       }
@@ -72,6 +75,15 @@ export function generateWorld(): TileData[][] {
   const townX = Math.floor(MAP_SIZE / 2);
   const townY = Math.floor(MAP_SIZE / 2);
   world[townY][townX] = { terrain: 'town' };
+
+  // Clear area around town
+  for(let i = -1; i <= 1; i++) {
+    for(let j = -1; j <= 1; j++) {
+        if(i === 0 && j === 0) continue;
+        world[townY+j][townX+i].monster = undefined;
+        world[townY+j][townX+i].item = undefined;
+    }
+  }
 
   return world;
 }

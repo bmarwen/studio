@@ -2,7 +2,8 @@ import type { Player, PlayerClass } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
-export const ENERGY_REGEN_RATE = 500; // ms, increased by 4x
+export const ENERGY_REGEN_RATE = 500; // ms
+export const INVENTORY_SIZE = 8; // 2 rows of 4
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
     grass: 4,
@@ -28,9 +29,15 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon'> = {
     description: 'Survive and find your fortune in this vast land.',
     isCompleted: false
   }],
+  equipment: {
+    weapon: null,
+    helmet: null,
+    armor: null,
+    belt: null,
+  }
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,

@@ -1,20 +1,22 @@
 "use client";
 
-import type { Player, Item } from '@/types/game';
+import type { Player, Item, EquipmentSlot } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings, PlusCircle } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { cn } from '@/lib/utils';
+import { INVENTORY_SIZE } from '@/lib/game-constants';
 
 interface ControlPanelProps {
   player: Player;
   log: string[];
   onReset: () => void;
-  onUseItem: (item: Item) => void;
+  onUseItem: (item: Item, index: number) => void;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -30,7 +32,50 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
   </div>
 );
 
+const EquipmentSlotDisplay = ({ slot, item }: { slot: EquipmentSlot, item: Item | null }) => {
+    const ICONS: Record<EquipmentSlot, React.ReactNode> = {
+        weapon: <Gavel className="w-8 h-8 text-muted-foreground" />,
+        helmet: <Crown className="w-8 h-8 text-muted-foreground" />,
+        armor: <Shirt className="w-8 h-8 text-muted-foreground" />,
+        belt: <ShieldCheck className="w-8 h-8 text-muted-foreground" />,
+    }
+
+    return (
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+                        {item ? <img src={item.icon} alt={item.name} className="w-10 h-10" /> : ICONS[slot]}
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                     <p className="font-bold capitalize">{slot}</p>
+                     {item ? <p>{item.name}</p> : <p>Empty</p>}
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    )
+}
+
+const ItemTooltipContent = ({ item }: { item: Item }) => (
+    <div className="p-2 space-y-2 text-sm">
+        <p className="font-bold text-base">{item.name}</p>
+        <p className="text-muted-foreground italic">{item.description}</p>
+        <Separator/>
+        <div className="space-y-1">
+            {item.attack && <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p>}
+            {item.defense && <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p>}
+            {item.magic && <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p>}
+            {item.hp && <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p>}
+            {item.energyBoost && <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p>}
+        </div>
+    </div>
+);
+
+
 export default function ControlPanel({ player, log, onReset, onUseItem }: ControlPanelProps) {
+  const inventorySlots = Array.from({ length: INVENTORY_SIZE });
+
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 pr-4">
@@ -51,40 +96,56 @@ export default function ControlPanel({ player, log, onReset, onUseItem }: Contro
           </CardContent>
         </Card>
 
-        <Accordion type="multiple" defaultValue={["inventory", "dev"]} className="w-full">
+        <Accordion type="multiple" defaultValue={["equipment", "inventory"]} className="w-full">
+            <AccordionItem value="equipment">
+                <AccordionTrigger className="text-lg font-headline">
+                    <div className="flex items-center gap-2"><Package />Equipment</div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    <div className="grid grid-cols-4 gap-2">
+                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} />
+                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} />
+                        <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} />
+                        <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} />
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
           <AccordionItem value="inventory">
             <AccordionTrigger className="text-lg font-headline">
                 <div className="flex items-center gap-2"><Package />Inventory</div>
             </AccordionTrigger>
             <AccordionContent>
-              {player.inventory.length > 0 ? (
-                <ul className="space-y-2 text-sm">
-                  {player.inventory.map((item, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-secondary">
-                        <div className="flex items-center gap-2">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <img src={item.icon} alt={item.name} className="w-6 h-6" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>{item.description}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <span className="font-medium">{item.name}</span>
-                        </div>
-                        {item.type === 'consumable' && (
-                            <Button size="sm" variant="ghost" onClick={() => onUseItem(item)}>
-                                <PlusCircle className="mr-1" /> Use
-                            </Button>
-                        )}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">Your backpack is empty.</p>
-              )}
+               <div className="grid grid-cols-4 gap-2">
+                 {inventorySlots.map((_, index) => {
+                    const item = player.inventory[index];
+                    return (
+                        <TooltipProvider key={index}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative">
+                                        {item && (
+                                            <>
+                                                <img src={item.icon} alt={item.name} className="w-10 h-10" />
+                                                {item.quantity && item.quantity > 1 && (
+                                                    <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5">
+                                                        {item.quantity}
+                                                    </span>
+                                                )}
+                                                {item.type === 'consumable' && (
+                                                    <Button size="icon" variant="ghost" onClick={() => onUseItem(item, index)} className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full">
+                                                        <PlusCircle className="w-4 h-4 text-white" />
+                                                    </Button>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                </TooltipTrigger>
+                                {item && <TooltipContent side="bottom" className="w-64"><ItemTooltipContent item={item} /></TooltipContent>}
+                            </Tooltip>
+                        </TooltipProvider>
+                    )
+                 })}
+               </div>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="quests">

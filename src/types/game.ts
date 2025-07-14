@@ -4,10 +4,14 @@ export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'town' | 'sn
 export type PlayerClass = 'warrior' | 'mage' | 'ranger' | 'assassin';
 export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4';
 
+export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
+export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable';
+
+
 export type Item = {
   id: string;
   name: string;
-  type: 'weapon' | 'armor' | 'consumable';
+  type: ItemType;
   attack?: number;
   defense?: number;
   magic?: number;
@@ -15,6 +19,7 @@ export type Item = {
   energyBoost?: number;
   description: string;
   icon: string;
+  quantity?: number;
 };
 
 export type Monster = {
@@ -43,6 +48,10 @@ export type TileData = {
   quest?: Quest;
 };
 
+export type Equipment = {
+    [key in EquipmentSlot]: Item | null;
+}
+
 export type Player = {
   name: string;
   class: PlayerClass;
@@ -57,6 +66,7 @@ export type Player = {
   position: Coordinates;
   inventory: Item[];
   quests: Quest[];
+  equipment: Equipment;
 };
 
 export type CombatLogEntry = {

@@ -48,8 +48,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         const worldX = startX + x;
         const worldY = startY + y;
         if (worldX < MAP_SIZE && worldY < MAP_SIZE) {
-          const tile = worldMap[worldY][worldX];
-          newViewport[y][x] = {...tile, monster: undefined};
+          newViewport[y][x] = worldMap[worldY][worldX];
         } else {
           newViewport[y][x] = { terrain: 'mountain' }; // Edge of the world is impassable
         }
@@ -124,9 +123,17 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       result = `You defeated the ${monster.name}! You have ${finalPlayerHp} HP left.`;
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
       setPlayer(p => {
-        const newInventory = loot ? [...p.inventory, loot] : p.inventory;
+        const newInventory = [...p.inventory];
         if (loot) {
             addLog(`You found: ${loot.name}!`);
+            const existingItemIndex = newInventory.findIndex(i => i.id === loot.id);
+            if (existingItemIndex > -1) {
+                newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
+            } else if(newInventory.length < 8) {
+                newInventory.push({...loot, quantity: 1});
+            } else {
+                addLog("Your inventory is full! You couldn't pick up the loot.");
+            }
         }
         return {
           ...p,
@@ -200,7 +207,17 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
     if (targetTile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
-        newPlayerState.inventory = [...newPlayerState.inventory, targetTile.item as Item];
+        const newInventory = [...newPlayerState.inventory];
+        const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id);
+        if (existingItemIndex > -1) {
+            newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
+        } else if (newInventory.length < 8) {
+            newInventory.push({...targetTile.item, quantity: 1});
+        } else {
+            addLog("Your inventory is full! You leave the item on the ground.");
+        }
+        newPlayerState.inventory = newInventory;
+        
         const newMap = worldMap.map(row => [...row]);
         newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
         setWorldMap(newMap);
@@ -210,15 +227,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   }, [player, worldMap, combatInfo, pendingCombat]);
 
-  const handleUseItem = (itemToUse: Item) => {
+  const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
 
     let itemUsed = false;
     const newInventory = [...player.inventory];
-    const itemIndex = newInventory.findIndex(i => i.id === itemToUse.id);
+    const itemInInventory = newInventory[index];
 
-    if (itemIndex > -1) {
-        newInventory.splice(itemIndex, 1);
+    if (itemInInventory && itemInInventory.id === itemToUse.id) {
+        if(itemInInventory.quantity && itemInInventory.quantity > 1) {
+            itemInInventory.quantity -= 1;
+        } else {
+            newInventory.splice(index, 1);
+        }
         itemUsed = true;
     }
 

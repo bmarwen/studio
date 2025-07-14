@@ -26,8 +26,6 @@ export default function HomePage() {
 
   useEffect(() => {
     // This is a good place for logic that should run once when a character is created.
-    // For example, starting up background music.
-    // Note: Can't add audio files directly in this environment.
   }, [player]);
 
   if (!player) {
