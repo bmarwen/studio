@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
@@ -32,11 +35,16 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
   const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      alert('Please enter a name for your hero.');
+      toast({
+        title: "Name Required",
+        description: "Please enter a name for your hero.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -131,8 +139,17 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 </RadioGroup>
             </div>
           </CardContent>
-          <CardFooter>
-            <Button type="submit" size="lg" className="w-full font-headline text-xl">
+          <CardFooter className="flex-col gap-4">
+             {!name.trim() && (
+              <Alert variant="destructive" className="w-full">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                  Please enter a name for your hero to begin.
+                </AlertDescription>
+              </Alert>
+            )}
+            <Button type="submit" size="lg" className="w-full font-headline text-xl" disabled={!name.trim()}>
               Begin Adventure
             </Button>
           </CardFooter>

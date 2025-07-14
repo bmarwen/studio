@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import Game from '@/components/game/Game';
 import CharacterCreator from '@/components/game/CharacterCreator';
 import type { Player } from '@/types/game';
+import { useToast } from '@/hooks/use-toast';
 
 export default function HomePage() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [gameKey, setGameKey] = useState(0);
+  const { toast } = useToast();
 
   const handleCharacterCreation = (createdPlayer: Player) => {
     setPlayer(createdPlayer);
@@ -16,6 +18,10 @@ export default function HomePage() {
   const handleGameReset = () => {
     setPlayer(null); // Go back to character creator
     setGameKey(prevKey => prevKey + 1);
+     toast({
+      title: "World Regenerated",
+      description: "A new adventure awaits!",
+    });
   };
 
   useEffect(() => {
