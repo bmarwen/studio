@@ -46,7 +46,7 @@ export function generateWorld(): TileData[][] {
         terrain = 'snow';
       } else if (riverNoise > 0.9) {
         terrain = 'river';
-      } else if (campNoise > 0.8) {
+      } else if (campNoise > 0.92) { // Made camps much rarer
         terrain = 'camp';
       } else if (treeNoise > 0.6) {
         terrain = 'tree';

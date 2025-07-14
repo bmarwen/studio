@@ -136,6 +136,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                     const item = player.inventory[index];
                     const inventorySlot = (
                         <div
+                            key={item ? `item-${item.id}-${index}`: `empty-${index}`}
                             onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
                             className={cn(
                                 'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
