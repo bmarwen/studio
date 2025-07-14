@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -11,16 +12,17 @@ import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
 };
 
-const ICONS: { id: PlayerIcon; path: string; }[] = [
-    { id: 'hero1', path: '/icons/hero-avatar-1.png' },
-    { id: 'hero2', path: '/icons/hero-avatar-2.png' },
-    { id: 'hero3', path: '/icons/hero-avatar-3.png' },
-    { id: 'hero4', path: '/icons/hero-avatar-4.png' },
+const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
+    { id: 'hero1', path: '/icons/hero-avatar-warrior.png', hint: 'bearded warrior' },
+    { id: 'hero2', path: 'https://placehold.co/128x128.png', hint: 'elf archer' },
+    { id: 'hero3', path: '/icons/hero-avatar-dragon.png', hint: 'dragon face' },
+    { id: 'hero4', path: '/icons/hero-avatar-knight.png', hint: 'male knight' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
@@ -90,7 +92,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                   onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
                   className="mt-2 grid grid-cols-2 gap-4"
                 >
-                  {ICONS.map(({ id, path }) => (
+                  {ICONS.map(({ id, path, hint }) => (
                      <Label
                         key={id}
                         htmlFor={id}
@@ -100,7 +102,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                         )}
                       >
                        <RadioGroupItem value={id} id={id} className="sr-only" />
-                       <img src={path} alt={id} className="w-20 h-20" />
+                       <Image src={path} alt={id} width={128} height={128} className="w-20 h-20" data-ai-hint={hint} />
                      </Label>
                   ))}
                 </RadioGroup>
