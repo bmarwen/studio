@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Leaf } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -104,20 +104,43 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
           ))
         )}
       </div>
-      <div 
+      <motion.div 
         className="absolute flex items-center justify-center pointer-events-none w-16 h-16"
-        style={{
+        initial={false}
+        animate={{
             top: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`, // 4rem tile + 0.25rem gap, plus padding
             left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
         }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
-          {isMoving && (
-             <div className="w-12 h-12 border-4 border-dashed border-accent rounded-full animate-spin"></div>
-          )}
-          {!isMoving && (
-            <img src={iconPath} alt="player icon" className="w-12 h-12 drop-shadow-lg" />
-          )}
-      </div>
+          <AnimatePresence>
+            {isMoving && (
+                <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1, transition: { duration: 0.2 } }}
+                    exit={{ scale: 0, opacity: 0, transition: { duration: 0.2 } }}
+                    className="absolute w-12 h-12"
+                >
+                    <svg className="w-full h-full" viewBox="0 0 100 100">
+                        <motion.circle
+                            cx="50"
+                            cy="50"
+                            r="45"
+                            stroke="hsl(var(--accent))"
+                            strokeWidth="10"
+                            fill="transparent"
+                            strokeDasharray="0 1"
+                            pathLength="1"
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ pathLength: 1, opacity: 1 }}
+                            transition={{ duration: 3, ease: "linear" }}
+                        />
+                    </svg>
+                </motion.div>
+            )}
+          </AnimatePresence>
+          <img src={iconPath} alt="player icon" className="w-12 h-12 drop-shadow-lg" />
+      </motion.div>
     </div>
   );
 };

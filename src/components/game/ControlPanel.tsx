@@ -28,10 +28,33 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
         {icon}
         <span className="font-medium">{label}</span>
       </div>
-      <span className={`font-mono ${colorClass}`}>{maxValue ? `${value}/${maxValue}` : value}</span>
+      <span className={`font-mono ${colorClass}`}>{maxValue ? `${Math.round(value)}/${maxValue}` : value}</span>
     </div>
     {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={indicatorClassName} />}
   </div>
+);
+
+const RARITY_COLORS: Record<ItemRarity, string> = {
+    Common: 'text-gray-400',
+    Rare: 'text-blue-400',
+    Epic: 'text-purple-500',
+    Legendary: 'text-orange-400',
+};
+
+const ItemTooltipContent = ({ item }: { item: Item }) => (
+    <div className="p-2 space-y-2 text-sm w-64">
+        <p className={cn("font-bold text-base", RARITY_COLORS[item.rarity])}>{item.name}</p>
+        <p className="text-xs text-muted-foreground italic">({item.rarity})</p>
+        <p className="text-muted-foreground">{item.description}</p>
+        <Separator/>
+        <div className="space-y-1">
+            {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
+            {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
+            {item.magic ? <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p> : null}
+            {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
+            {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
+        </div>
+    </div>
 );
 
 const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, item: Item | null, onUnequip: (slot: EquipmentSlot) => void }) => {
@@ -55,7 +78,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    {item ? <div>{buttonContent}</div> : buttonContent}
+                    <div>{buttonContent}</div>
                 </TooltipTrigger>
                 <TooltipContent>
                      <p className="font-bold capitalize">{slot}</p>
@@ -65,30 +88,6 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         </TooltipProvider>
     )
 }
-
-const RARITY_COLORS: Record<ItemRarity, string> = {
-    Common: 'text-foreground',
-    Rare: 'text-blue-400',
-    Epic: 'text-purple-400',
-    Legendary: 'text-orange-400',
-};
-
-const ItemTooltipContent = ({ item }: { item: Item }) => (
-    <div className="p-2 space-y-2 text-sm w-64">
-        <p className={cn("font-bold text-base", RARITY_COLORS[item.rarity])}>{item.name}</p>
-        <p className="text-xs text-muted-foreground italic">({item.rarity})</p>
-        <p className="text-muted-foreground">{item.description}</p>
-        <Separator/>
-        <div className="space-y-1">
-            {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
-            {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
-            {item.magic ? <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p> : null}
-            {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
-            {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
-        </div>
-    </div>
-);
-
 
 export default function ControlPanel({ player, log, onReset, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventorySlots = Array.from({ length: INVENTORY_SIZE });
@@ -137,7 +136,6 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                     const item = player.inventory[index];
                     const inventorySlot = (
                         <div
-                            key={index}
                             onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
                             className={cn(
                                 'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
@@ -153,12 +151,12 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                                         </span>
                                     )}
                                     {item.type === 'consumable' && (
-                                        <div
+                                        <button
                                             onClick={(e) => { e.stopPropagation(); onUseItem(item, index); }}
                                             className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full z-20 flex items-center justify-center cursor-pointer"
                                         >
                                             <PlusCircle className="w-4 h-4 text-white" />
-                                        </div>
+                                        </button>
                                     )}
                                 </>
                             )}

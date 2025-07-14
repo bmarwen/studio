@@ -16,7 +16,7 @@ interface GameProps {
   onReset: () => void;
 }
 
-const MOVE_COOLDOWN = 1000; // 1 second
+const MOVE_COOLDOWN = 3000; // 3 seconds
 
 export default function Game({ initialPlayer, onReset }: GameProps) {
   const [player, setPlayer] = useState<Player>(initialPlayer);
@@ -88,11 +88,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   useEffect(() => {
     const energyTimer = setInterval(() => {
       setPlayer(p => {
+        if (p.hp <= 0) return p; // Don't regen if dead
+
         const currentTile = worldMap[p.position.y]?.[p.position.x];
         const isResting = currentTile?.terrain === 'camp';
 
         if (p.energy < p.maxEnergy || (isResting && p.hp < p.maxHp)) {
-          const energyRegen = 1 + p.inventory.reduce((acc, item) => acc + (item.energyBoost || 0), 0) * (isResting ? 5 : 1);
+          const energyBoost = p.inventory.reduce((acc, item) => acc + (item.energyBoost || 0), 0);
+          const energyRegen = (1 + energyBoost) * (isResting ? 5 : 1);
           const hpRegen = isResting ? 5 : 0;
           
           return { 
@@ -106,6 +109,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, ENERGY_REGEN_RATE);
     return () => clearInterval(energyTimer);
   }, [player.inventory, worldMap]);
+
 
   const addLog = (message: string) => {
     setGameLog(prev => [message, ...prev.slice(0, 19)]);
