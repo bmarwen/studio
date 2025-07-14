@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="64" rx="8" fill="#3498DB"/>
+<path d="M32 16L40 24L32 32L24 24L32 16Z" fill="#2980B9"/>
+<path d="M32 32V48" stroke="#2980B9" stroke-width="2" stroke-linecap="round"/>
+<path d="M24 48H40" stroke="#ECF0F1" stroke-width="2" stroke-linecap="round"/>
+<path d="M20 56V48" stroke="#2980B9" stroke-width="2" stroke-linecap="round"/>
+<path d="M44 56V48" stroke="#2980B9" stroke-width="2" stroke-linecap="round"/>
+<path d="M16 32H48" stroke="#ECF0F1" stroke-width="2" stroke-linecap="round"/>
+</svg>
