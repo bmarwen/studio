@@ -13,6 +13,7 @@ import type { CombatLogEntry, Monster } from '@/types/game';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import LootAttemptClient from './LootAttemptClient';
+import Image from 'next/image';
 
 interface CombatDialogProps {
   combatInfo: {
@@ -32,7 +33,8 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
     <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <AlertDialogContent className="max-w-2xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-headline text-2xl">
+          <AlertDialogTitle className="font-headline text-2xl flex items-center gap-4">
+            {monster.icon && <Image src={monster.icon} alt={monster.name} width={40} height={40} className="rounded-md bg-secondary p-1" />}
             Combat Results: {playerWon ? "Victory!" : "Defeat"}
           </AlertDialogTitle>
           <AlertDialogDescription>

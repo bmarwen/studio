@@ -25,6 +25,7 @@ export type Item = {
 export type Monster = {
   id: string;
   name: string;
+  icon: string;
   hp: number;
   maxHp: number;
   attack: number;

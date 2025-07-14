@@ -12,10 +12,10 @@ export const ITEMS: Item[] = [
 ];
 
 const MONSTERS: Omit<Monster, 'id'>[] = [
-    { name: 'Goblin', hp: 20, maxHp: 20, attack: 8, defense: 2, loot: [ITEMS[0]], greed: 70, power: -20 },
-    { name: 'Slime', hp: 15, maxHp: 15, attack: 5, defense: 5, loot: [ITEMS[2]], greed: 20, power: -50 },
-    { name: 'Orc Grunt', hp: 40, maxHp: 40, attack: 12, defense: 4, loot: [ITEMS[1]], greed: 85, power: 10 },
-    { name: 'Ice Elemental', hp: 30, maxHp: 30, attack: 10, defense: 8, loot: [ITEMS[3]], greed: 50, power: 5 }
+    { name: 'Goblin', hp: 20, maxHp: 20, attack: 8, defense: 2, loot: [ITEMS[0]], greed: 70, power: -20, icon: '/icons/monster-goblin.svg' },
+    { name: 'Slime', hp: 15, maxHp: 15, attack: 5, defense: 5, loot: [ITEMS[2]], greed: 20, power: -50, icon: '/icons/monster-slime.svg' },
+    { name: 'Orc Grunt', hp: 40, maxHp: 40, attack: 12, defense: 4, loot: [ITEMS[1]], greed: 85, power: 10, icon: '/icons/monster-orc.svg' },
+    { name: 'Ice Elemental', hp: 30, maxHp: 30, attack: 10, defense: 8, loot: [ITEMS[3]], greed: 50, power: 5, icon: '/icons/monster-elemental.svg' }
 ];
 
 function simpleNoise(x: number, y: number, scale: number, offset: number = 0) {
@@ -63,7 +63,8 @@ export function generateWorld(): TileData[][] {
         }
 
         const itemRoll = Math.random();
-        if (monsterRoll > 0.95 && itemRoll < 0.2) {
+        // Increased the chance of items appearing on the map
+        if (!monster && itemRoll < 0.02) { // 2% chance for an item if no monster
           const potentialItems = ITEMS.filter(i => i.type !== 'consumable');
           if (potentialItems.length > 0) {
               item = potentialItems[Math.floor(Math.random() * potentialItems.length)];

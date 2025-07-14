@@ -34,13 +34,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
   const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
-  const [showNameError, setShowNameError] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setShowNameError(true);
       toast({
         title: (
             <div className="flex items-center gap-2">
@@ -53,7 +51,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
       })
       return;
     }
-    setShowNameError(false);
 
     const classStats = PLAYER_CLASSES[selectedClass];
     const newPlayer: Player = {
@@ -81,12 +78,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 <Input
                   id="name"
                   value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (e.target.value.trim()) {
-                      setShowNameError(false);
-                    }
-                  }}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Sir Reginald"
                   className="mt-2 text-base"
                 />

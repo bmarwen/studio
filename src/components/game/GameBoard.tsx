@@ -52,7 +52,7 @@ const Tile = memo(({ tile }: TileProps) => {
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors aspect-square",
             isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
-            tile.terrain === 'grass' && 'bg-green-900/60',
+            tile.terrain === 'grass' && 'bg-green-400/20 dark:bg-green-900/60',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
             "relative"
