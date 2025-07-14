@@ -9,17 +9,17 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
-import { User, Axe, Wand, ShieldQuestion, Swords, BookOpen, Crosshair, Sword } from 'lucide-react';
+import { Swords, BookOpen, Crosshair, Sword } from 'lucide-react';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
 };
 
-const ICONS: { id: PlayerIcon; icon: React.ReactNode }[] = [
-    { id: 'hero1', icon: <User className="w-12 h-12" /> },
-    { id: 'hero2', icon: <Axe className="w-12 h-12" /> },
-    { id: 'hero3', icon: <Wand className="w-12 h-12" /> },
-    { id: 'hero4', icon: <ShieldQuestion className="w-12 h-12" /> },
+const ICONS: { id: PlayerIcon; path: string; }[] = [
+    { id: 'hero1', path: '/icons/warrior-icon.svg' },
+    { id: 'hero2', path: '/icons/mage-icon.svg' },
+    { id: 'hero3', path: '/icons/ranger-icon.svg' },
+    { id: 'hero4', path: '/icons/assassin-icon.svg' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
@@ -79,17 +79,17 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                   onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
                   className="mt-2 grid grid-cols-2 gap-4"
                 >
-                  {ICONS.map(({ id, icon }) => (
+                  {ICONS.map(({ id, path }) => (
                      <Label
                         key={id}
                         htmlFor={id}
                         className={cn(
-                          'flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all',
+                          'flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all aspect-square',
                           selectedIcon === id ? 'border-primary bg-primary/10' : 'border-border'
                         )}
                       >
                        <RadioGroupItem value={id} id={id} className="sr-only" />
-                       {icon}
+                       <img src={path} alt={id} className="w-20 h-20" />
                      </Label>
                   ))}
                 </RadioGroup>

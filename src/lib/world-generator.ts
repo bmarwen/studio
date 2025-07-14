@@ -16,53 +16,54 @@ const MONSTERS: Omit<Monster, 'id'>[] = [
 ];
 
 // Using a simple noise function for terrain generation
-function simpleNoise(x: number, y: number, scale: number) {
-    // This is a very basic placeholder. A real implementation would use Perlin or Simplex noise.
-    return (Math.sin(x * scale) + Math.cos(y * scale)) / 2;
+function simpleNoise(x: number, y: number, scale: number, offset: number = 0) {
+    return (Math.sin((x + offset) * scale) + Math.cos((y + offset) * scale)) / 2;
 }
 
 export function generateWorld(): TileData[][] {
   const world: TileData[][] = [];
+  const seed = Math.random() * 1000;
 
   for (let y = 0; y < MAP_SIZE; y++) {
     world[y] = [];
     for (let x = 0; x < MAP_SIZE; x++) {
       let terrain: TileData['terrain'] = 'grass';
       
-      const mountainNoise = simpleNoise(x, y, 0.1);
-      const treeNoise = simpleNoise(x, y, 0.2);
-      const riverNoise = simpleNoise(x, y, 0.05);
-      const snowNoise = simpleNoise(y, x, 0.15); // Different noise for snow
+      const mountainNoise = simpleNoise(x, y, 0.1, seed);
+      const treeNoise = simpleNoise(x, y, 0.2, seed + 100);
+      const riverNoise = simpleNoise(x, y, 0.05, seed + 200);
+      const snowNoise = simpleNoise(y, x, 0.08, seed + 300); // Slower frequency for larger biomes
 
-      if (mountainNoise > 0.6) {
+      if (mountainNoise > 0.7) {
         terrain = 'mountain';
-      } else if (snowNoise > 0.65) {
+      } else if (snowNoise > 0.6) {
         terrain = 'snow';
       }
-      else if (treeNoise > 0.55) {
-        terrain = 'tree';
-      } else if (Math.abs(riverNoise) > 0.9) {
+      else if (Math.abs(riverNoise) > 0.95) {
         terrain = 'river';
+      }
+      else if (treeNoise > 0.6) {
+        terrain = 'tree';
       }
 
       let monster: Monster | undefined;
       // Increased monster spawn rate for testing
-      if (terrain === 'tree' && Math.random() < 0.25) { 
+      if (terrain === 'tree' && Math.random() < 0.3) { 
         const monsterTemplate = MONSTERS[Math.floor(Math.random() * (MONSTERS.length - 1))]; // Not ice elemental
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'snow' && Math.random() < 0.3) {
+      } else if (terrain === 'snow' && Math.random() < 0.35) {
         const monsterTemplate = MONSTERS[3]; // Ice Elemental
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'grass' && Math.random() < 0.1) {
+      } else if (terrain === 'grass' && Math.random() < 0.15) {
         const monsterTemplate = MONSTERS[1]; // Slime
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'river' && Math.random() < 0.15) {
+      } else if (terrain === 'river' && Math.random() < 0.2) {
         const monsterTemplate = MONSTERS[1]; // Slime
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
       }
       
       let item: Item | undefined;
-      if (terrain === 'grass' && Math.random() < 0.02) {
+      if (terrain === 'grass' && Math.random() < 0.03) {
         item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
       }
       

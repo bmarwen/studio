@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '../ui/button';
 
 interface ControlPanelProps {
   player: Player;
   log: string[];
+  onReset: () => void;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -26,7 +28,7 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
   </div>
 );
 
-export default function ControlPanel({ player, log }: ControlPanelProps) {
+export default function ControlPanel({ player, log, onReset }: ControlPanelProps) {
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 pr-4">
@@ -47,7 +49,7 @@ export default function ControlPanel({ player, log }: ControlPanelProps) {
           </CardContent>
         </Card>
 
-        <Accordion type="single" collapsible defaultValue="inventory" className="w-full">
+        <Accordion type="multiple" defaultValue={["inventory", "dev"]} className="w-full">
           <AccordionItem value="inventory">
             <AccordionTrigger className="text-lg font-headline">
                 <div className="flex items-center gap-2"><Package />Inventory</div>
@@ -84,6 +86,15 @@ export default function ControlPanel({ player, log }: ControlPanelProps) {
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">No active quests.</p>
               )}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="dev">
+            <AccordionTrigger className="text-lg font-headline">
+                <div className="flex items-center gap-2"><Settings />Dev Mode</div>
+            </AccordionTrigger>
+            <AccordionContent className="p-4 space-y-4">
+               <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
+               <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

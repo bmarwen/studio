@@ -5,11 +5,11 @@ export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 2000; // ms
 
 export const TERRAIN_ENERGY_COST = {
-    grass: 1,
-    tree: 2,
-    river: 3,
-    snow: 4,
-    mountain: 5,
+    grass: 2,
+    tree: 4,
+    river: 6,
+    snow: 8,
+    mountain: 20, // Though movement is blocked
     town: 1,
     treasure: 1,
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
 import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST } from '@/lib/game-constants';
@@ -8,23 +8,38 @@ import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
 import CombatDialog from './CombatDialog';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Progress } from '../ui/progress';
 
 interface GameProps {
   initialPlayer: Player;
+  onReset: () => void;
 }
 
-export default function Game({ initialPlayer }: GameProps) {
+const playSound = (src: string, volume = 0.5) => {
+  const sound = new Audio(src);
+  sound.volume = volume;
+  sound.play().catch(e => console.error(`Failed to play sound: ${src}`, e));
+};
+
+export default function Game({ initialPlayer, onReset }: GameProps) {
   const [player, setPlayer] = useState<Player>(initialPlayer);
   const [worldMap, setWorldMap] = useState<TileData[][]>([]);
   const [viewport, setViewport] = useState<TileData[][]>([]);
   const [gameLog, setGameLog] = useState<string[]>(['Welcome to Square Clash!']);
+  
+  const [pendingCombat, setPendingCombat] = useState<Monster | null>(null);
+  const [combatCountdown, setCombatCountdown] = useState(0);
+
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string } | null>(null);
+
+  const countdownTimer = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const map = generateWorld();
     setWorldMap(map);
     addLog(`A new world has been generated for ${player.name} the ${player.class}. Your quest begins!`);
-  }, [player.name, player.class]);
+  }, []); // Run only once per game instance
 
   const updateViewport = useCallback((center: { x: number; y: number }) => {
     if (worldMap.length === 0) return;
@@ -71,6 +86,7 @@ export default function Game({ initialPlayer }: GameProps) {
   };
 
   const startCombat = (monster: Monster) => {
+    setPendingCombat(null);
     addLog(`You encounter a fierce ${monster.name}!`);
     const combatLog: CombatLogEntry[] = [{ id: 0, message: `The battle against ${monster.name} begins!` }];
     
@@ -94,28 +110,49 @@ export default function Game({ initialPlayer }: GameProps) {
     
     let result = '';
     if (playerHp > 0) {
+      playSound('/sfx/victory.wav');
       result = `You defeated the ${monster.name}! You have ${playerHp} HP left.`;
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
-      if (loot) {
-        result += ` You found: ${loot.name}!`;
-        setPlayer(p => ({
+      setPlayer(p => {
+        const newInventory = loot ? [...p.inventory, loot] : p.inventory;
+        if (loot) {
+            addLog(`You found: ${loot.name}!`);
+        }
+        return {
           ...p,
           hp: playerHp,
-          inventory: [...p.inventory, loot]
-        }));
-      } else {
-        setPlayer(p => ({ ...p, hp: playerHp }));
-      }
+          inventory: newInventory
+        }
+      });
     } else {
+      playSound('/sfx/defeat.wav');
       result = `You were defeated by the ${monster.name}... You limp away.`;
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
     addLog(result);
     setCombatInfo({ open: true, monster, log: combatLog, result });
   };
+  
+  useEffect(() => {
+    if (pendingCombat) {
+        playSound('/sfx/encounter.wav');
+        setCombatCountdown(3);
+        countdownTimer.current = setInterval(() => {
+            setCombatCountdown(c => c - 1);
+        }, 1000);
+    }
+    return () => clearInterval(countdownTimer.current);
+  }, [pendingCombat]);
+
+  useEffect(() => {
+      if (combatCountdown === 0 && pendingCombat) {
+          clearInterval(countdownTimer.current);
+          startCombat(pendingCombat);
+      }
+  }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (combatInfo?.open) return; // Don't move if in combat dialog
+    if (combatInfo?.open || pendingCombat) return; // Don't move if in combat dialog
     
     const newX = Math.max(0, Math.min(MAP_SIZE - 1, player.position.x + dx));
     const newY = Math.max(0, Math.min(MAP_SIZE - 1, player.position.y + dy));
@@ -142,7 +179,7 @@ export default function Game({ initialPlayer }: GameProps) {
     addLog(`You move to (${newX}, ${newY}).`);
 
     if (targetTile.monster) {
-      startCombat(targetTile.monster);
+      setPendingCombat(targetTile.monster);
       // Remove monster after combat
       const newMap = [...worldMap];
       newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
@@ -151,16 +188,18 @@ export default function Game({ initialPlayer }: GameProps) {
     
     if (targetTile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
+        playSound('/sfx/item-found.wav', 0.3);
         setPlayer(p => ({...p, inventory: [...p.inventory, targetTile.item as Item]}));
         const newMap = [...worldMap];
         newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
         setWorldMap(newMap);
     }
 
-  }, [player, worldMap, combatInfo]);
+  }, [player, worldMap, combatInfo, pendingCombat]);
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+          if (combatInfo?.open || pendingCombat) return;
           if (e.key === 'ArrowUp') handleMove(0, -1);
           if (e.key === 'ArrowDown') handleMove(0, 1);
           if (e.key === 'ArrowLeft') handleMove(-1, 0);
@@ -169,7 +208,7 @@ export default function Game({ initialPlayer }: GameProps) {
     
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleMove]);
+    }, [handleMove, combatInfo, pendingCombat]);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
@@ -179,8 +218,26 @@ export default function Game({ initialPlayer }: GameProps) {
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
-        <ControlPanel player={player} log={gameLog} />
+        <ControlPanel player={player} log={gameLog} onReset={onReset} />
       </aside>
+      
+      {pendingCombat && (
+        <AlertDialog open={!!pendingCombat}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle className="font-headline text-2xl">Danger!</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        You've encountered a wild {pendingCombat.name}! Prepare for battle!
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="text-center py-4">
+                    <p className="text-6xl font-bold font-mono">{combatCountdown}</p>
+                    <Progress value={(3 - combatCountdown) / 3 * 100} className="w-full mt-4 h-4"/>
+                </div>
+            </AlertDialogContent>
+        </AlertDialog>
+      )}
+
       {combatInfo && combatInfo.open && (
         <CombatDialog
           combatInfo={combatInfo}
