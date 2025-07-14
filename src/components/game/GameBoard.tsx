@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Leaf } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -30,14 +30,16 @@ const getTileIcon = (tile: TileData) => {
     case 'river': return <Waves className="w-8 h-8 text-blue-600 dark:text-blue-400" />;
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
+    case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
+    case 'grass': return <Leaf className="w-8 h-8 text-green-600 dark:text-green-400/80" />;
     default: return null;
   }
 };
 
 const getTooltipContent = (tile: TileData) => {
-    if (tile.monster) return "You sense danger..."; // Hide monster details
     if (tile.item) return `Something catches your eye...`;
     if (tile.terrain === 'snow') return 'Snowy field';
+    if (tile.terrain === 'camp') return 'A safe place to rest.';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
@@ -52,9 +54,10 @@ const Tile = memo(({ tile }: TileProps) => {
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors aspect-square",
             isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
-            tile.terrain === 'grass' && 'bg-green-400/20 dark:bg-green-900/60',
+            tile.terrain === 'grass' && 'bg-green-400/10 dark:bg-green-900/40',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
+            tile.terrain === 'camp' && 'bg-orange-400/10 dark:bg-orange-900/40',
             "relative"
           )}>
             {icon}
@@ -74,9 +77,10 @@ Tile.displayName = 'Tile';
 interface GameBoardProps {
   viewport: TileData[][];
   playerIcon: PlayerIcon;
+  isMoving: boolean;
 }
 
-const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
+const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
   const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
   const iconPath = getPlayerIconPath(playerIcon);
 
@@ -107,7 +111,12 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
             left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
         }}
       >
-          <img src={iconPath} alt="player icon" className="w-12 h-12 drop-shadow-lg" />
+          {isMoving && (
+             <div className="w-12 h-12 border-4 border-dashed border-accent rounded-full animate-spin"></div>
+          )}
+          {!isMoving && (
+            <img src={iconPath} alt="player icon" className="w-12 h-12 drop-shadow-lg" />
+          )}
       </div>
     </div>
   );

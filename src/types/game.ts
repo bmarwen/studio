@@ -1,17 +1,19 @@
 export type Coordinates = { x: number; y: number };
 
-export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'town' | 'snow';
+export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'town' | 'snow' | 'camp';
 export type PlayerClass = 'warrior' | 'mage' | 'ranger' | 'assassin';
 export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4';
 
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
 export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable';
+export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 
 
 export type Item = {
   id: string;
   name: string;
   type: ItemType;
+  rarity: ItemRarity;
   attack?: number;
   defense?: number;
   magic?: number;

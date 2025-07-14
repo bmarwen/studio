@@ -1,6 +1,6 @@
 "use client";
 
-import type { Player, Item, EquipmentSlot } from '@/types/game';
+import type { Player, Item, EquipmentSlot, ItemRarity } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -42,31 +42,42 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         belt: <ShieldCheck className="w-8 h-8 text-muted-foreground" />,
     }
 
+    const buttonContent = (
+         <div 
+            className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary cursor-pointer"
+            onClick={() => item && onUnequip(slot)}
+        >
+            {item ? <img src={item.icon} alt={item.name} className="w-10 h-10" /> : ICONS[slot]}
+        </div>
+    );
+
     return (
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Button 
-                        variant="ghost" 
-                        className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary"
-                        onClick={() => item && onUnequip(slot)}
-                    >
-                        {item ? <img src={item.icon} alt={item.name} className="w-10 h-10" /> : ICONS[slot]}
-                    </Button>
+                    {item ? <div>{buttonContent}</div> : buttonContent}
                 </TooltipTrigger>
                 <TooltipContent>
                      <p className="font-bold capitalize">{slot}</p>
-                     {item ? <p>{item.name}</p> : <p>Empty</p>}
+                     {item ? <ItemTooltipContent item={item} /> : <p>Empty</p>}
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
     )
 }
 
+const RARITY_COLORS: Record<ItemRarity, string> = {
+    Common: 'text-foreground',
+    Rare: 'text-blue-400',
+    Epic: 'text-purple-400',
+    Legendary: 'text-orange-400',
+};
+
 const ItemTooltipContent = ({ item }: { item: Item }) => (
-    <div className="p-2 space-y-2 text-sm">
-        <p className="font-bold text-base">{item.name}</p>
-        <p className="text-muted-foreground italic">{item.description}</p>
+    <div className="p-2 space-y-2 text-sm w-64">
+        <p className={cn("font-bold text-base", RARITY_COLORS[item.rarity])}>{item.name}</p>
+        <p className="text-xs text-muted-foreground italic">({item.rarity})</p>
+        <p className="text-muted-foreground">{item.description}</p>
         <Separator/>
         <div className="space-y-1">
             {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
@@ -124,36 +135,48 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                <div className="grid grid-cols-4 gap-2">
                  {inventorySlots.map((_, index) => {
                     const item = player.inventory[index];
-                    return (
+                    const inventorySlot = (
+                        <div
+                            key={index}
+                            onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
+                            className={cn(
+                                'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
+                                item && item.type !== 'consumable' && 'cursor-pointer hover:border-primary'
+                            )}
+                        >
+                            {item && (
+                                <>
+                                    <img src={item.icon} alt={item.name} className="w-10 h-10" />
+                                    {item.quantity && item.quantity > 1 && (
+                                        <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
+                                            {item.quantity}
+                                        </span>
+                                    )}
+                                    {item.type === 'consumable' && (
+                                        <div
+                                            onClick={(e) => { e.stopPropagation(); onUseItem(item, index); }}
+                                            className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full z-20 flex items-center justify-center cursor-pointer"
+                                        >
+                                            <PlusCircle className="w-4 h-4 text-white" />
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    );
+
+                    return item ? (
                         <TooltipProvider key={index}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button 
-                                        variant="ghost" 
-                                        onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
-                                        className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0 hover:border-primary"
-                                    >
-                                        {item && (
-                                            <>
-                                                <img src={item.icon} alt={item.name} className="w-10 h-10" />
-                                                {item.quantity && item.quantity > 1 && (
-                                                    <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
-                                                        {item.quantity}
-                                                    </span>
-                                                )}
-                                                {item.type === 'consumable' && (
-                                                    <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); onUseItem(item, index); }} className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full z-20">
-                                                        <PlusCircle className="w-4 h-4 text-white" />
-                                                    </Button>
-                                                )}
-                                            </>
-                                        )}
-                                    </Button>
+                                    {inventorySlot}
                                 </TooltipTrigger>
-                                {item && <TooltipContent side="bottom" className="w-64"><ItemTooltipContent item={item} /></TooltipContent>}
+                                <TooltipContent side="bottom">
+                                    <ItemTooltipContent item={item} />
+                                </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
-                    )
+                    ) : inventorySlot;
                  })}
                </div>
             </AccordionContent>

@@ -16,6 +16,8 @@ interface GameProps {
   onReset: () => void;
 }
 
+const MOVE_COOLDOWN = 1000; // 1 second
+
 export default function Game({ initialPlayer, onReset }: GameProps) {
   const [player, setPlayer] = useState<Player>(initialPlayer);
   const [worldMap, setWorldMap] = useState<TileData[][]>([]);
@@ -24,6 +26,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   const [pendingCombat, setPendingCombat] = useState<Monster | null>(null);
   const [combatCountdown, setCombatCountdown] = useState(0);
+  const [isMoving, setIsMoving] = useState(false);
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string } | null>(null);
 
@@ -85,15 +88,24 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   useEffect(() => {
     const energyTimer = setInterval(() => {
       setPlayer(p => {
-        if (p.energy < p.maxEnergy) {
-          const energyRegen = 1 + p.inventory.reduce((acc, item) => acc + (item.energyBoost || 0), 0);
-          return { ...p, energy: Math.min(p.maxEnergy, p.energy + energyRegen) };
+        const currentTile = worldMap[p.position.y]?.[p.position.x];
+        const isResting = currentTile?.terrain === 'camp';
+
+        if (p.energy < p.maxEnergy || (isResting && p.hp < p.maxHp)) {
+          const energyRegen = 1 + p.inventory.reduce((acc, item) => acc + (item.energyBoost || 0), 0) * (isResting ? 5 : 1);
+          const hpRegen = isResting ? 5 : 0;
+          
+          return { 
+            ...p, 
+            energy: Math.min(p.maxEnergy, p.energy + energyRegen),
+            hp: Math.min(p.maxHp, p.hp + hpRegen),
+          };
         }
         return p;
       });
     }, ENERGY_REGEN_RATE);
     return () => clearInterval(energyTimer);
-  }, [player.inventory]);
+  }, [player.inventory, worldMap]);
 
   const addLog = (message: string) => {
     setGameLog(prev => [message, ...prev.slice(0, 19)]);
@@ -188,7 +200,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (combatInfo?.open || pendingCombat) return;
+    if (combatInfo?.open || pendingCombat || isMoving) return;
     
     const newX = player.position.x + dx;
     const newY = player.position.y + dy;
@@ -209,6 +221,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       addLog("Not enough energy to move!");
       return;
     }
+    
+    setIsMoving(true);
+    setTimeout(() => setIsMoving(false), MOVE_COOLDOWN);
     
     const newPlayerState = {
         ...player,
@@ -246,7 +261,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     setPlayer(newPlayerState);
 
-  }, [player, worldMap, combatInfo, pendingCombat, initiateCombat]);
+  }, [player, worldMap, combatInfo, pendingCombat, isMoving, initiateCombat]);
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
@@ -328,7 +343,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-          if (combatInfo?.open || pendingCombat) return;
+          if (combatInfo?.open || pendingCombat || isMoving) return;
           if (document.activeElement?.tagName === 'INPUT') return;
           if (e.key === 'ArrowUp') handleMove(0, -1);
           if (e.key === 'ArrowDown') handleMove(0, 1);
@@ -338,13 +353,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleMove, combatInfo, pendingCombat]);
+    }, [handleMove, combatInfo, pendingCombat, isMoving]);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
       <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4 relative">
         <h1 className="text-4xl font-headline text-primary absolute top-4 left-4">Square Clash</h1>
-        <GameBoard viewport={viewport} playerIcon={player.icon} />
+        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} />
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
