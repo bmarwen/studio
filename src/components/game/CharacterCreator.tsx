@@ -17,17 +17,17 @@ type Props = {
 };
 
 const ICONS: { id: PlayerIcon; path: string; }[] = [
-    { id: 'hero1', path: '/icons/hero-avatar-1.svg' },
-    { id: 'hero2', path: '/icons/hero-avatar-2.svg' },
-    { id: 'hero3', path: '/icons/hero-avatar-3.svg' },
-    { id: 'hero4', path: '/icons/hero-avatar-4.svg' },
+    { id: 'hero1', path: '/icons/hero-avatar-1.png' },
+    { id: 'hero2', path: '/icons/hero-avatar-2.png' },
+    { id: 'hero3', path: '/icons/hero-avatar-3.png' },
+    { id: 'hero4', path: '/icons/hero-avatar-4.png' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/class-warrior.svg" className="w-5 h-5" /> },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/class-mage.svg" className="w-5 h-5" /> },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/class-ranger.svg" className="w-5 h-5" /> },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/class-assassin.svg" className="w-5 h-5" /> },
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/class-warrior.png" className="w-5 h-5" /> },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/class-mage.png" className="w-5 h-5" /> },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/class-ranger.png" className="w-5 h-5" /> },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/class-assassin.png" className="w-5 h-5" /> },
 ];
 
 export default function CharacterCreator({ onPlayerCreate }: Props) {

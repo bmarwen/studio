@@ -14,11 +14,11 @@ interface TileProps {
 
 const getPlayerIconPath = (icon: PlayerIcon) => {
     switch (icon) {
-        case 'hero1': return '/icons/hero-avatar-1.svg';
-        case 'hero2': return '/icons/hero-avatar-2.svg';
-        case 'hero3': return '/icons/hero-avatar-3.svg';
-        case 'hero4': return '/icons/hero-avatar-4.svg';
-        default: return '/icons/hero-avatar-1.svg';
+        case 'hero1': return '/icons/hero-avatar-1.png';
+        case 'hero2': return '/icons/hero-avatar-2.png';
+        case 'hero3': return '/icons/hero-avatar-3.png';
+        case 'hero4': return '/icons/hero-avatar-4.png';
+        default: return '/icons/hero-avatar-1.png';
     }
 }
 
