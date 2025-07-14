@@ -1,12 +1,7 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100" height="100" rx="15" fill="#2d3748"/>
-  <!-- Face -->
-  <circle cx="50" cy="50" r="25" fill="#f6ad55"/>
-  <!-- Hair -->
-  <path d="M 30 40 Q 50 20 70 40 L 75 60 Q 50 75 25 60 Z" fill="#4a5568"/>
-  <!-- Eyes -->
-  <circle cx="40" cy="50" r="3" fill="#2d3748"/>
-  <circle cx="60" cy="50" r="3" fill="#2d3748"/>
-  <!-- Mouth -->
-  <path d="M 45 65 Q 50 70 55 65" stroke="#2d3748" stroke-width="2" fill="none"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="64" rx="8" fill="#2C3E50"/>
+<path d="M32 26C35.3137 26 38 23.3137 38 20C38 16.6863 35.3137 14 32 14C28.6863 14 26 16.6863 26 20C26 23.3137 28.6863 26 32 26Z" fill="#ECF0F1"/>
+<path d="M42 30H22C19.7909 30 18 31.7909 18 34V48C18 49.1046 18.8954 50 20 50H44C45.1046 50 46 49.1046 46 48V34C46 31.7909 44.2091 30 42 30Z" fill="#3498DB"/>
+<path d="M32 36V44" stroke="#ECF0F1" stroke-width="4" stroke-linecap="round"/>
+<path d="M28 40H36" stroke="#ECF0F1" stroke-width="4" stroke-linecap="round"/>
 </svg>
