@@ -46,14 +46,14 @@ export function generateWorld(): TileData[][] {
         terrain = 'snow';
       } else if (riverNoise > 0.9) {
         terrain = 'river';
-      } else if (campNoise > 0.92) { // Made camps much rarer
+      } else if (campNoise > 0.95) { // Made camps much rarer
         terrain = 'camp';
       } else if (treeNoise > 0.6) {
         terrain = 'tree';
       }
 
       let monster: Monster | undefined;
-      const item: Item | undefined = undefined; // Items are now primarily from loot
+      let item: Item | undefined = undefined; 
       
       if (terrain !== 'mountain' && terrain !== 'town' && terrain !== 'camp') {
         const monsterRoll = Math.random();
@@ -66,6 +66,12 @@ export function generateWorld(): TileData[][] {
           monster = { ...MONSTERS[1], id: `m_${x}_${y}` };
         } else if (terrain === 'river' && monsterRoll < 0.2) {
           monster = { ...MONSTERS[1], id: `m_${x}_${y}` };
+        }
+
+        const itemRoll = Math.random();
+        if(!monster && itemRoll < 0.02) {
+            const potentialItems = ITEMS.filter(i => i.type !== 'consumable');
+            item = potentialItems[Math.floor(Math.random() * potentialItems.length)];
         }
       }
       

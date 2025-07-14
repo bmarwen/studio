@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Leaf } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <Leaf className="w-8 h-8 text-green-600 dark:text-green-400/80" />;
+    case 'grass': return <img src="/icons/grass-tuft.svg" alt="Grass" className="w-8 h-8 opacity-70" />;
     default: return null;
   }
 };
