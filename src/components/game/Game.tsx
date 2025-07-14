@@ -16,16 +16,6 @@ interface GameProps {
   onReset: () => void;
 }
 
-const playSound = (src: string, volume = 0.5) => {
-  try {
-    const sound = new Audio(src);
-    sound.volume = volume;
-    sound.play().catch(e => console.error(`Failed to play sound: ${src}`, e));
-  } catch (error) {
-    console.log("Audio playback is not supported in this environment.");
-  }
-};
-
 export default function Game({ initialPlayer, onReset }: GameProps) {
   const [player, setPlayer] = useState<Player>(initialPlayer);
   const [worldMap, setWorldMap] = useState<TileData[][]>([]);
@@ -131,7 +121,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let result = '';
     if (finalPlayerHp > 0) {
-      playSound('/sfx/victory.wav');
       result = `You defeated the ${monster.name}! You have ${finalPlayerHp} HP left.`;
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
       setPlayer(p => {
@@ -146,7 +135,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
       });
     } else {
-      playSound('/sfx/defeat.wav');
       result = `You were defeated by the ${monster.name}... You limp away.`;
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
@@ -156,7 +144,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   useEffect(() => {
     if (pendingCombat) {
-        playSound('/sfx/encounter.wav');
         setCombatCountdown(3);
         countdownTimer.current = setInterval(() => {
             setCombatCountdown(c => c - 1);
@@ -213,7 +200,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
     if (targetTile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
-        playSound('/sfx/item-found.wav', 0.3);
         newPlayerState.inventory = [...newPlayerState.inventory, targetTile.item as Item];
         const newMap = worldMap.map(row => [...row]);
         newMap[newY][newX] = {...newMap[newY][newX], item: undefined};

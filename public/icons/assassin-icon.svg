@@ -1,5 +1,8 @@
-<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="100" height="100" rx="10" fill="#2C2C2E"/>
-<path d="M42.5 25L27.5 40L42.5 40L42.5 62.5L50 70L57.5 62.5L57.5 40L72.5 40L57.5 25L42.5 25Z" stroke="#E5E5EA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M50 70V75" stroke="#E5E5EA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40 80C62.0914 80 80 62.0914 80 40C80 17.9086 62.0914 0 40 0C17.9086 0 0 17.9086 0 40C0 62.0914 17.9086 80 40 80Z" fill="#3A3A3A"/>
+<path d="M40 70C56.5685 70 70 56.5685 70 40C70 23.4315 56.5685 10 40 10C23.4315 10 10 23.4315 10 40C10 56.5685 23.4315 70 40 70Z" fill="#2E2E2E"/>
+<path d="M55.5 24.5L38 42L24.5 55.5L42 38L55.5 24.5Z" fill="#5E5E5E"/>
+<path d="M49 31L31 49L35.5 44.5L44.5 35.5L49 31Z" fill="#C3C3C3"/>
+<path d="M47 26L41.5 31.5L34 39L26 47L31 42L39.5 33.5L47 26Z" fill="#8B8B8B"/>
+<path d="M52.5 27.5L47 33L40 40L33 47L27.5 52.5L35 45L42.5 37.5L45 35L52.5 27.5Z" stroke="black" stroke-width="2"/>
 </svg>
