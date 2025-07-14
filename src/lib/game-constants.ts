@@ -2,7 +2,7 @@ import type { Player, PlayerClass } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
-export const ENERGY_REGEN_RATE = 500; // ms, faster regen
+export const ENERGY_REGEN_RATE = 1500; // ms, slower regen
 export const MOVE_COOLDOWN = 3000; // 3 seconds
 export const INVENTORY_SIZE = 8; // 2 rows of 4
 
