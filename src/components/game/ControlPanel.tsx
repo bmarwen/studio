@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Wand2, Scroll, TreasureChest, BookUser } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ControlPanelProps {
@@ -50,7 +50,7 @@ export default function ControlPanel({ player, log }: ControlPanelProps) {
         <Accordion type="single" collapsible defaultValue="inventory" className="w-full">
           <AccordionItem value="inventory">
             <AccordionTrigger className="text-lg font-headline">
-                <div className="flex items-center gap-2"><TreasureChest />Inventory</div>
+                <div className="flex items-center gap-2"><Package />Inventory</div>
             </AccordionTrigger>
             <AccordionContent>
               {player.inventory.length > 0 ? (
