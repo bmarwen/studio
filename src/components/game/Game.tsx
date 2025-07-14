@@ -28,7 +28,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [combatCountdown, setCombatCountdown] = useState(0);
   const [isMoving, setIsMoving] = useState(false);
 
-  const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string } | null>(null);
+  const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
 
   const countdownTimer = useRef<NodeJS.Timeout>();
 
@@ -92,10 +92,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         const currentTile = worldMap[p.position.y]?.[p.position.x];
         const isResting = currentTile?.terrain === 'camp';
-
+        const energyBoost = isResting ? 5 : 0;
+        
         if (p.energy < p.maxEnergy || (isResting && p.hp < p.maxHp)) {
-          const energyBoost = p.inventory.reduce((acc, item) => acc + (item.energyBoost || 0), 0);
-          const energyRegen = (1 + energyBoost) * (isResting ? 5 : 1);
+          const energyRegen = (1 + energyBoost);
           const hpRegen = isResting ? 5 : 0;
           
           return { 
@@ -108,7 +108,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       });
     }, ENERGY_REGEN_RATE);
     return () => clearInterval(energyTimer);
-  }, [player.inventory, worldMap]);
+  }, [worldMap]);
 
 
   const addLog = (message: string) => {
@@ -155,12 +155,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let result = '';
+    let foundLoot: Item | null = null;
     if (finalPlayerHp > 0) {
-      result = `You defeated the ${monster.name}! You have ${finalPlayerHp} HP left.`;
+      result = `You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`;
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
       setPlayer(p => {
         const newInventory = [...p.inventory];
         if (loot) {
+            foundLoot = loot;
             addLog(`You found: ${loot.name}!`);
             const existingItemIndex = newInventory.findIndex(i => i.id === loot.id);
             if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
@@ -169,6 +171,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 newInventory.push({...loot, quantity: 1});
             } else {
                 addLog("Your inventory is full! You couldn't pick up the loot.");
+                foundLoot = null;
             }
         }
         return {
@@ -182,24 +185,29 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
     addLog(result);
-    setCombatInfo(info => ({...info!, result}));
+    setCombatInfo(info => ({...info!, result, loot: foundLoot}));
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
-    if (pendingCombat) return;
+    if (combatInfo?.open || pendingCombat) return;
 
     setPendingCombat(monster);
     setCombatCountdown(3);
 
     countdownTimer.current = setInterval(() => {
-      setCombatCountdown(c => c - 1);
+      setCombatCountdown(c => {
+        if (c - 1 <= 0) {
+            clearInterval(countdownTimer.current);
+        }
+        return c - 1;
+      });
     }, 1000);
-  }, [pendingCombat]);
+  }, [pendingCombat, combatInfo]);
 
   useEffect(() => {
     if (combatCountdown === 0 && pendingCombat) {
-      clearInterval(countdownTimer.current);
       startCombat(pendingCombat);
+      setPendingCombat(null);
     }
   }, [combatCountdown, pendingCombat]);
 
