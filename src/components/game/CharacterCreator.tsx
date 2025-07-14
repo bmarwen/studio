@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -18,10 +17,10 @@ type Props = {
 };
 
 const ICONS: { id: PlayerIcon; path: string; }[] = [
-    { id: 'hero1', path: '/icons/warrior-icon.svg' },
-    { id: 'hero2', path: '/icons/mage-icon.svg' },
-    { id: 'hero3', path: '/icons/ranger-icon.svg' },
-    { id: 'hero4', path: '/icons/assassin-icon.svg' },
+    { id: 'hero1', path: '/icons/hero-avatar-1.svg' },
+    { id: 'hero2', path: '/icons/hero-avatar-2.svg' },
+    { id: 'hero3', path: '/icons/hero-avatar-3.svg' },
+    { id: 'hero4', path: '/icons/hero-avatar-4.svg' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
@@ -35,18 +34,15 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
   const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
-  const { toast } = useToast();
+  const [showNameError, setShowNameError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter a name for your hero.",
-        variant: "destructive",
-      });
+      setShowNameError(true);
       return;
     }
+    setShowNameError(false);
 
     const classStats = PLAYER_CLASSES[selectedClass];
     const newPlayer: Player = {
@@ -74,7 +70,12 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 <Input
                   id="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (e.target.value.trim()) {
+                      setShowNameError(false);
+                    }
+                  }}
                   placeholder="e.g., Sir Reginald"
                   className="mt-2 text-base"
                 />
@@ -140,7 +141,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-4">
-             {!name.trim() && (
+             {showNameError && (
               <Alert variant="destructive" className="w-full">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
@@ -149,7 +150,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 </AlertDescription>
               </Alert>
             )}
-            <Button type="submit" size="lg" className="w-full font-headline text-xl" disabled={!name.trim()}>
+            <Button type="submit" size="lg" className="w-full font-headline text-xl">
               Begin Adventure
             </Button>
           </CardFooter>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Player, TileData, Monster, CombatLogEntry, Item } from '@/types/game';
+import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, ItemType } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -34,6 +34,27 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setWorldMap(map);
     addLog(`A new world has been generated for ${player.name} the ${player.class}. Your quest begins!`);
   }, []); // Run only once per game instance
+
+  const calculateStats = useCallback((basePlayer: Player) => {
+    const baseStats = PLAYER_CLASSES[basePlayer.class];
+    let attack = baseStats.attack;
+    let defense = baseStats.defense;
+    let magic = baseStats.magic;
+
+    Object.values(basePlayer.equipment).forEach(item => {
+        if(item) {
+            attack += item.attack || 0;
+            defense += item.defense || 0;
+            magic += item.magic || 0;
+        }
+    });
+
+    return {...basePlayer, attack, defense, magic};
+  }, []);
+
+  useEffect(() => {
+    setPlayer(p => calculateStats(p));
+  }, [player.equipment, calculateStats]);
 
   const updateViewport = useCallback((center: { x: number; y: number }) => {
     if (worldMap.length === 0) return;
@@ -127,9 +148,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         if (loot) {
             addLog(`You found: ${loot.name}!`);
             const existingItemIndex = newInventory.findIndex(i => i.id === loot.id);
-            if (existingItemIndex > -1) {
+            if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
                 newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
-            } else if(newInventory.length < 8) {
+            } else if(newInventory.length < INVENTORY_SIZE) {
                 newInventory.push({...loot, quantity: 1});
             } else {
                 addLog("Your inventory is full! You couldn't pick up the loot.");
@@ -209,9 +230,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         addLog(`You found a ${targetTile.item.name}!`);
         const newInventory = [...newPlayerState.inventory];
         const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id);
-        if (existingItemIndex > -1) {
+        if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
             newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
-        } else if (newInventory.length < 8) {
+        } else if (newInventory.length < INVENTORY_SIZE) {
             newInventory.push({...targetTile.item, quantity: 1});
         } else {
             addLog("Your inventory is full! You leave the item on the ground.");
@@ -251,10 +272,64 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         })
     }
   };
+
+  const handleEquipItem = (itemToEquip: Item, index: number) => {
+    if (itemToEquip.type === 'consumable') return;
+
+    setPlayer(p => {
+        const newInventory = [...p.inventory];
+        const newEquipment = { ...p.equipment };
+        const slot = itemToEquip.type as EquipmentSlot;
+
+        // Remove from inventory
+        newInventory.splice(index, 1);
+
+        // If something is already equipped in that slot, move it to inventory
+        const currentlyEquipped = newEquipment[slot];
+        if(currentlyEquipped && newInventory.length < INVENTORY_SIZE) {
+            newInventory.push(currentlyEquipped);
+             addLog(`You unequipped ${currentlyEquipped.name}.`);
+        } else if (currentlyEquipped) {
+            addLog(`Your inventory is full! Could not unequip ${currentlyEquipped.name}.`);
+            newInventory.splice(index, 0, itemToEquip); // add it back
+            return p; // Abort if no space
+        }
+
+        // Equip new item
+        newEquipment[slot] = itemToEquip;
+        addLog(`You equipped ${itemToEquip.name}.`);
+        
+        const newPlayer = {...p, inventory: newInventory, equipment: newEquipment};
+        return calculateStats(newPlayer);
+    });
+  };
+
+  const handleUnequipItem = (slot: EquipmentSlot) => {
+    setPlayer(p => {
+        if (p.inventory.length >= INVENTORY_SIZE) {
+            addLog("Cannot unequip, inventory is full!");
+            return p;
+        }
+
+        const newInventory = [...p.inventory];
+        const newEquipment = { ...p.equipment };
+        const itemToUnequip = newEquipment[slot];
+
+        if (itemToUnequip) {
+            newEquipment[slot] = null;
+            newInventory.push(itemToUnequip);
+            addLog(`You unequipped ${itemToUnequip.name}.`);
+        }
+
+        const newPlayer = {...p, inventory: newInventory, equipment: newEquipment};
+        return calculateStats(newPlayer);
+    });
+  }
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
           if (combatInfo?.open || pendingCombat) return;
+          if (document.activeElement?.tagName === 'INPUT') return;
           if (e.key === 'ArrowUp') handleMove(0, -1);
           if (e.key === 'ArrowDown') handleMove(0, 1);
           if (e.key === 'ArrowLeft') handleMove(-1, 0);
@@ -273,7 +348,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
-        <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} />
+        <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} onEquipItem={handleEquipItem} onUnequipItem={handleUnequipItem} />
       </aside>
       
       {pendingCombat && (

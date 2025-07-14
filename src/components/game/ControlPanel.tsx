@@ -17,6 +17,8 @@ interface ControlPanelProps {
   log: string[];
   onReset: () => void;
   onUseItem: (item: Item, index: number) => void;
+  onEquipItem: (item: Item, index: number) => void;
+  onUnequipItem: (slot: EquipmentSlot) => void;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -32,7 +34,7 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
   </div>
 );
 
-const EquipmentSlotDisplay = ({ slot, item }: { slot: EquipmentSlot, item: Item | null }) => {
+const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, item: Item | null, onUnequip: (slot: EquipmentSlot) => void }) => {
     const ICONS: Record<EquipmentSlot, React.ReactNode> = {
         weapon: <Gavel className="w-8 h-8 text-muted-foreground" />,
         helmet: <Crown className="w-8 h-8 text-muted-foreground" />,
@@ -44,9 +46,13 @@ const EquipmentSlotDisplay = ({ slot, item }: { slot: EquipmentSlot, item: Item 
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+                    <Button 
+                        variant="ghost" 
+                        className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary"
+                        onClick={() => item && onUnequip(slot)}
+                    >
                         {item ? <img src={item.icon} alt={item.name} className="w-10 h-10" /> : ICONS[slot]}
-                    </div>
+                    </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                      <p className="font-bold capitalize">{slot}</p>
@@ -63,17 +69,17 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
         <p className="text-muted-foreground italic">{item.description}</p>
         <Separator/>
         <div className="space-y-1">
-            {item.attack && <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p>}
-            {item.defense && <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p>}
-            {item.magic && <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p>}
-            {item.hp && <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p>}
-            {item.energyBoost && <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p>}
+            {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
+            {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
+            {item.magic ? <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p> : null}
+            {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
+            {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
         </div>
     </div>
 );
 
 
-export default function ControlPanel({ player, log, onReset, onUseItem }: ControlPanelProps) {
+export default function ControlPanel({ player, log, onReset, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventorySlots = Array.from({ length: INVENTORY_SIZE });
 
   return (
@@ -103,10 +109,10 @@ export default function ControlPanel({ player, log, onReset, onUseItem }: Contro
                 </AccordionTrigger>
                 <AccordionContent>
                     <div className="grid grid-cols-4 gap-2">
-                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} />
-                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} />
-                        <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} />
-                        <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} />
+                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
+                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
+                        <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                        <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
                     </div>
                 </AccordionContent>
             </AccordionItem>
@@ -122,23 +128,27 @@ export default function ControlPanel({ player, log, onReset, onUseItem }: Contro
                         <TooltipProvider key={index}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative">
+                                    <Button 
+                                        variant="ghost" 
+                                        onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
+                                        className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0 hover:border-primary"
+                                    >
                                         {item && (
                                             <>
                                                 <img src={item.icon} alt={item.name} className="w-10 h-10" />
                                                 {item.quantity && item.quantity > 1 && (
-                                                    <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5">
+                                                    <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
                                                         {item.quantity}
                                                     </span>
                                                 )}
                                                 {item.type === 'consumable' && (
-                                                    <Button size="icon" variant="ghost" onClick={() => onUseItem(item, index)} className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full">
+                                                    <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); onUseItem(item, index); }} className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full z-20">
                                                         <PlusCircle className="w-4 h-4 text-white" />
                                                     </Button>
                                                 )}
                                             </>
                                         )}
-                                    </div>
+                                    </Button>
                                 </TooltipTrigger>
                                 {item && <TooltipContent side="bottom" className="w-64"><ItemTooltipContent item={item} /></TooltipContent>}
                             </Tooltip>

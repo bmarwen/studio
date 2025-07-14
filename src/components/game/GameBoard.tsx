@@ -14,11 +14,11 @@ interface TileProps {
 
 const getPlayerIconPath = (icon: PlayerIcon) => {
     switch (icon) {
-        case 'hero1': return '/icons/warrior-icon.svg';
-        case 'hero2': return '/icons/mage-icon.svg';
-        case 'hero3': return '/icons/ranger-icon.svg';
-        case 'hero4': return '/icons/assassin-icon.svg';
-        default: return '/icons/warrior-icon.svg';
+        case 'hero1': return '/icons/hero-avatar-1.svg';
+        case 'hero2': return '/icons/hero-avatar-2.svg';
+        case 'hero3': return '/icons/hero-avatar-3.svg';
+        case 'hero4': return '/icons/hero-avatar-4.svg';
+        default: return '/icons/hero-avatar-1.svg';
     }
 }
 
@@ -52,7 +52,7 @@ const Tile = memo(({ tile }: TileProps) => {
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors aspect-square",
             isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
-            tile.terrain === 'grass' && 'bg-green-900/40',
+            tile.terrain === 'grass' && 'bg-green-900/60',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
             "relative"

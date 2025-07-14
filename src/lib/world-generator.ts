@@ -63,8 +63,11 @@ export function generateWorld(): TileData[][] {
         }
 
         const itemRoll = Math.random();
-        if (monsterRoll > 0.95 && itemRoll < 0.2) { // Less common items
-          item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+        if (monsterRoll > 0.95 && itemRoll < 0.2) {
+          const potentialItems = ITEMS.filter(i => i.type !== 'consumable');
+          if (potentialItems.length > 0) {
+              item = potentialItems[Math.floor(Math.random() * potentialItems.length)];
+          }
         }
       }
       
