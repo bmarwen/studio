@@ -100,7 +100,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const startCombat = (monster: Monster) => {
-    setPendingCombat(null);
     addLog(`You encounter a fierce ${monster.name}!`);
     const combatLog: CombatLogEntry[] = [];
     setCombatInfo({ open: true, monster, log: combatLog, result: `Fighting ${monster.name}...` });
@@ -170,21 +169,22 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setCombatInfo(info => ({...info!, result}));
   };
   
-  useEffect(() => {
-    if (pendingCombat) {
-        setCombatCountdown(3);
-        countdownTimer.current = setInterval(() => {
-            setCombatCountdown(c => c - 1);
-        }, 1000);
-    }
-    return () => clearInterval(countdownTimer.current);
+  const initiateCombat = useCallback((monster: Monster) => {
+    if (pendingCombat) return;
+
+    setPendingCombat(monster);
+    setCombatCountdown(3);
+
+    countdownTimer.current = setInterval(() => {
+      setCombatCountdown(c => c - 1);
+    }, 1000);
   }, [pendingCombat]);
 
   useEffect(() => {
-      if (combatCountdown === 0 && pendingCombat) {
-          clearInterval(countdownTimer.current);
-          startCombat(pendingCombat);
-      }
+    if (combatCountdown === 0 && pendingCombat) {
+      clearInterval(countdownTimer.current);
+      startCombat(pendingCombat);
+    }
   }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
@@ -219,7 +219,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
 
     if (targetTile.monster) {
-      setPendingCombat(targetTile.monster);
+      initiateCombat(targetTile.monster);
       // Remove monster after combat is initiated
       const newMap = worldMap.map(row => [...row]);
       newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
@@ -246,7 +246,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     setPlayer(newPlayerState);
 
-  }, [player, worldMap, combatInfo, pendingCombat]);
+  }, [player, worldMap, combatInfo, pendingCombat, initiateCombat]);
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
@@ -351,8 +351,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} onEquipItem={handleEquipItem} onUnequipItem={handleUnequipItem} />
       </aside>
       
-      {pendingCombat && (
-        <AlertDialog open={!!pendingCombat}>
+      {pendingCombat && !combatInfo?.open && (
+        <AlertDialog open={true}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle className="font-headline text-2xl">Danger!</AlertDialogTitle>
@@ -371,7 +371,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       {combatInfo && combatInfo.open && (
         <CombatDialog
           combatInfo={combatInfo}
-          onClose={() => setCombatInfo(info => info ? { ...info, open: false } : null)}
+          onClose={() => {
+            setCombatInfo(info => info ? { ...info, open: false } : null);
+            setPendingCombat(null);
+          }}
         />
       )}
     </div>
