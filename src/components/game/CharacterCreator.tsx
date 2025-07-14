@@ -102,7 +102,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                         )}
                       >
                        <RadioGroupItem value={id} id={id} className="sr-only" />
-                       <Image src={path} alt={id} width={128} height={128} className="w-20 h-20" data-ai-hint={hint} />
+                       <Image src={path} alt={id} width={128} height={128} className="w-32 h-32" data-ai-hint={hint} />
                      </Label>
                   ))}
                 </RadioGroup>
