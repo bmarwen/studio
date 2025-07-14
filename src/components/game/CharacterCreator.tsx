@@ -20,7 +20,7 @@ type Props = {
 
 const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
     { id: 'hero1', path: '/icons/hero-avatar-warrior.png', hint: 'bearded warrior' },
-    { id: 'hero2', path: 'https://placehold.co/128x128.png', hint: 'elf archer' },
+    { id: 'hero2', path: '/icons/icon-elf.png', hint: 'elf archer' },
     { id: 'hero3', path: '/icons/hero-avatar-dragon.png', hint: 'dragon face' },
     { id: 'hero4', path: '/icons/hero-avatar-knight.png', hint: 'male knight' },
 ];
