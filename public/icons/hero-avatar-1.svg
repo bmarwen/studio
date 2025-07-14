@@ -1,6 +1,12 @@
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="80" height="80" rx="10" fill="#2c3e50"/>
-<path d="M40 38C44.4183 38 48 34.4183 48 30C48 25.5817 44.4183 22 40 22C35.5817 22 32 25.5817 32 30C32 34.4183 35.5817 38 40 38Z" fill="#ecf0f1"/>
-<path d="M28 58C28 51.3726 33.3726 46 40 46C46.6274 46 52 51.3726 52 58H28Z" fill="#ecf0f1"/>
-<path d="M36 28L38 32L44 26" stroke="#34495e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="15" fill="#2d3748"/>
+  <!-- Face -->
+  <circle cx="50" cy="50" r="25" fill="#f6ad55"/>
+  <!-- Hair -->
+  <path d="M 30 40 Q 50 20 70 40 L 75 60 Q 50 75 25 60 Z" fill="#4a5568"/>
+  <!-- Eyes -->
+  <circle cx="40" cy="50" r="3" fill="#2d3748"/>
+  <circle cx="60" cy="50" r="3" fill="#2d3748"/>
+  <!-- Mouth -->
+  <path d="M 45 65 Q 50 70 55 65" stroke="#2d3748" stroke-width="2" fill="none"/>
 </svg>

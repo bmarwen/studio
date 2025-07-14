@@ -53,7 +53,6 @@ export function generateWorld(): TileData[][] {
       }
 
       let monster: Monster | undefined;
-      let item: Item | undefined = undefined; 
       
       if (terrain !== 'mountain' && terrain !== 'town' && terrain !== 'camp') {
         const monsterRoll = Math.random();
@@ -67,15 +66,9 @@ export function generateWorld(): TileData[][] {
         } else if (terrain === 'river' && monsterRoll < 0.2) {
           monster = { ...MONSTERS[1], id: `m_${x}_${y}` };
         }
-
-        const itemRoll = Math.random();
-        if(!monster && itemRoll < 0.02) {
-            const potentialItems = ITEMS.filter(i => i.type !== 'consumable');
-            item = potentialItems[Math.floor(Math.random() * potentialItems.length)];
-        }
       }
       
-      world[y][x] = { terrain, monster, item };
+      world[y][x] = { terrain, monster, item: undefined };
     }
   }
 

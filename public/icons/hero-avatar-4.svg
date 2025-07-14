@@ -1,6 +1,14 @@
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="80" height="80" rx="10" fill="#c0392b"/>
-<path d="M40 38C44.4183 38 48 34.4183 48 30C48 25.5817 44.4183 22 40 22C35.5817 22 32 25.5817 32 30C32 34.4183 35.5817 38 40 38Z" fill="#f5e6e4"/>
-<path d="M28 58C28 51.3726 33.3726 46 40 46C46.6274 46 52 51.3726 52 58H28Z" fill="#f5e6e4"/>
-<path d="M37 28L43 32M43 28L37 32" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="15" fill="#2c5282"/>
+  <!-- Hood -->
+  <path d="M 20 50 Q 50 10 80 50 L 75 90 H 25 Z" fill="#4a5568"/>
+  <!-- Shadowed Face -->
+  <circle cx="50" cy="55" r="20" fill="#2d3748"/>
+  <!-- Glowing Eyes -->
+  <circle cx="45" cy="55" r="3" fill="#fbd38d">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="55" cy="55" r="3" fill="#fbd38d">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+  </circle>
 </svg>

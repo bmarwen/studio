@@ -23,7 +23,6 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
 }
 
 const getTileIcon = (tile: TileData) => {
-  if (tile.item) return <img src={tile.item.icon} alt={tile.item.name} className="w-8 h-8 animate-pulse" />;
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
     case 'mountain': return <Mountain className="w-8 h-8 text-gray-600 dark:text-gray-400" />;
@@ -37,7 +36,6 @@ const getTileIcon = (tile: TileData) => {
 };
 
 const getTooltipContent = (tile: TileData) => {
-    if (tile.item) return `Something catches your eye...`;
     if (tile.terrain === 'snow') return 'Snowy field';
     if (tile.terrain === 'camp') return 'A safe place to rest.';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);

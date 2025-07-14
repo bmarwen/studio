@@ -1,6 +1,13 @@
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="80" height="80" rx="10" fill="#8e44ad"/>
-<path d="M40 38C44.4183 38 48 34.4183 48 30C48 25.5817 44.4183 22 40 22C35.5817 22 32 25.5817 32 30C32 34.4183 35.5817 38 40 38Z" fill="#f3e5f5"/>
-<path d="M28 58C28 51.3726 33.3726 46 40 46C46.6274 46 52 51.3726 52 58H28Z" fill="#f3e5f5"/>
-<path d="M36 30C36 27.7909 37.7909 26 40 26C42.2091 26 44 27.7909 44 30" stroke="#9b59b6" stroke-width="2" stroke-linecap="round"/>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="15" fill="#38a169"/>
+  <!-- Face -->
+  <circle cx="50" cy="50" r="25" fill="#9ae6b4"/>
+  <!-- Beard -->
+  <path d="M 35 60 Q 50 80 65 60 L 60 70 L 40 70 Z" fill="#2f855a"/>
+  <!-- Eyes -->
+  <circle cx="40" cy="48" r="4" fill="#2d3748"/>
+  <circle cx="60" cy="48" r="4" fill="#2d3748"/>
+  <!-- Eyebrows -->
+  <path d="M 35 40 Q 40 38 45 40" stroke="#2f855a" stroke-width="3" fill="none"/>
+  <path d="M 55 40 Q 60 38 65 40" stroke="#2f855a" stroke-width="3" fill="none"/>
 </svg>
