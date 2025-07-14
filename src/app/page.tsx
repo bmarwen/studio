@@ -1,3 +1,5 @@
-export default function Home() {
-  return <></>;
+import Game from '@/components/game/Game';
+
+export default function HomePage() {
+  return <Game />;
 }

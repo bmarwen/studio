@@ -1,0 +1,97 @@
+"use client";
+
+import { memo } from 'react';
+import { motion } from 'framer-motion';
+import { Home, Mountain, Skull, Sparkles, Sword, TreePine, UserRound, Waves } from 'lucide-react';
+import type { TileData } from '@/types/game';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { VIEWPORT_SIZE } from '@/lib/game-constants';
+
+interface TileProps {
+  tile: TileData;
+}
+
+const getTileIcon = (tile: TileData) => {
+  if (tile.monster) return <Skull className="w-6 h-6 text-destructive" />;
+  if (tile.item) return <Sword className="w-6 h-6 text-blue-400" />;
+  switch (tile.terrain) {
+    case 'tree': return <TreePine className="w-6 h-6 text-green-700 dark:text-green-500" />;
+    case 'mountain': return <Mountain className="w-6 h-6 text-gray-600 dark:text-gray-400" />;
+    case 'river': return <Waves className="w-6 h-6 text-blue-600 dark:text-blue-400" />;
+    case 'treasure': return <Sparkles className="w-6 h-6 text-yellow-500" />;
+    case 'town': return <Home className="w-6 h-6 text-amber-800 dark:text-amber-300" />;
+    default: return null;
+  }
+};
+
+const getTooltipContent = (tile: TileData) => {
+    if (tile.monster) return `A fearsome ${tile.monster.name}`;
+    if (tile.item) return `A shiny ${tile.item.name}`;
+    return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
+}
+
+const Tile = memo(({ tile }: TileProps) => {
+  const isObstacle = tile.terrain === 'mountain' || tile.terrain === 'river';
+  const icon = getTileIcon(tile);
+  
+  return (
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={cn(
+            "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors",
+            isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
+            "relative"
+          )}>
+            {icon}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{getTooltipContent(tile)}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+});
+
+Tile.displayName = 'Tile';
+
+
+interface GameBoardProps {
+  viewport: TileData[][];
+}
+
+const GameBoard = ({ viewport }: GameBoardProps) => {
+  const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
+
+  return (
+    <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
+      <div className="grid grid-cols-8 gap-1">
+        {viewport.map((row, y) =>
+          row.map((tile, x) => (
+            <motion.div
+              key={`${x}-${y}`}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: (y * VIEWPORT_SIZE + x) * 0.02 }}
+            >
+              <Tile tile={tile} />
+            </motion.div>
+          ))
+        )}
+      </div>
+      <div 
+        className="absolute flex items-center justify-center pointer-events-none"
+        style={{
+            top: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`, // 4rem tile + 0.25rem gap, plus padding
+            left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
+        }}
+      >
+          <UserRound className="w-8 h-8 text-primary-foreground bg-primary rounded-full p-1 shadow-lg" />
+      </div>
+    </div>
+  );
+};
+
+export default GameBoard;
