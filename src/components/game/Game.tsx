@@ -3,14 +3,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, INITIAL_PLAYER_STATE, ENERGY_REGEN_RATE, MOVE_ENERGY_COST } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
 import CombatDialog from './CombatDialog';
 
-export default function Game() {
-  const [player, setPlayer] = useState<Player>(INITIAL_PLAYER_STATE);
+interface GameProps {
+  initialPlayer: Player;
+}
+
+export default function Game({ initialPlayer }: GameProps) {
+  const [player, setPlayer] = useState<Player>(initialPlayer);
   const [worldMap, setWorldMap] = useState<TileData[][]>([]);
   const [viewport, setViewport] = useState<TileData[][]>([]);
   const [gameLog, setGameLog] = useState<string[]>(['Welcome to Square Clash!']);
@@ -19,8 +23,8 @@ export default function Game() {
   useEffect(() => {
     const map = generateWorld();
     setWorldMap(map);
-    addLog("A new world has been generated. Your quest begins!");
-  }, []);
+    addLog(`A new world has been generated for ${player.name} the ${player.class}. Your quest begins!`);
+  }, [player.name, player.class]);
 
   const updateViewport = useCallback((center: { x: number; y: number }) => {
     if (worldMap.length === 0) return;
@@ -111,21 +115,22 @@ export default function Game() {
   };
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (player.energy < MOVE_ENERGY_COST) {
-      addLog("Not enough energy to move!");
-      return;
-    }
-
-    setPlayer(p => ({ ...p, energy: p.energy - MOVE_ENERGY_COST }));
-
     const newX = Math.max(0, Math.min(MAP_SIZE - 1, player.position.x + dx));
     const newY = Math.max(0, Math.min(MAP_SIZE - 1, player.position.y + dy));
 
     const targetTile = worldMap[newY]?.[newX];
     if (!targetTile) return;
+    
+    const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain] || 1;
+    if (player.energy < moveCost) {
+      addLog("Not enough energy to move!");
+      return;
+    }
 
-    if (targetTile.terrain === 'mountain' || targetTile.terrain === 'river') {
-      addLog("You can't move through mountains or rivers!");
+    setPlayer(p => ({ ...p, energy: p.energy - moveCost }));
+
+    if (targetTile.terrain === 'mountain') {
+      addLog("You can't climb these treacherous mountains!");
       return;
     }
     
@@ -154,7 +159,7 @@ export default function Game() {
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
       <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4 relative">
         <h1 className="text-4xl font-headline text-primary absolute top-4 left-4">Square Clash</h1>
-        <GameBoard viewport={viewport} />
+        <GameBoard viewport={viewport} playerIcon={player.icon} />
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">

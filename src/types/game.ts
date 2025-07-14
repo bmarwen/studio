@@ -1,6 +1,8 @@
 export type Coordinates = { x: number; y: number };
 
-export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'treasure' | 'town';
+export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'treasure' | 'town' | 'snow';
+export type PlayerClass = 'warrior' | 'mage' | 'ranger' | 'assassin';
+export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4';
 
 export type Item = {
   id: string;
@@ -42,6 +44,8 @@ export type TileData = {
 
 export type Player = {
   name: string;
+  class: PlayerClass;
+  icon: PlayerIcon;
   hp: number;
   maxHp: number;
   energy: number;

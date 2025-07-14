@@ -1,0 +1,144 @@
+"use client";
+
+import { useState } from 'react';
+import type { Player, PlayerClass, PlayerIcon } from '@/types/game';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
+import { cn } from '@/lib/utils';
+import { User, Axe, Wand, ShieldQuestion, Swords, BookOpen, Crosshair, Sword } from 'lucide-react';
+
+type Props = {
+  onPlayerCreate: (player: Player) => void;
+};
+
+const ICONS: { id: PlayerIcon; icon: React.ReactNode }[] = [
+    { id: 'hero1', icon: <User className="w-12 h-12" /> },
+    { id: 'hero2', icon: <Axe className="w-12 h-12" /> },
+    { id: 'hero3', icon: <Wand className="w-12 h-12" /> },
+    { id: 'hero4', icon: <ShieldQuestion className="w-12 h-12" /> },
+];
+
+const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <Swords /> },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <BookOpen /> },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <Crosshair /> },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <Sword /> },
+];
+
+export default function CharacterCreator({ onPlayerCreate }: Props) {
+  const [name, setName] = useState('');
+  const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
+  const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      alert('Please enter a name for your hero.');
+      return;
+    }
+
+    const classStats = PLAYER_CLASSES[selectedClass];
+    const newPlayer: Player = {
+      ...INITIAL_PLAYER_STATE,
+      ...classStats,
+      name,
+      icon: selectedIcon,
+    };
+    onPlayerCreate(newPlayer);
+  };
+
+  return (
+    <div className="flex items-center justify-center h-screen bg-background font-body">
+      <Card className="w-full max-w-3xl shadow-2xl">
+        <form onSubmit={handleSubmit}>
+          <CardHeader>
+            <CardTitle className="font-headline text-4xl text-center text-primary">Create Your Hero</CardTitle>
+            <CardDescription className="text-center">Begin your adventure in the world of Square Clash.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+            {/* Left Side: Name and Icon */}
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="name" className="text-lg font-headline">Hero Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g., Sir Reginald"
+                  className="mt-2 text-base"
+                />
+              </div>
+              <div>
+                <Label className="text-lg font-headline">Choose Your Icon</Label>
+                <RadioGroup
+                  value={selectedIcon}
+                  onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
+                  className="mt-2 grid grid-cols-2 gap-4"
+                >
+                  {ICONS.map(({ id, icon }) => (
+                     <Label
+                        key={id}
+                        htmlFor={id}
+                        className={cn(
+                          'flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all',
+                          selectedIcon === id ? 'border-primary bg-primary/10' : 'border-border'
+                        )}
+                      >
+                       <RadioGroupItem value={id} id={id} className="sr-only" />
+                       {icon}
+                     </Label>
+                  ))}
+                </RadioGroup>
+              </div>
+            </div>
+
+            {/* Right Side: Class Selection */}
+            <div className="space-y-2">
+                <Label className="text-lg font-headline">Choose Your Class</Label>
+                <RadioGroup
+                    value={selectedClass}
+                    onValueChange={(val) => setSelectedClass(val as PlayerClass)}
+                    className="space-y-2"
+                >
+                    {CLASSES.map(({ id, name, description, icon }) => {
+                        const stats = PLAYER_CLASSES[id];
+                        return (
+                            <Label key={id} htmlFor={id} className={cn(
+                                'flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all',
+                                selectedClass === id ? 'border-primary bg-primary/10' : 'border-border'
+                            )}>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <RadioGroupItem value={id} id={id} />
+                                        <span className="font-bold text-base">{name}</span>
+                                        {icon}
+                                    </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground mt-2 pl-8">{description}</p>
+                                <div className="text-xs grid grid-cols-3 gap-x-4 pl-8 mt-2 text-muted-foreground">
+                                    <span>HP: {stats.maxHp}</span>
+                                    <span>ATK: {stats.attack}</span>
+                                    <span>DEF: {stats.defense}</span>
+                                    <span>EN: {stats.maxEnergy}</span>
+                                    <span>MAG: {stats.magic}</span>
+                                </div>
+                            </Label>
+                        )
+                    })}
+                </RadioGroup>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" size="lg" className="w-full font-headline text-xl">
+              Begin Adventure
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
+  );
+}

@@ -13,7 +13,7 @@ interface ControlPanelProps {
   log: string[];
 }
 
-const StatItem = ({ icon, label, value, maxValue, colorClass }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string }) => (
+const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
   <div>
     <div className="flex justify-between items-center mb-1 text-sm">
       <div className="flex items-center gap-2">
@@ -22,7 +22,7 @@ const StatItem = ({ icon, label, value, maxValue, colorClass }: { icon: React.Re
       </div>
       <span className={`font-mono ${colorClass}`}>{maxValue ? `${value}/${maxValue}` : value}</span>
     </div>
-    {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={colorClass} />}
+    {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={indicatorClassName} />}
   </div>
 );
 
@@ -33,11 +33,11 @@ export default function ControlPanel({ player, log }: ControlPanelProps) {
         <Card className="bg-card/50">
           <CardHeader>
             <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
-            <CardDescription>Level 1 Adventurer</CardDescription>
+            <CardDescription>Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="bg-red-500" />
-            <StatItem icon={<Zap className="text-yellow-400" />} label="Energy" value={player.energy} maxValue={player.maxEnergy} colorClass="bg-yellow-400" />
+            <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
+            <StatItem icon={<Zap className="text-yellow-400" />} label="Energy" value={player.energy} maxValue={player.maxEnergy} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
             <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack: <span className="font-mono">{player.attack}</span></div>

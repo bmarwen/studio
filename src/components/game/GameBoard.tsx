@@ -2,14 +2,25 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Mountain, Skull, Sparkles, Sword, TreePine, UserRound, Waves } from 'lucide-react';
-import type { TileData } from '@/types/game';
+import { Home, Mountain, Skull, Sparkles, Sword, TreePine, UserRound, Waves, Snowflake, Axe, User, ShieldQuestion, Wand } from 'lucide-react';
+import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { VIEWPORT_SIZE } from '@/lib/game-constants';
 
 interface TileProps {
   tile: TileData;
+}
+
+const getPlayerIcon = (icon: PlayerIcon) => {
+    const props = { className: "w-8 h-8 text-primary-foreground bg-primary rounded-full p-1 shadow-lg" };
+    switch (icon) {
+        case 'hero1': return <User {...props} />;
+        case 'hero2': return <Axe {...props} />;
+        case 'hero3': return <Wand {...props} />;
+        case 'hero4': return <ShieldQuestion {...props} />;
+        default: return <UserRound {...props} />;
+    }
 }
 
 const getTileIcon = (tile: TileData) => {
@@ -19,6 +30,7 @@ const getTileIcon = (tile: TileData) => {
     case 'tree': return <TreePine className="w-6 h-6 text-green-700 dark:text-green-500" />;
     case 'mountain': return <Mountain className="w-6 h-6 text-gray-600 dark:text-gray-400" />;
     case 'river': return <Waves className="w-6 h-6 text-blue-600 dark:text-blue-400" />;
+    case 'snow': return <Snowflake className="w-6 h-6 text-blue-300 dark:text-blue-200" />;
     case 'treasure': return <Sparkles className="w-6 h-6 text-yellow-500" />;
     case 'town': return <Home className="w-6 h-6 text-amber-800 dark:text-amber-300" />;
     default: return null;
@@ -28,11 +40,12 @@ const getTileIcon = (tile: TileData) => {
 const getTooltipContent = (tile: TileData) => {
     if (tile.monster) return `A fearsome ${tile.monster.name}`;
     if (tile.item) return `A shiny ${tile.item.name}`;
+    if (tile.terrain === 'snow') return 'Snowy field';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
 const Tile = memo(({ tile }: TileProps) => {
-  const isObstacle = tile.terrain === 'mountain' || tile.terrain === 'river';
+  const isObstacle = tile.terrain === 'mountain';
   const icon = getTileIcon(tile);
   
   return (
@@ -42,6 +55,8 @@ const Tile = memo(({ tile }: TileProps) => {
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors",
             isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
+            tile.terrain === 'river' && 'bg-blue-900/50',
+            tile.terrain === 'snow' && 'bg-white/10',
             "relative"
           )}>
             {icon}
@@ -60,9 +75,10 @@ Tile.displayName = 'Tile';
 
 interface GameBoardProps {
   viewport: TileData[][];
+  playerIcon: PlayerIcon;
 }
 
-const GameBoard = ({ viewport }: GameBoardProps) => {
+const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
   const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
 
   return (
@@ -88,7 +104,7 @@ const GameBoard = ({ viewport }: GameBoardProps) => {
             left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
         }}
       >
-          <UserRound className="w-8 h-8 text-primary-foreground bg-primary rounded-full p-1 shadow-lg" />
+          {getPlayerIcon(playerIcon)}
       </div>
     </div>
   );

@@ -1,12 +1,20 @@
-import type { Player } from '@/types/game';
+import type { Player, PlayerClass } from '@/types/game';
 
 export const MAP_SIZE = 100; // Smaller for performance in this demo
 export const VIEWPORT_SIZE = 8;
-export const MOVE_ENERGY_COST = 5;
 export const ENERGY_REGEN_RATE = 2000; // ms
 
-export const INITIAL_PLAYER_STATE: Player = {
-  name: "Hero",
+export const TERRAIN_ENERGY_COST = {
+    grass: 1,
+    tree: 2,
+    river: 3,
+    snow: 4,
+    mountain: 5,
+    town: 1,
+    treasure: 1,
+};
+
+export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon'> = {
   hp: 100,
   maxHp: 100,
   energy: 50,
@@ -22,4 +30,47 @@ export const INITIAL_PLAYER_STATE: Player = {
     description: 'Survive and find your fortune in this vast land.',
     isCompleted: false
   }],
+};
+
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon'>> = {
+    warrior: {
+        class: 'warrior',
+        hp: 120,
+        maxHp: 120,
+        energy: 80,
+        maxEnergy: 80,
+        attack: 15,
+        defense: 10,
+        magic: 0,
+    },
+    mage: {
+        class: 'mage',
+        hp: 80,
+        maxHp: 80,
+        energy: 120,
+        maxEnergy: 120,
+        attack: 5,
+        defense: 5,
+        magic: 20,
+    },
+    ranger: {
+        class: 'ranger',
+        hp: 100,
+        maxHp: 100,
+        energy: 100,
+        maxEnergy: 100,
+        attack: 12,
+        defense: 7,
+        magic: 5,
+    },
+    assassin: {
+        class: 'assassin',
+        hp: 90,
+        maxHp: 90,
+        energy: 110,
+        maxEnergy: 110,
+        attack: 18,
+        defense: 5,
+        magic: 2,
+    }
 };
