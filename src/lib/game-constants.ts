@@ -1,7 +1,7 @@
 import type { Player, PlayerClass } from '@/types/game';
 
 export const MAP_SIZE = 100; // Smaller for performance in this demo
-export const VIEWPORT_SIZE = 8;
+export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 2000; // ms
 
 export const TERRAIN_ENERGY_COST = {

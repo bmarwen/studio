@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Mountain, Skull, Sparkles, Sword, TreePine, UserRound, Waves, Snowflake, Axe, User, ShieldQuestion, Wand } from 'lucide-react';
+import { Home, Mountain, Sparkles, TreePine, UserRound, Waves, Snowflake, Axe, User, ShieldQuestion, Wand } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -24,8 +24,6 @@ const getPlayerIcon = (icon: PlayerIcon) => {
 }
 
 const getTileIcon = (tile: TileData) => {
-  if (tile.monster) return <Skull className="w-6 h-6 text-destructive" />;
-  if (tile.item) return <Sword className="w-6 h-6 text-blue-400" />;
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-6 h-6 text-green-700 dark:text-green-500" />;
     case 'mountain': return <Mountain className="w-6 h-6 text-gray-600 dark:text-gray-400" />;
@@ -38,8 +36,8 @@ const getTileIcon = (tile: TileData) => {
 };
 
 const getTooltipContent = (tile: TileData) => {
-    if (tile.monster) return `A fearsome ${tile.monster.name}`;
-    if (tile.item) return `A shiny ${tile.item.name}`;
+    if (tile.monster) return "You sense danger...";
+    if (tile.item) return `Something catches your eye...`;
     if (tile.terrain === 'snow') return 'Snowy field';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
@@ -55,6 +53,7 @@ const Tile = memo(({ tile }: TileProps) => {
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors",
             isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
+            tile.terrain === 'grass' && 'bg-green-900/20',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
             "relative"
@@ -83,7 +82,7 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
 
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
-      <div className="grid grid-cols-8 gap-1">
+      <div className="grid grid-cols-9 gap-1">
         {viewport.map((row, y) =>
           row.map((tile, x) => (
             <motion.div

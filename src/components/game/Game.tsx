@@ -115,8 +115,12 @@ export default function Game({ initialPlayer }: GameProps) {
   };
 
   const handleMove = useCallback((dx: number, dy: number) => {
+    if (combatInfo?.open) return; // Don't move if in combat dialog
+    
     const newX = Math.max(0, Math.min(MAP_SIZE - 1, player.position.x + dx));
     const newY = Math.max(0, Math.min(MAP_SIZE - 1, player.position.y + dy));
+
+    if (newX === player.position.x && newY === player.position.y) return;
 
     const targetTile = worldMap[newY]?.[newX];
     if (!targetTile) return;
@@ -145,7 +149,7 @@ export default function Game({ initialPlayer }: GameProps) {
       setWorldMap(newMap);
     }
     
-    if (targetTile.item) {
+    if (targetile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
         setPlayer(p => ({...p, inventory: [...p.inventory, targetTile.item as Item]}));
         const newMap = [...worldMap];
@@ -153,7 +157,19 @@ export default function Game({ initialPlayer }: GameProps) {
         setWorldMap(newMap);
     }
 
-  }, [player.energy, player.position.x, player.position.y, worldMap, addLog]);
+  }, [player, worldMap, combatInfo, addLog, startCombat]);
+  
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'ArrowUp') handleMove(0, -1);
+          if (e.key === 'ArrowDown') handleMove(0, 1);
+          if (e.key === 'ArrowLeft') handleMove(-1, 0);
+          if (e.key === 'ArrowRight') handleMove(1, 0);
+        };
+    
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleMove]);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">

@@ -46,11 +46,15 @@ export function generateWorld(): TileData[][] {
       }
 
       let monster: Monster | undefined;
-      if (terrain === 'tree' && Math.random() < 0.1) {
+      // Increased monster spawn rate for testing
+      if (terrain === 'tree' && Math.random() < 0.25) { 
         const monsterTemplate = MONSTERS[Math.floor(Math.random() * (MONSTERS.length - 1))]; // Not ice elemental
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'snow' && Math.random() < 0.15) {
+      } else if (terrain === 'snow' && Math.random() < 0.3) {
         const monsterTemplate = MONSTERS[3]; // Ice Elemental
+        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
+      } else if (terrain === 'grass' && Math.random() < 0.1) {
+        const monsterTemplate = MONSTERS[1]; // Slime
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
       }
       
