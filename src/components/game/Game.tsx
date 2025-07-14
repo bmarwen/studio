@@ -149,7 +149,7 @@ export default function Game({ initialPlayer }: GameProps) {
       setWorldMap(newMap);
     }
     
-    if (targetile.item) {
+    if (targetTile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
         setPlayer(p => ({...p, inventory: [...p.inventory, targetTile.item as Item]}));
         const newMap = [...worldMap];
@@ -157,7 +157,7 @@ export default function Game({ initialPlayer }: GameProps) {
         setWorldMap(newMap);
     }
 
-  }, [player, worldMap, combatInfo, addLog, startCombat]);
+  }, [player, worldMap, combatInfo]);
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

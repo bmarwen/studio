@@ -59,10 +59,10 @@ export default function LootAttemptClient({ npc }: Props) {
             
             {result && (
                 <Card className={`mt-4 ${result.attemptSteal ? 'border-destructive' : 'border-green-500'}`}>
-                    <CardHeader>
+                    <CardHeader className="p-4">
                         <CardTitle className="text-base">{result.attemptSteal ? 'It attacks for your loot!' : 'It backs down.'}</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-2">
                         <p className="text-xs text-muted-foreground">{result.reasoning}</p>
                     </CardContent>
                 </Card>

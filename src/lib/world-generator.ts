@@ -34,14 +34,14 @@ export function generateWorld(): TileData[][] {
       const riverNoise = simpleNoise(x, y, 0.05);
       const snowNoise = simpleNoise(y, x, 0.15); // Different noise for snow
 
-      if (mountainNoise > 0.7) {
+      if (mountainNoise > 0.6) {
         terrain = 'mountain';
-      } else if (snowNoise > 0.6 && mountainNoise > 0.5) {
+      } else if (snowNoise > 0.65) {
         terrain = 'snow';
       }
-      else if (treeNoise > 0.6) {
+      else if (treeNoise > 0.55) {
         terrain = 'tree';
-      } else if (Math.abs(riverNoise) > 0.95) {
+      } else if (Math.abs(riverNoise) > 0.9) {
         terrain = 'river';
       }
 
@@ -54,6 +54,9 @@ export function generateWorld(): TileData[][] {
         const monsterTemplate = MONSTERS[3]; // Ice Elemental
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
       } else if (terrain === 'grass' && Math.random() < 0.1) {
+        const monsterTemplate = MONSTERS[1]; // Slime
+        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
+      } else if (terrain === 'river' && Math.random() < 0.15) {
         const monsterTemplate = MONSTERS[1]; // Slime
         monster = { ...monsterTemplate, id: `m_${x}_${y}` };
       }

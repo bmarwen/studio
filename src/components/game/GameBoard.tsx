@@ -91,13 +91,13 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: (y * VIEWPORT_SIZE + x) * 0.02 }}
             >
-              <Tile tile={tile} />
+              <Tile tile={{...tile, monster: undefined}} />
             </motion.div>
           ))
         )}
       </div>
       <div 
-        className="absolute flex items-center justify-center pointer-events-none"
+        className="absolute flex items-center justify-center pointer-events-none w-16 h-16"
         style={{
             top: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`, // 4rem tile + 0.25rem gap, plus padding
             left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
