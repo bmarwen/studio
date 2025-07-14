@@ -17,9 +17,13 @@ interface GameProps {
 }
 
 const playSound = (src: string, volume = 0.5) => {
-  const sound = new Audio(src);
-  sound.volume = volume;
-  sound.play().catch(e => console.error(`Failed to play sound: ${src}`, e));
+  try {
+    const sound = new Audio(src);
+    sound.volume = volume;
+    sound.play().catch(e => console.error(`Failed to play sound: ${src}`, e));
+  } catch (error) {
+    console.log("Audio playback is not supported in this environment.");
+  }
 };
 
 export default function Game({ initialPlayer, onReset }: GameProps) {
@@ -54,10 +58,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         const worldX = startX + x;
         const worldY = startY + y;
         if (worldX < MAP_SIZE && worldY < MAP_SIZE) {
-          newViewport[y][x] = worldMap[worldY][worldX];
+          const tile = worldMap[worldY][worldX];
+          newViewport[y][x] = {...tile, monster: undefined};
         } else {
-          // Edge of the world
-          newViewport[y][x] = { terrain: 'grass' };
+          newViewport[y][x] = { terrain: 'mountain' }; // Edge of the world is impassable
         }
       }
     }
@@ -82,36 +86,53 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [player.inventory]);
 
   const addLog = (message: string) => {
-    setGameLog(prev => [message, ...prev.slice(0, 9)]);
+    setGameLog(prev => [message, ...prev.slice(0, 19)]);
   };
 
   const startCombat = (monster: Monster) => {
     setPendingCombat(null);
     addLog(`You encounter a fierce ${monster.name}!`);
-    const combatLog: CombatLogEntry[] = [{ id: 0, message: `The battle against ${monster.name} begins!` }];
-    
+    const combatLog: CombatLogEntry[] = [];
+    setCombatInfo({ open: true, monster, log: combatLog, result: `Fighting ${monster.name}...` });
+
     let playerHp = player.hp;
     let monsterHp = monster.hp;
     let turn = 0;
 
-    while (playerHp > 0 && monsterHp > 0) {
+    const combatInterval = setInterval(() => {
       turn++;
+      
       // Player attacks
       const playerDamage = Math.max(1, player.attack - monster.defense);
       monsterHp -= playerDamage;
-      combatLog.push({id: turn * 2 - 1, message: `You strike the ${monster.name} for ${playerDamage} damage.`});
-      if (monsterHp <= 0) break;
+      const playerAttackMessage = `You strike the ${monster.name} for ${playerDamage} damage.`;
+      setCombatInfo(info => ({...info!, log: [...info!.log, { id: turn * 2 - 1, message: playerAttackMessage }]}));
+
+      if (monsterHp <= 0) {
+        clearInterval(combatInterval);
+        endCombat(playerHp, monster);
+        return;
+      }
 
       // Monster attacks
       const monsterDamage = Math.max(1, monster.attack - player.defense);
       playerHp -= monsterDamage;
-      combatLog.push({id: turn * 2, message: `The ${monster.name} hits you for ${monsterDamage} damage.`});
-    }
-    
+      const monsterAttackMessage = `The ${monster.name} hits you for ${monsterDamage} damage.`;
+      setCombatInfo(info => ({...info!, log: [...info!.log, { id: turn * 2, message: monsterAttackMessage }]}));
+      
+      if (playerHp <= 0) {
+        clearInterval(combatInterval);
+        endCombat(0, monster);
+        return;
+      }
+    }, 1000); // One action per second
+  };
+
+  const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let result = '';
-    if (playerHp > 0) {
+    if (finalPlayerHp > 0) {
       playSound('/sfx/victory.wav');
-      result = `You defeated the ${monster.name}! You have ${playerHp} HP left.`;
+      result = `You defeated the ${monster.name}! You have ${finalPlayerHp} HP left.`;
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
       setPlayer(p => {
         const newInventory = loot ? [...p.inventory, loot] : p.inventory;
@@ -120,7 +141,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
         return {
           ...p,
-          hp: playerHp,
+          hp: finalPlayerHp,
           inventory: newInventory
         }
       });
@@ -130,7 +151,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
     addLog(result);
-    setCombatInfo({ open: true, monster, log: combatLog, result });
+    setCombatInfo(info => ({...info!, result}));
   };
   
   useEffect(() => {
@@ -152,36 +173,40 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (combatInfo?.open || pendingCombat) return; // Don't move if in combat dialog
+    if (combatInfo?.open || pendingCombat) return;
     
-    const newX = Math.max(0, Math.min(MAP_SIZE - 1, player.position.x + dx));
-    const newY = Math.max(0, Math.min(MAP_SIZE - 1, player.position.y + dy));
-
-    if (newX === player.position.x && newY === player.position.y) return;
-
-    const targetTile = worldMap[newY]?.[newX];
-    if (!targetTile) return;
+    const newX = player.position.x + dx;
+    const newY = player.position.y + dy;
     
-    const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain] || 1;
-    if (player.energy < moveCost) {
-      addLog("Not enough energy to move!");
-      return;
+    if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) {
+        addLog("You can't move beyond the edge of the world.");
+        return;
     }
 
-    setPlayer(p => ({ ...p, energy: p.energy - moveCost }));
-
+    const targetTile = worldMap[newY][newX];
     if (targetTile.terrain === 'mountain') {
       addLog("You can't climb these treacherous mountains!");
       return;
     }
+
+    const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain];
+    if (player.energy < moveCost) {
+      addLog("Not enough energy to move!");
+      return;
+    }
     
-    setPlayer(p => ({...p, position: {x: newX, y: newY}}));
-    addLog(`You move to (${newX}, ${newY}).`);
+    const newPlayerState = {
+        ...player,
+        energy: player.energy - moveCost,
+        position: {x: newX, y: newY}
+    };
+
+    addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
 
     if (targetTile.monster) {
       setPendingCombat(targetTile.monster);
-      // Remove monster after combat
-      const newMap = [...worldMap];
+      // Remove monster after combat is initiated
+      const newMap = worldMap.map(row => [...row]);
       newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
       setWorldMap(newMap);
     }
@@ -189,13 +214,36 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     if (targetTile.item) {
         addLog(`You found a ${targetTile.item.name}!`);
         playSound('/sfx/item-found.wav', 0.3);
-        setPlayer(p => ({...p, inventory: [...p.inventory, targetTile.item as Item]}));
-        const newMap = [...worldMap];
+        newPlayerState.inventory = [...newPlayerState.inventory, targetTile.item as Item];
+        const newMap = worldMap.map(row => [...row]);
         newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
         setWorldMap(newMap);
     }
 
+    setPlayer(newPlayerState);
+
   }, [player, worldMap, combatInfo, pendingCombat]);
+
+  const handleUseItem = (itemToUse: Item) => {
+    if (itemToUse.type !== 'consumable') return;
+
+    let itemUsed = false;
+    const newInventory = [...player.inventory];
+    const itemIndex = newInventory.findIndex(i => i.id === itemToUse.id);
+
+    if (itemIndex > -1) {
+        newInventory.splice(itemIndex, 1);
+        itemUsed = true;
+    }
+
+    if(itemUsed) {
+        setPlayer(p => {
+            const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
+            addLog(`You used ${itemToUse.name}.`);
+            return {...p, hp: newHp, inventory: newInventory };
+        })
+    }
+  };
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -218,7 +266,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
-        <ControlPanel player={player} log={gameLog} onReset={onReset} />
+        <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} />
       </aside>
       
       {pendingCombat && (

@@ -1,24 +1,22 @@
 import type { Player, PlayerClass } from '@/types/game';
 
-export const MAP_SIZE = 100; // Smaller for performance in this demo
+export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 2000; // ms
 
-export const TERRAIN_ENERGY_COST = {
-    grass: 2,
-    tree: 4,
-    river: 6,
-    snow: 8,
-    mountain: 20, // Though movement is blocked
+export const TERRAIN_ENERGY_COST: Record<string, number> = {
+    grass: 4,
+    tree: 8,
+    river: 12,
+    snow: 16,
     town: 1,
-    treasure: 1,
 };
 
 export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon'> = {
   hp: 100,
   maxHp: 100,
-  energy: 50,
-  maxEnergy: 50,
+  energy: 100,
+  maxEnergy: 100,
   attack: 10,
   defense: 5,
   magic: 0,

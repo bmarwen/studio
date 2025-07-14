@@ -23,19 +23,18 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
 }
 
 const getTileIcon = (tile: TileData) => {
+  if (tile.item) return <img src={tile.item.icon} alt={tile.item.name} className="w-8 h-8 animate-pulse" />;
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
     case 'mountain': return <Mountain className="w-8 h-8 text-gray-600 dark:text-gray-400" />;
     case 'river': return <Waves className="w-8 h-8 text-blue-600 dark:text-blue-400" />;
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
-    case 'treasure': return <Sparkles className="w-8 h-8 text-yellow-500" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     default: return null;
   }
 };
 
 const getTooltipContent = (tile: TileData) => {
-    if (tile.monster) return "You sense danger..."; // Should not be visible now
     if (tile.item) return `Something catches your eye...`;
     if (tile.terrain === 'snow') return 'Snowy field';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
@@ -80,9 +79,13 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
   const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
   const iconPath = getPlayerIconPath(playerIcon);
 
+  if (!viewport || viewport.length === 0) {
+    return <div>Loading map...</div>;
+  }
+
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
-      <div className="grid grid-cols-9 gap-1">
+      <div className={`grid grid-cols-${VIEWPORT_SIZE} gap-1`}>
         {viewport.map((row, y) =>
           row.map((tile, x) => (
             <motion.div
@@ -91,7 +94,7 @@ const GameBoard = ({ viewport, playerIcon }: GameBoardProps) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: (y * VIEWPORT_SIZE + x) * 0.02 }}
             >
-              <Tile tile={{...tile, monster: undefined}} />
+              <Tile tile={tile} />
             </motion.div>
           ))
         )}

@@ -1,18 +1,20 @@
 "use client";
 
-import type { Player } from '@/types/game';
+import type { Player, Item } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings, PlusCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface ControlPanelProps {
   player: Player;
   log: string[];
   onReset: () => void;
+  onUseItem: (item: Item) => void;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -28,7 +30,7 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
   </div>
 );
 
-export default function ControlPanel({ player, log, onReset }: ControlPanelProps) {
+export default function ControlPanel({ player, log, onReset, onUseItem }: ControlPanelProps) {
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 pr-4">
@@ -58,9 +60,25 @@ export default function ControlPanel({ player, log, onReset }: ControlPanelProps
               {player.inventory.length > 0 ? (
                 <ul className="space-y-2 text-sm">
                   {player.inventory.map((item, index) => (
-                    <li key={index} className="flex items-center gap-2 p-2 rounded-md bg-secondary">
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground italic truncate"> - {item.description}</span>
+                    <li key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-secondary">
+                        <div className="flex items-center gap-2">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <img src={item.icon} alt={item.name} className="w-6 h-6" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{item.description}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <span className="font-medium">{item.name}</span>
+                        </div>
+                        {item.type === 'consumable' && (
+                            <Button size="sm" variant="ghost" onClick={() => onUseItem(item)}>
+                                <PlusCircle className="mr-1" /> Use
+                            </Button>
+                        )}
                     </li>
                   ))}
                 </ul>

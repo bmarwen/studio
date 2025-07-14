@@ -14,20 +14,15 @@ export default function HomePage() {
   };
   
   const handleGameReset = () => {
+    setPlayer(null); // Go back to character creator
     setGameKey(prevKey => prevKey + 1);
   };
 
   useEffect(() => {
-    // This is a good place to start/stop music
-    const audio = new Audio('/music/adventure-awaits.mp3');
-    audio.loop = true;
-    audio.volume = 0.3;
-    audio.play().catch(e => console.error("Audio play failed:", e));
-
-    return () => {
-      audio.pause();
-    };
-  }, []);
+    // This is a good place for logic that should run once when a character is created.
+    // For example, starting up background music.
+    // Note: Can't add audio files directly in this environment.
+  }, [player]);
 
   if (!player) {
     return <CharacterCreator onPlayerCreate={handleCharacterCreation} />;

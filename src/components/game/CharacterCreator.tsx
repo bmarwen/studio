@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
-import { Swords, BookOpen, Crosshair, Sword } from 'lucide-react';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
@@ -23,10 +22,10 @@ const ICONS: { id: PlayerIcon; path: string; }[] = [
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <Swords /> },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <BookOpen /> },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <Crosshair /> },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <Sword /> },
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/class-warrior.svg" className="w-5 h-5" /> },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/class-mage.svg" className="w-5 h-5" /> },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/class-ranger.svg" className="w-5 h-5" /> },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/class-assassin.svg" className="w-5 h-5" /> },
 ];
 
 export default function CharacterCreator({ onPlayerCreate }: Props) {

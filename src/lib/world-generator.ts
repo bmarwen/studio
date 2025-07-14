@@ -2,10 +2,10 @@ import type { TileData, Monster, Item } from "@/types/game";
 import { MAP_SIZE } from "./game-constants";
 
 const ITEMS: Item[] = [
-    { id: 'i1', name: 'Rusty Sword', type: 'weapon', attack: 2, description: 'A bit worn but better than nothing.' },
-    { id: 'i2', name: 'Leather Tunic', type: 'armor', defense: 2, description: 'Basic leather protection.' },
-    { id: 'i3', name: 'Health Potion', type: 'consumable', hp: 20, description: 'Restores a small amount of health.'},
-    { id: 'i4', name: 'Energy Crystal', type: 'consumable', energyBoost: 1, description: 'Slightly increases energy regeneration.'}
+    { id: 'i1', name: 'Rusty Sword', type: 'weapon', attack: 2, description: 'A bit worn but better than nothing.', icon: '/icons/item-sword.svg' },
+    { id: 'i2', name: 'Leather Tunic', type: 'armor', defense: 2, description: 'Basic leather protection.', icon: '/icons/item-tunic.svg' },
+    { id: 'i3', name: 'Health Potion', type: 'consumable', hp: 20, description: 'Restores 20 health.', icon: '/icons/item-potion.svg'},
+    { id: 'i4', name: 'Energy Crystal', type: 'consumable', energyBoost: 1, description: 'Slightly increases passive energy regeneration.', icon: '/icons/item-crystal.svg'}
 ];
 
 const MONSTERS: Omit<Monster, 'id'>[] = [
@@ -15,7 +15,6 @@ const MONSTERS: Omit<Monster, 'id'>[] = [
     { name: 'Ice Elemental', hp: 30, maxHp: 30, attack: 10, defense: 8, loot: [ITEMS[3]], greed: 50, power: 5 }
 ];
 
-// Using a simple noise function for terrain generation
 function simpleNoise(x: number, y: number, scale: number, offset: number = 0) {
     return (Math.sin((x + offset) * scale) + Math.cos((y + offset) * scale)) / 2;
 }
@@ -31,55 +30,48 @@ export function generateWorld(): TileData[][] {
       
       const mountainNoise = simpleNoise(x, y, 0.1, seed);
       const treeNoise = simpleNoise(x, y, 0.2, seed + 100);
-      const riverNoise = simpleNoise(x, y, 0.05, seed + 200);
-      const snowNoise = simpleNoise(y, x, 0.08, seed + 300); // Slower frequency for larger biomes
+      const riverNoise = Math.abs(simpleNoise(x, y, 0.05, seed + 200));
+      const snowNoise = simpleNoise(y, x, 0.08, seed + 300);
 
-      if (mountainNoise > 0.7) {
+      if (mountainNoise > 0.75) {
         terrain = 'mountain';
       } else if (snowNoise > 0.6) {
         terrain = 'snow';
-      }
-      else if (Math.abs(riverNoise) > 0.95) {
+      } else if (riverNoise > 0.9) {
         terrain = 'river';
-      }
-      else if (treeNoise > 0.6) {
+      } else if (treeNoise > 0.6) {
         terrain = 'tree';
       }
 
       let monster: Monster | undefined;
-      // Increased monster spawn rate for testing
-      if (terrain === 'tree' && Math.random() < 0.3) { 
-        const monsterTemplate = MONSTERS[Math.floor(Math.random() * (MONSTERS.length - 1))]; // Not ice elemental
-        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'snow' && Math.random() < 0.35) {
-        const monsterTemplate = MONSTERS[3]; // Ice Elemental
-        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'grass' && Math.random() < 0.15) {
-        const monsterTemplate = MONSTERS[1]; // Slime
-        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      } else if (terrain === 'river' && Math.random() < 0.2) {
-        const monsterTemplate = MONSTERS[1]; // Slime
-        monster = { ...monsterTemplate, id: `m_${x}_${y}` };
-      }
-      
       let item: Item | undefined;
-      if (terrain === 'grass' && Math.random() < 0.03) {
-        item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      
+      if (terrain !== 'mountain') {
+        const monsterRoll = Math.random();
+        if (terrain === 'tree' && monsterRoll < 0.3) { 
+          const monsterTemplate = MONSTERS[Math.floor(Math.random() * (MONSTERS.length - 1))];
+          monster = { ...monsterTemplate, id: `m_${x}_${y}` };
+        } else if (terrain === 'snow' && monsterRoll < 0.35) {
+          monster = { ...MONSTERS[3], id: `m_${x}_${y}` };
+        } else if (terrain === 'grass' && monsterRoll < 0.15) {
+          monster = { ...MONSTERS[1], id: `m_${x}_${y}` };
+        } else if (terrain === 'river' && monsterRoll < 0.2) {
+          monster = { ...MONSTERS[1], id: `m_${x}_${y}` };
+        }
+
+        const itemRoll = Math.random();
+        if (terrain === 'grass' && itemRoll < 0.05) {
+          item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+        }
       }
       
       world[y][x] = { terrain, monster, item };
     }
   }
 
-  // Place a town near the center, ensuring it's not on an obstacle
   const townX = Math.floor(MAP_SIZE / 2);
   const townY = Math.floor(MAP_SIZE / 2);
   world[townY][townX] = { terrain: 'town' };
-  world[townY+1][townX] = { terrain: 'grass' };
-  world[townY-1][townX] = { terrain: 'grass' };
-  world[townY][townX+1] = { terrain: 'grass' };
-  world[townY][townX-1] = { terrain: 'grass' };
-
 
   return world;
 }

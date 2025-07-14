@@ -29,7 +29,7 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
   const playerWon = result.includes("defeated");
 
   return (
-    <AlertDialog open={open} onOpenChange={onClose}>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <AlertDialogContent className="max-w-2xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="font-headline text-2xl">
