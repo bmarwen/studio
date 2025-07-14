@@ -2,14 +2,15 @@ import type { Player, PlayerClass } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
-export const ENERGY_REGEN_RATE = 2000; // ms
+export const ENERGY_REGEN_RATE = 500; // ms, faster regen
+export const MOVE_COOLDOWN = 3000; // 3 seconds
 export const INVENTORY_SIZE = 8; // 2 rows of 4
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
-    grass: 4,
-    tree: 8,
-    river: 12,
-    snow: 16,
+    grass: 8,
+    tree: 12,
+    river: 16,
+    snow: 20,
     town: 1,
     camp: 1,
 };

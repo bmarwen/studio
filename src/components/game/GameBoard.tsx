@@ -6,7 +6,7 @@ import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { VIEWPORT_SIZE } from '@/lib/game-constants';
+import { VIEWPORT_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 
 interface TileProps {
   tile: TileData;
@@ -133,7 +133,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                             pathLength="1"
                             initial={{ pathLength: 0, opacity: 0 }}
                             animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ duration: 3, ease: "linear" }}
+                            transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
                         />
                     </svg>
                 </motion.div>

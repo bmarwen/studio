@@ -3,20 +3,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, ItemType } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
 import CombatDialog from './CombatDialog';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '../ui/progress';
+import { motion } from 'framer-motion';
 
 interface GameProps {
   initialPlayer: Player;
   onReset: () => void;
 }
-
-const MOVE_COOLDOWN = 3000; // 3 seconds
 
 export default function Game({ initialPlayer, onReset }: GameProps) {
   const [player, setPlayer] = useState<Player>(initialPlayer);
@@ -371,7 +370,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
       <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4 relative">
         <h1 className="text-4xl font-headline text-primary absolute top-4 left-4">Square Clash</h1>
-        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} />
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+          <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} />
+        </motion.div>
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
