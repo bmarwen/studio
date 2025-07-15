@@ -3,9 +3,9 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
-export const ENERGY_REGEN_RATE = 1500; // ms, slower regen
+export const ENERGY_REGEN_RATE = 1000; // ms, faster regen
 export const MOVE_COOLDOWN = 2000; // ms
-export const INVENTORY_SIZE = 16; // 4 rows of 4
+export const INVENTORY_SIZE = 4;
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
     grass: 8,
