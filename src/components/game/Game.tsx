@@ -219,20 +219,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
-     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
-
+    if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
+  
     playAudio('/audio/combat-start.wav');
     setPendingCombat(monster);
     setCombatCountdown(3);
-
+  
     countdownTimer.current = setInterval(() => {
-        setCombatCountdown(c => {
-            const newTime = c - 1;
-            if (newTime <= 0) {
-                clearInterval(countdownTimer.current);
-            }
-            return newTime;
-        });
+      setCombatCountdown(currentCountdown => {
+        if (currentCountdown === 1) {
+          clearInterval(countdownTimer.current);
+          return 0; // Final tick before combat starts
+        }
+        return currentCountdown - 1;
+      });
     }, 1000);
   }, [playAudio]);
 
@@ -432,7 +432,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
           clearTimeout(moveTimeout.current);
           clearInterval(countdownTimer.current);
         }
-    }, [initiateCombat]);
+    }, []);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
@@ -451,7 +451,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} onEquipItem={handleEquipItem} onUnequipItem={handleUnequipItem} />
       </aside>
       
-      {pendingCombat && !combatInfo?.open && (
+      {pendingCombat && combatCountdown > 0 && (
         <AlertDialog open={true}>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -480,5 +480,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
-
-    
