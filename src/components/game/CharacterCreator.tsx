@@ -177,8 +177,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                               </CarouselItem>
                           ))}
                       </CarouselContent>
-                      <CarouselPrevious variant="ghost" />
-                      <CarouselNext variant="ghost" />
+                      <CarouselPrevious variant="ghost" className="-left-8" />
+                      <CarouselNext variant="ghost" className="-right-8" />
                   </Carousel>
               </div>
 
