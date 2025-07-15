@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Shrub } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -25,16 +25,6 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
     }
 }
 
-const GrassIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
-        <path fill="#4ade80" d="M20.94 21.94c0-2.2-1.79-4-4-4s-4 1.8-4 4h8zm-8.01 0c0-2.2-1.79-4-4-4s-4 1.8-4 4h8z"/>
-        <path fill="#22c55e" d="M18.89 21.94c-1.39-2.31-3.6-3.81-6.22-4.14.9.9 1.48 2.22 1.48 3.64v.5h4.74zM8.33 21.94c1.39-2.31 3.6-3.81 6.22-4.14-.9.9-1.48 2.22-1.48 3.64v.5H8.33z"/>
-        <path fill="#4ade80" d="M12.5 12.03c-1.92.5-3.69 1.56-5.07 3.03.8-.5 1.7-1 2.67-1.31 2.29-.71 4.1-2.4 4.88-4.59-.57 1.3-1.63 2.37-2.48 2.87zM11.5 12.03c1.92.5 3.69 1.56 5.07 3.03-.8-.5-1.7-1-2.67-1.31-2.29-.71-4.1-2.4-4.88-4.59.57 1.3 1.63 2.37 2.48 2.87z"/>
-        <path fill="#22c55e" d="M12 2.06c-1.79 3.98-5.3 6.77-9.56 7.7.93-.24 1.88-.42 2.86-.53 3.32-.38 6.13-2.48 7.6-5.32-1.2.93-2.02 2.28-2.61 3.86l1.71-5.71z"/>
-    </svg>
-);
-
-
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
@@ -43,7 +33,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <GrassIcon className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
+    case 'grass': return <Shrub className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
     default: return null;
   }
 };
