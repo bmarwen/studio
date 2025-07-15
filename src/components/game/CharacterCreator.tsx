@@ -128,9 +128,9 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
-      <TooltipProvider>
-        <Card className="w-full max-w-lg shadow-2xl relative">
-           <div id="tooltip-portal-container" ref={tooltipPortalRef} />
+      <Card className="w-full max-w-lg shadow-2xl relative">
+          <div id="tooltip-portal-container" ref={tooltipPortalRef} />
+        <TooltipProvider>
           <form onSubmit={handleSubmit}>
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
@@ -212,7 +212,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                               <Tooltip key={key}>
                                                                   <TooltipTrigger asChild>
                                                                       <div className="flex items-center cursor-help">
-                                                                          <span className="font-bold uppercase w-12">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
+                                                                          <span className="font-bold uppercase w-12 text-sm">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
                                                                           <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                       </div>
                                                                   </TooltipTrigger>
@@ -247,8 +247,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
               </Button>
             </CardFooter>
           </form>
-        </Card>
-      </TooltipProvider>
+        </TooltipProvider>
+      </Card>
     </div>
   );
 }
