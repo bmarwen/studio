@@ -217,7 +217,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                       </div>
                                                                   </TooltipTrigger>
                                                                   <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
-                                                                      <TooltipContent>
+                                                                      <TooltipContent side="bottom">
                                                                           <div className="space-y-1 w-48">
                                                                               <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
                                                                               <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
