@@ -1,3 +1,4 @@
+
 import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 
 export const MAP_SIZE = 100;
@@ -13,6 +14,7 @@ export const TERRAIN_ENERGY_COST: Record<string, number> = {
     snow: 20,
     town: 1,
     camp: 1,
+    mountain: 30,
 };
 
 export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'race'> = {

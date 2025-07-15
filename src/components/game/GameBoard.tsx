@@ -1,3 +1,4 @@
+
 "use client";
 
 import { memo } from 'react';
@@ -40,11 +41,11 @@ const getTileIcon = (tile: TileData) => {
 const getTooltipContent = (tile: TileData) => {
     if (tile.terrain === 'snow') return 'Snowy field';
     if (tile.terrain === 'camp') return 'A safe place to rest.';
+    if (tile.terrain === 'mountain') return 'Treacherous mountains. Moving here costs a lot of energy.';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
 const Tile = memo(({ tile }: TileProps) => {
-  const isObstacle = tile.terrain === 'mountain';
   const icon = getTileIcon(tile);
   
   return (
@@ -53,18 +54,26 @@ const Tile = memo(({ tile }: TileProps) => {
         <TooltipTrigger asChild>
           <div className={cn(
             "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors aspect-square",
-            isObstacle ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
+            tile.terrain === 'mountain' ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
             tile.terrain === 'grass' && 'bg-green-400/10 dark:bg-green-900/40',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
             tile.terrain === 'camp' && 'bg-orange-400/10 dark:bg-orange-900/40',
             "relative"
           )}>
+            {tile.monster && (
+                 <img src={tile.monster.icon} alt={tile.monster.name} className="w-10 h-10 absolute z-10 drop-shadow-lg animate-pulse" />
+            )}
+            {tile.item && (
+                 <img src={tile.item.icon} alt={tile.item.name} className="w-8 h-8 absolute z-10 drop-shadow-lg" />
+            )}
             {icon}
           </div>
         </TooltipTrigger>
         <TooltipContent>
           <p>{getTooltipContent(tile)}</p>
+          {tile.monster && <p className="font-bold text-destructive">{tile.monster.name}</p>}
+          {tile.item && <p className="font-bold text-accent">{tile.item.name}</p>}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

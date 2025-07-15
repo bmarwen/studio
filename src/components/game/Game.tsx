@@ -270,11 +270,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }
 
     const targetTile = worldMap[newY][newX];
-    if (targetTile.terrain === 'mountain') {
-      addLog("You can't climb these treacherous mountains!");
-      return;
-    }
-
+    
     const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain];
     if (player.energy < moveCost) {
       addLog("Not enough energy to move!");
