@@ -185,8 +185,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                               </CarouselItem>
                           ))}
                       </CarouselContent>
-                      <CarouselPrevious variant="ghost" className="left-0" />
-                      <CarouselNext variant="ghost" className="right-0" />
+                      <CarouselPrevious type="button" variant="ghost" className="left-0" />
+                      <CarouselNext type="button" variant="ghost" className="right-0" />
                   </Carousel>
               </div>
 
@@ -243,8 +243,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                )
                           })}
                       </CarouselContent>
-                      <CarouselPrevious variant="ghost" />
-                      <CarouselNext variant="ghost" />
+                      <CarouselPrevious type="button" variant="ghost" />
+                      <CarouselNext type="button" variant="ghost" />
                   </Carousel>
               </div>
 
