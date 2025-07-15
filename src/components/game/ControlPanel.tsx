@@ -11,16 +11,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
-import { INVENTORY_SIZE } from '@/lib/game-constants';
+import { INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import { useAudio } from '@/context/AudioContext';
+import { Slider } from '../ui/slider';
+import { Label } from '../ui/label';
 
 interface ControlPanelProps {
   player: Player;
   log: string[];
+  moveCooldown: number;
   onReset: () => void;
   onUseItem: (item: Item, index: number) => void;
   onEquipItem: (item: Item, index: number) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
+  onMoveSpeedChange: (speed: number) => void;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -66,6 +70,7 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
             {item.criticalChance ? <p>Crit: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
             {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
+            {item.inventorySlots ? <p>Inventory: <span className="font-mono text-blue-400">+{item.inventorySlots} Slots</span></p> : null}
         </div>
     </div>
 );
@@ -102,9 +107,17 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-export default function ControlPanel({ player, log, onReset, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
-  const inventorySlots = Array.from({ length: INVENTORY_SIZE });
+export default function ControlPanel({ player, log, moveCooldown, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange }: ControlPanelProps) {
+  const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
+  const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
+
+  const PrimaryAttackStat = () => {
+    if (player.class === 'mage') {
+        return <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" /> M.Attack:</div> <span className="font-mono">{player.magicAttack}</span></div>
+    }
+    return <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack:</div> <span className="font-mono">{player.attack}</span></div>
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -123,11 +136,10 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
             <StatItem icon={<Zap className="text-yellow-400" />} label="Energy" value={player.energy} maxValue={player.maxEnergy} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
-            <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack: <span className="font-mono">{player.attack}</span></div>
-                <div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" /> M.Attack: <span className="font-mono">{player.magicAttack}</span></div>
-                <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense: <span className="font-mono">{player.defense}</span></div>
-                <div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit: <span className="font-mono">{player.criticalChance}%</span></div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <PrimaryAttackStat />
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense:</div> <span className="font-mono">{player.defense}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit:</div> <span className="font-mono">{player.criticalChance}%</span></div>
             </div>
           </CardContent>
         </Card>
@@ -148,7 +160,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             </AccordionItem>
           <AccordionItem value="inventory">
             <AccordionTrigger className="text-lg font-headline">
-                <div className="flex items-center gap-2"><Package />Inventory</div>
+                <div className="flex items-center gap-2"><Package />Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</div>
             </AccordionTrigger>
             <AccordionContent>
                <div className="grid grid-cols-4 gap-4">
@@ -224,6 +236,16 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-4">
                <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
+               <div className='space-y-2'>
+                <Label>Move Cooldown: {(moveCooldown / 1000).toFixed(1)}s</Label>
+                <Slider 
+                    value={[moveCooldown]}
+                    onValueChange={([v]) => onMoveSpeedChange(v)} 
+                    min={500} 
+                    max={3000} 
+                    step={100} 
+                />
+               </div>
                <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
                <TooltipProvider>
                 <Tooltip>

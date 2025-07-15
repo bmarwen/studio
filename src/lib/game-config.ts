@@ -11,6 +11,7 @@ export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity'>> = {
 
     // --- Utility ---
     'scrying_orb': { name: 'Scrying Orb', type: 'utility', rarity: 'Rare', description: 'Reveals monsters in a small radius around you.', icon: '/icons/item-orb.svg'},
+    'adventurers_pack': { name: 'Adventurer\'s Pack', type: 'utility', rarity: 'Rare', description: 'Permanently increases your inventory size by 4 slots.', icon: '/icons/item-pack.svg', inventorySlots: 4},
     
     // ================================================
     // WARRIOR WEAPONS (SWORDS)
@@ -298,6 +299,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'assassin_weapon_common_balanced', chance: 0.05, quantity: 1 },
             { itemId: 'ranger_belt_common_balanced', chance: 0.02, quantity: 1 },
             { itemId: 'mage_helmet_common_balanced', chance: 0.02, quantity: 1 },
+            { itemId: 'adventurers_pack', chance: 0.01, quantity: 1 },
         ] 
     },
     'slime': { 
@@ -322,6 +324,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'ranger_weapon_common_heavy', chance: 0.05, quantity: 1 },
             { itemId: 'warrior_sword_rare_defensive', chance: 0.02, quantity: 1 },
             { itemId: 'ranger_armor_rare_defensive', chance: 0.01, quantity: 1 },
+            { itemId: 'adventurers_pack', chance: 0.02, quantity: 1 },
         ]
     },
     'ice_elemental': { 
@@ -359,6 +362,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'ranger_belt_legendary_balanced', chance: 0.1, quantity: 1 },
             { itemId: 'assassin_belt_legendary_balanced', chance: 0.1, quantity: 1 },
             { itemId: 'elixir_of_power', chance: 0.5, quantity: 2 },
+            { itemId: 'adventurers_pack', chance: 0.1, quantity: 1 },
         ]
     }
 };

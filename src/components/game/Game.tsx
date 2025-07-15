@@ -32,6 +32,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [combatCountdown, setCombatCountdown] = useState(0);
 
   const [isMoving, setIsMoving] = useState(false);
+  const [moveCooldown, setMoveCooldown] = useState(MOVE_COOLDOWN);
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item[] } | null>(null);
   const { toast } = useToast();
@@ -53,12 +54,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     worldMap,
     combatInfo,
     pendingCombat,
-    isMoving
+    isMoving,
+    moveCooldown
   });
 
   useEffect(() => {
-    gameStateRef.current = { player, worldMap, combatInfo, pendingCombat, isMoving };
-  }, [player, worldMap, combatInfo, pendingCombat, isMoving]);
+    gameStateRef.current = { player, worldMap, combatInfo, pendingCombat, isMoving, moveCooldown };
+  }, [player, worldMap, combatInfo, pendingCombat, isMoving, moveCooldown]);
   // ---------------------------------
 
   useEffect(() => {
@@ -218,6 +220,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       }
       
       setPlayer(p => {
+        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
         const newInventory = [...p.inventory];
         if (allLoot.length > 0) {
             allLoot.forEach(loot => {
@@ -229,9 +232,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
                 } else {
                     const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                    if (emptySlotIndex !== -1) {
+                    if (emptySlotIndex !== -1 && emptySlotIndex < inventoryCapacity) {
                          newInventory[emptySlotIndex] = loot;
-                    } else if (newInventory.length < INVENTORY_SIZE) {
+                    } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
                          newInventory.push(loot);
                     } else {
                          addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
@@ -280,7 +283,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
 
   const handleMove = (dx: number, dy: number) => {
-    const { player, worldMap, combatInfo, pendingCombat, isMoving } = gameStateRef.current;
+    const { player, worldMap, combatInfo, pendingCombat, isMoving, moveCooldown: currentMoveCooldown } = gameStateRef.current;
 
     if (combatInfo?.open || pendingCombat || isMoving) {
         if (isMoving) {
@@ -326,7 +329,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
     playAudio('/audio/move.wav', { volume: 0.3 });
     setIsMoving(true);
-    moveTimeout.current = setTimeout(() => setIsMoving(false), MOVE_COOLDOWN);
+    moveTimeout.current = setTimeout(() => setIsMoving(false), currentMoveCooldown);
     
     setPlayer(p => {
         const newPlayerState = {
@@ -346,6 +349,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             });
         }
         
+        const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
+
         if (targetTile.item) {
             const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
             addLog(`You found a ${logMessage}!`);
@@ -355,7 +360,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
             if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
                 newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
-            } else if (newInventory.filter(i => i !== null).length < INVENTORY_SIZE) {
+            } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
                 const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                 if (emptySlotIndex !== -1) {
                     newInventory[emptySlotIndex] = targetTile.item;
@@ -394,6 +399,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         });
         return;
     }
+    
+    if (itemToUse.inventorySlots && player.hasBackpack) {
+        toast({
+            title: (
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-400" />
+                    <span className="font-headline">Backpack Already Equipped</span>
+                </div>
+            ),
+            description: "You can only benefit from one backpack.",
+            variant: "destructive",
+        });
+        return;
+    }
+
 
     let itemUsed = false;
     const newInventory = [...player.inventory];
@@ -411,7 +431,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     if(itemUsed) {
         playAudio('/audio/use-potion.wav');
         setPlayer(p => {
-            const newPlayerState = {...p};
+            let newPlayerState = {...p};
             const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
             newPlayerState.hp = newHp;
             
@@ -431,6 +451,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 };
                 newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
                 addLog(`You feel energized by the ${itemToUse.name}!`);
+            } else if (itemToUse.inventorySlots) {
+                newPlayerState.hasBackpack = true;
+                addLog(`You equip the ${itemToUse.name}, gaining more inventory space!`);
             } else {
                 addLog(`You used ${itemToUse.name}.`);
             }
@@ -492,8 +515,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const handleUnequipItem = (slot: EquipmentSlot) => {
     setPlayer(p => {
+        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
         const emptySlotIndex = p.inventory.findIndex(i => !i);
-        if (emptySlotIndex === -1) {
+        if (emptySlotIndex === -1 && p.inventory.filter(i => i).length >= inventoryCapacity) {
             addLog("Cannot unequip, inventory is full!");
             toast({
                 title: (
@@ -550,12 +574,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-          <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} />
+          <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
         </motion.div>
         <MovementControls onMove={handleMove} />
       </main>
       <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
-        <ControlPanel player={player} log={gameLog} onReset={onReset} onUseItem={handleUseItem} onEquipItem={handleEquipItem} onUnequipItem={handleUnequipItem} />
+        <ControlPanel 
+            player={player} 
+            log={gameLog} 
+            onReset={onReset} 
+            onUseItem={handleUseItem} 
+            onEquipItem={handleEquipItem} 
+            onUnequipItem={handleUnequipItem}
+            moveCooldown={moveCooldown}
+            onMoveSpeedChange={setMoveCooldown}
+        />
       </aside>
       
       {pendingCombat && combatCountdown > 0 && (

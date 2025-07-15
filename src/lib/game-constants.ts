@@ -3,8 +3,8 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 1000; // ms, faster regen
-export const MOVE_COOLDOWN = 200; // ms
-export const INVENTORY_SIZE = 16;
+export const MOVE_COOLDOWN = 1200; // ms
+export const INVENTORY_SIZE = 8;
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
     grass: 8,
@@ -27,6 +27,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   criticalChance: 5,
   position: { x: Math.floor(MAP_SIZE / 2), y: Math.floor(MAP_SIZE / 2) },
   inventory: [],
+  hasBackpack: false,
   quests: [{
     id: 'q1',
     title: 'Explore the World',
@@ -47,7 +48,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   utilityItemFindChance: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects' | 'hasBackpack'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,

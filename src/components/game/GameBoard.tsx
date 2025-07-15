@@ -80,9 +80,10 @@ interface GameBoardProps {
   viewport: TileData[][];
   playerIcon: PlayerIcon;
   isMoving: boolean;
+  moveCooldown: number;
 }
 
-const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
+const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardProps) => {
   const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
   const iconPath = getPlayerIconPath(playerIcon);
 
@@ -134,7 +135,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                   fill="transparent"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1.01 }}
-                  transition={{ duration: MOVE_COOLDOWN / 1000, ease: 'linear' }}
+                  transition={{ duration: moveCooldown / 1000, ease: 'linear' }}
                 />
               </svg>
             </motion.div>

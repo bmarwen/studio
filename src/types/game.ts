@@ -34,6 +34,7 @@ export type Item = {
   icon: string;
   quantity: number;
   allowedClasses?: PlayerClass[];
+  inventorySlots?: number;
 };
 
 export type MonsterLoot = {
@@ -88,6 +89,7 @@ export type Player = {
   criticalChance: number;
   position: Coordinates;
   inventory: (Item | null)[];
+  hasBackpack: boolean;
   quests: Quest[];
   equipment: Equipment;
   activeEffects: PlayerEffect[];
