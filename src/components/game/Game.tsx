@@ -220,18 +220,18 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   const initiateCombat = useCallback((monster: Monster) => {
     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
-  
+
     playAudio('/audio/combat-start.wav');
     setPendingCombat(monster);
     setCombatCountdown(3);
-  
+
     countdownTimer.current = setInterval(() => {
       setCombatCountdown(currentCountdown => {
-        if (currentCountdown === 1) {
+        const newCountdown = currentCountdown - 1;
+        if (newCountdown === 0) {
           clearInterval(countdownTimer.current);
-          return 0; // Final tick before combat starts
         }
-        return currentCountdown - 1;
+        return newCountdown;
       });
     }, 1000);
   }, [playAudio]);
