@@ -266,7 +266,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                 return (
                                                                     <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
-                                                                            <div className="flex items-center justify-between cursor-help text-xs">
+                                                                            <div className="flex items-center justify-between gap-2 cursor-help text-xs">
                                                                                 <span className="font-bold uppercase text-muted-foreground">{STAT_LABELS[statKey as keyof typeof STAT_LABELS]}</span>
                                                                                 <span className="font-mono text-primary">{value}{key.includes('Chance') || key.includes('evasion') ? '%' : ''}</span>
                                                                             </div>
