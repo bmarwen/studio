@@ -170,7 +170,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                           {RACES.map(({ id, name, bonus, path, hint }) => (
                               <CarouselItem key={id}>
                                   <div className="p-1 text-center flex flex-col items-center gap-1">
-                                      <Image src={path} alt={id} width={128} height={128} className="w-48 h-48 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
+                                      <Image src={path} alt={id} width={128} height={128} className="w-40 h-40 rounded-2xl shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
                                       <p className="font-bold text-lg font-headline">{name}</p>
                                       <p className="text-sm text-accent">{bonus}</p>
                                   </div>
