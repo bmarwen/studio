@@ -20,19 +20,19 @@ type Props = {
 };
 
 const RACES: { id: PlayerIcon; name: PlayerRace; bonus: string; path: string; hint: string;}[] = [
-    { id: 'hero1', name: 'Male Elf', bonus: '+5 Magic', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
-    { id: 'hero2', name: 'Female Elf', bonus: '+5 Magic', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
+    { id: 'hero1', name: 'Male Elf', bonus: '+5 Critical Chance', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
+    { id: 'hero2', name: 'Female Elf', bonus: '+5 Critical Chance', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
     { id: 'hero3', name: 'Male Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-3.png', hint: 'male elf' },
     { id: 'hero4', name: 'Female Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-4.png', hint: 'female elf' },
     { id: 'hero5', name: 'Male Human', bonus: '+5 Attack', path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
     { id: 'hero6', name: 'Female Human', bonus: '+5 Attack', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
-const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; bgPath: string; }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png', bgPath: '/backgrounds/warrior-bg.jpg' },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png', bgPath: '/backgrounds/mage-bg.jpg' },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png', bgPath: '/backgrounds/ranger-bg.jpg' },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png', bgPath: '/backgrounds/assassin-bg.jpg' },
+const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; }[] = [
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png' },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png' },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png' },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
@@ -133,7 +133,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
                 <Carousel setApi={setIconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                     <CarouselContent>
@@ -158,26 +158,23 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
                  <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                     <CarouselContent>
-                        {CLASSES.map(({ id, name, description, iconPath, bgPath }) => {
+                        {CLASSES.map(({ id, name, description, iconPath }) => {
                              const stats = PLAYER_CLASSES[id];
                              return (
                                 <CarouselItem key={id}>
                                     <div className="p-1">
-                                        <Card className="bg-secondary/50 overflow-hidden relative text-white">
-                                            <Image src={bgPath} alt={`${name} background`} layout="fill" objectFit="cover" className="absolute inset-0 z-0 opacity-30" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-10"></div>
-                                            
+                                        <Card className="bg-secondary/50 overflow-hidden relative text-card-foreground">
                                             <div className="relative z-20 flex flex-col items-center p-4 text-center">
                                                 <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/50 p-2 border-2 border-primary/80" />
                                                 <CardTitle className="font-headline text-2xl pt-2">{name}</CardTitle>
-                                                <p className="text-sm text-white/80 min-h-[40px] pt-2">{description}</p>
+                                                <p className="text-sm text-muted-foreground min-h-[40px] pt-2">{description}</p>
                                                 
-                                                <div className="text-xs grid grid-cols-3 gap-x-4 gap-y-2 text-white/90 pt-4">
+                                                <div className="text-xs grid grid-cols-3 gap-x-4 gap-y-2 pt-4">
                                                     <span>HP: {stats.maxHp}</span>
+                                                    <span>EN: {stats.maxEnergy}</span>
                                                     <span>ATK: {stats.attack}</span>
                                                     <span>DEF: {stats.defense}</span>
-                                                    <span>EN: {stats.maxEnergy}</span>
-                                                    <span>MAG: {stats.magic}</span>
+                                                    <span className="col-span-2">Crit. Chance: {stats.criticalChance}%</span>
                                                 </div>
                                             </div>
                                         </Card>

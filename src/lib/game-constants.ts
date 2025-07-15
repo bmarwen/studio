@@ -22,7 +22,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   maxEnergy: 100,
   attack: 10,
   defense: 5,
-  magic: 0,
+  criticalChance: 5,
   position: { x: Math.floor(MAP_SIZE / 2), y: Math.floor(MAP_SIZE / 2) },
   inventory: [],
   quests: [{
@@ -48,7 +48,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         maxEnergy: 80,
         attack: 15,
         defense: 10,
-        magic: 0,
+        criticalChance: 5,
     },
     mage: {
         class: 'mage',
@@ -58,7 +58,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         maxEnergy: 120,
         attack: 5,
         defense: 5,
-        magic: 20,
+        criticalChance: 15,
     },
     ranger: {
         class: 'ranger',
@@ -68,7 +68,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         maxEnergy: 100,
         attack: 12,
         defense: 7,
-        magic: 5,
+        criticalChance: 10,
     },
     assassin: {
         class: 'assassin',
@@ -78,6 +78,6 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         maxEnergy: 110,
         attack: 18,
         defense: 5,
-        magic: 2,
+        criticalChance: 20,
     }
 };

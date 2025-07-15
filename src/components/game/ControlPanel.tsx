@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Wand2, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -58,7 +58,7 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
         <div className="space-y-1">
             {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
             {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
-            {item.magic ? <p>Magic: <span className="font-mono text-primary">+{item.magic}</span></p> : null}
+            {item.criticalChance ? <p>Crit. Chance: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
             {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
         </div>
@@ -120,7 +120,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack: <span className="font-mono">{player.attack}</span></div>
                 <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense: <span className="font-mono">{player.defense}</span></div>
-                <div className="flex items-center gap-2"><Wand2 className="w-4 h-4 text-gray-400" /> Magic: <span className="font-mono">{player.magic}</span></div>
+                <div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit. Chance: <span className="font-mono">{player.criticalChance}%</span></div>
             </div>
           </CardContent>
         </Card>

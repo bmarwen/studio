@@ -17,7 +17,7 @@ export type Item = {
   rarity: ItemRarity;
   attack?: number;
   defense?: number;
-  magic?: number;
+  criticalChance?: number;
   hp?: number;
   energyBoost?: number;
   description: string;
@@ -67,7 +67,7 @@ export type Player = {
   maxEnergy: number;
   attack: number;
   defense: number;
-  magic: number;
+  criticalChance: number;
   position: Coordinates;
   inventory: Item[];
   quests: Quest[];

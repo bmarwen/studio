@@ -9,8 +9,8 @@ export const ITEMS: Item[] = [
     { id: 'i5', name: 'Iron Helmet', type: 'helmet', rarity: 'Common', defense: 3, description: 'A sturdy iron helmet.', icon: '/icons/item-helmet.svg'},
     { id: 'i6', name: 'Steel Platebody', type: 'armor', rarity: 'Rare', defense: 5, description: 'Provides good protection against physical attacks.', icon: '/icons/item-armor.svg'},
     { id: 'i7', name: 'Reinforced Belt', type: 'belt', rarity: 'Common', defense: 1, description: 'A simple but effective belt.', icon: '/icons/item-belt.svg'},
-    { id: 'i8', name: 'Blade of the Ancients', type: 'weapon', rarity: 'Epic', attack: 10, magic: 5, description: 'A powerful blade pulsating with ancient magic.', icon: '/icons/item-sword.svg'},
-    { id: 'i9', name: 'Dragonscale Helm', type: 'helmet', rarity: 'Legendary', defense: 8, magic: 3, description: 'A helm crafted from the scales of a mythical dragon.', icon: '/icons/item-helmet.svg'},
+    { id: 'i8', name: 'Blade of the Ancients', type: 'weapon', rarity: 'Epic', attack: 10, criticalChance: 5, description: 'A powerful blade pulsating with ancient magic.', icon: '/icons/item-sword.svg'},
+    { id: 'i9', name: 'Dragonscale Helm', type: 'helmet', rarity: 'Legendary', defense: 8, criticalChance: 3, description: 'A helm crafted from the scales of a mythical dragon.', icon: '/icons/item-helmet.svg'},
 ];
 
 const MONSTERS: Omit<Monster, 'id'>[] = [

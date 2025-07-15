@@ -63,17 +63,17 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     const baseStats = PLAYER_CLASSES[basePlayer.class];
     let attack = baseStats.attack;
     let defense = baseStats.defense;
-    let magic = baseStats.magic;
+    let criticalChance = baseStats.criticalChance;
 
     Object.values(basePlayer.equipment).forEach(item => {
         if(item) {
             attack += item.attack || 0;
             defense += item.defense || 0;
-            magic += item.magic || 0;
+            criticalChance += item.criticalChance || 0;
         }
     });
 
-    return {...basePlayer, attack, defense, magic};
+    return {...basePlayer, attack, defense, criticalChance};
   }, []);
 
   useEffect(() => {
