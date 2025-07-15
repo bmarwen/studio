@@ -58,7 +58,7 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
         <div className="space-y-1">
             {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
             {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
-            {item.criticalChance ? <p>Crit. Chance: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
+            {item.criticalChance ? <p>Crit: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
             {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
         </div>
@@ -120,7 +120,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack: <span className="font-mono">{player.attack}</span></div>
                 <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense: <span className="font-mono">{player.defense}</span></div>
-                <div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit. Chance: <span className="font-mono">{player.criticalChance}%</span></div>
+                <div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit: <span className="font-mono">{player.criticalChance}%</span></div>
             </div>
           </CardContent>
         </Card>

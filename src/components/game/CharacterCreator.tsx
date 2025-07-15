@@ -139,10 +139,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                     <CarouselContent>
                         {RACES.map(({ id, name, bonus, path, hint }) => (
                             <CarouselItem key={id}>
-                                <div className="p-1 text-center">
-                                    <div className="flex aspect-square items-center justify-center p-2">
-                                        <Image src={path} alt={id} width={128} height={128} className="w-32 h-32 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
-                                    </div>
+                                <div className="p-1 text-center flex flex-col items-center gap-2">
+                                    <Image src={path} alt={id} width={128} height={128} className="w-32 h-32 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
                                     <p className="font-bold text-lg font-headline">{name}</p>
                                     <p className="text-sm text-accent">{bonus}</p>
                                 </div>
@@ -174,7 +172,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                     <span>EN: {stats.maxEnergy}</span>
                                                     <span>ATK: {stats.attack}</span>
                                                     <span>DEF: {stats.defense}</span>
-                                                    <span className="col-span-2">Crit. Chance: {stats.criticalChance}%</span>
+                                                    <span className="col-span-2">Crit: {stats.criticalChance}%</span>
                                                 </div>
                                             </div>
                                         </Card>
