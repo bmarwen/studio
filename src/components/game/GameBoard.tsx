@@ -18,6 +18,8 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
         case 'hero2': return '/icons/hero-avatar-2.png';
         case 'hero3': return '/icons/hero-avatar-3.png';
         case 'hero4': return '/icons/hero-avatar-4.png';
+        case 'hero5': return '/icons/hero-avatar-5.png';
+        case 'hero6': return '/icons/hero-avatar-6.png';
         default: return '/icons/hero-avatar-1.png';
     }
 }

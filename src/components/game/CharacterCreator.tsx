@@ -19,10 +19,12 @@ type Props = {
 };
 
 const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
-    { id: 'hero1', path: '/icons/hero-avatar-warrior.png', hint: 'bearded warrior' },
-    { id: 'hero2', path: '/icons/icon-elf.png', hint: 'elf archer' },
-    { id: 'hero3', path: '/icons/hero-avatar-dragon.png', hint: 'dragon face' },
-    { id: 'hero4', path: '/icons/hero-avatar-knight.png', hint: 'male knight' },
+    { id: 'hero1', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
+    { id: 'hero2', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
+    { id: 'hero3', path: '/icons/hero-avatar-3.png', hint: 'male elf' },
+    { id: 'hero4', path: '/icons/hero-avatar-4.png', hint: 'female elf' },
+    { id: 'hero5', path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
+    { id: 'hero6', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
@@ -90,19 +92,19 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 <RadioGroup
                   value={selectedIcon}
                   onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
-                  className="mt-2 grid grid-cols-2 gap-4"
+                  className="mt-2 grid grid-cols-3 gap-4"
                 >
                   {ICONS.map(({ id, path, hint }) => (
                      <Label
                         key={id}
                         htmlFor={id}
                         className={cn(
-                          'flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all aspect-square',
+                          'flex items-center justify-center p-2 border-2 rounded-lg cursor-pointer transition-all aspect-square',
                           selectedIcon === id ? 'border-primary bg-primary/10' : 'border-border'
                         )}
                       >
                        <RadioGroupItem value={id} id={id} className="sr-only" />
-                       <Image src={path} alt={id} width={128} height={128} className="w-32 h-32" data-ai-hint={hint} />
+                       <Image src={path} alt={id} width={112} height={112} className="w-28 h-28 rounded-md" data-ai-hint={hint} />
                      </Label>
                   ))}
                 </RadioGroup>
