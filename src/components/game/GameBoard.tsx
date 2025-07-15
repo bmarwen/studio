@@ -116,30 +116,32 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
           <AnimatePresence>
             {isMoving && (
                 <motion.div
+                    key="loader"
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1, transition: { duration: 0.2 } }}
-                    exit={{ scale: 0, opacity: 0, transition: { duration: 0.2 } }}
-                    className="absolute w-12 h-12"
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute w-14 h-14"
                 >
-                    <svg className="w-full h-full" viewBox="0 0 100 100">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                         <motion.circle
                             cx="50"
                             cy="50"
                             r="45"
-                            stroke="hsl(var(--accent))"
+                            stroke="hsl(var(--primary))"
                             strokeWidth="10"
                             fill="transparent"
                             strokeDasharray="0 1"
                             pathLength="1"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
                             transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
                         />
                     </svg>
                 </motion.div>
             )}
           </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-12 h-12 drop-shadow-lg" />
+          <img src={iconPath} alt="player icon" className="w-12 h-12 rounded-full drop-shadow-lg" />
       </motion.div>
     </div>
   );
