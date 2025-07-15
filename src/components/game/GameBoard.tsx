@@ -2,7 +2,7 @@
 "use client";
 
 import { memo } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -114,26 +114,32 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
         }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
-          {isMoving && (
-              <div
-                  className="absolute w-14 h-14"
-              >
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                      <motion.circle
-                          cx="50"
-                          cy="50"
-                          r="48"
-                          stroke="hsl(var(--primary))"
-                          strokeWidth="4"
-                          fill="transparent"
-                          pathLength="1"
-                          initial={{ pathLength: 0 }}
-                          animate={{ pathLength: 1.01 }}
-                          transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
-                      />
-                  </svg>
-              </div>
-          )}
+          <AnimatePresence>
+            {isMoving && (
+                <motion.div
+                    className="absolute w-14 h-14"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                        <motion.circle
+                            cx="50"
+                            cy="50"
+                            r="48"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth="4"
+                            fill="transparent"
+                            pathLength="1"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1.01 }}
+                            transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
+                        />
+                    </svg>
+                </motion.div>
+            )}
+          </AnimatePresence>
           <img src={iconPath} alt="player icon" className="w-12 h-12 rounded-full drop-shadow-lg" />
       </motion.div>
     </div>
@@ -141,3 +147,5 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
 };
 
 export default GameBoard;
+
+    

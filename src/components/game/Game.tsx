@@ -226,12 +226,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setCombatCountdown(3);
 
     countdownTimer.current = setInterval(() => {
-      setCombatCountdown(c => {
-        if (c - 1 <= 0) {
-            clearInterval(countdownTimer.current);
-        }
-        return c - 1;
-      });
+        setCombatCountdown(c => {
+            const newTime = c - 1;
+            if (newTime <= 0) {
+                clearInterval(countdownTimer.current);
+            }
+            return newTime;
+        });
     }, 1000);
   }, [playAudio]);
 
@@ -479,3 +480,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
+
+    
