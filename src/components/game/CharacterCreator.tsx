@@ -148,8 +148,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <div><CarouselPrevious /></div>
+                    <div><CarouselNext /></div>
                 </Carousel>
             </div>
 
@@ -185,8 +185,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                              )
                         })}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <div><CarouselPrevious /></div>
+                    <div><CarouselNext /></div>
                 </Carousel>
                 <AnimatePresence mode="wait">
                     <motion.div
