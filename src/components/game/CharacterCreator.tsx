@@ -92,7 +92,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 <RadioGroup
                   value={selectedIcon}
                   onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
-                  className="mt-2 grid grid-cols-3 gap-4"
+                  className="mt-2 grid grid-cols-2 gap-4"
                 >
                   {ICONS.map(({ id, path, hint }) => (
                      <Label
