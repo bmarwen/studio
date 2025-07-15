@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
-import { INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import { INVENTORY_SIZE } from '@/lib/game-constants';
 import { useAudio } from '@/context/AudioContext';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
@@ -67,9 +67,12 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
             {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
             {item.magicAttack ? <p>Magic Attack: <span className="font-mono text-purple-400">+{item.magicAttack}</span></p> : null}
             {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
+            {item.armor ? <p>Armor: <span className="font-mono text-primary">+{item.armor}</span></p> : null}
+            {item.magicResist ? <p>M.Resist: <span className="font-mono text-primary">+{item.magicResist}</span></p> : null}
+            {item.evasion ? <p>Evasion: <span className="font-mono text-primary">+{item.evasion}</span></p> : null}
             {item.criticalChance ? <p>Crit: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
-            {item.energyBoost ? <p>Energy Regen: <span className="font-mono text-yellow-500">+{item.energyBoost}</span></p> : null}
+            {item.staminaBoost ? <p>Stamina Regen: <span className="font-mono text-yellow-500">+{item.staminaBoost}</span></p> : null}
             {item.inventorySlots ? <p>Inventory: <span className="font-mono text-blue-400">+{item.inventorySlots} Slots</span></p> : null}
         </div>
     </div>
@@ -112,12 +115,9 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
 
-  const PrimaryAttackStat = () => {
-    if (player.class === 'mage') {
-        return <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" /> M.Attack:</div> <span className="font-mono">{player.magicAttack}</span></div>
-    }
-    return <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack:</div> <span className="font-mono">{player.attack}</span></div>
-  }
+  const primaryAttackStat = player.class === 'mage' 
+    ? { label: "M.Attack", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" /> }
+    : { label: "P.Attack", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" /> };
 
   return (
     <ScrollArea className="h-full">
@@ -134,12 +134,15 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
           </CardHeader>
           <CardContent className="space-y-4">
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
-            <StatItem icon={<Zap className="text-yellow-400" />} label="Energy" value={player.energy} maxValue={player.maxEnergy} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
+            <StatItem icon={<Zap className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <PrimaryAttackStat />
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense:</div> <span className="font-mono">{player.defense}</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit:</div> <span className="font-mono">{player.criticalChance}%</span></div>
+            <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2">{primaryAttackStat.icon} {primaryAttackStat.label}:</div> <span className="font-mono">{primaryAttackStat.value}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> DEF:</div> <span className="font-mono">{player.defense}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> CRIT:</div> <span className="font-mono">{player.criticalChance}%</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-400" /> ARM:</div> <span className="font-mono">{player.armor}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-purple-400" /> M.RES:</div> <span className="font-mono">{player.magicResist}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-400" /> EVA:</div> <span className="font-mono">{player.evasion}</span></div>
             </div>
           </CardContent>
         </Card>

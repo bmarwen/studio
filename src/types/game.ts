@@ -8,7 +8,7 @@ export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Trol
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
 export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable' | 'legendary' | 'utility';
 export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
-export type PlayerEffectType = 'energy_regen_boost' | 'attack_boost';
+export type PlayerEffectType = 'stamina_regen_boost' | 'attack_boost';
 
 export type PlayerEffect = {
   id: string;
@@ -25,10 +25,13 @@ export type Item = {
   attack?: number;
   magicAttack?: number;
   defense?: number;
+  armor?: number;
+  magicResist?: number;
+  evasion?: number;
   criticalChance?: number;
   hp?: number;
-  energyBoost?: number;
-  energyRegenBonus?: number; // e.g., 0.2 for 20%
+  staminaBoost?: number;
+  staminaRegenBonus?: number; // e.g., 0.2 for 20%
   effectDuration?: number; // in seconds
   description: string;
   icon: string;
@@ -81,11 +84,14 @@ export type Player = {
   icon: PlayerIcon;
   hp: number;
   maxHp: number;
-  energy: number;
-  maxEnergy: number;
+  stamina: number;
+  maxStamina: number;
   attack: number;
   magicAttack: number;
   defense: number;
+  armor: number;
+  magicResist: number;
+  evasion: number;
   criticalChance: number;
   position: Coordinates;
   inventory: (Item | null)[];

@@ -104,9 +104,12 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             fadeOut(startPlayback);
         } else if (!audioRef.current || audioRef.current.src !== new URL(src, window.location.origin).href) {
             startPlayback();
-        } else {
-             // If the same audio is playing, just ensure its state is correct
-            if (audioRef.current.paused) {
+        } else if (audioRef.current) {
+             // If the same audio is playing, but it's not a looping track, replay it.
+            if (!loop) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(error => console.error("Audio play failed:", error));
+            } else if (audioRef.current.paused) {
                  audioRef.current.play().catch(error => console.error("Audio play failed:", error));
             }
             audioRef.current.muted = isMuted;

@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -71,6 +71,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let attack = baseStats.attack;
     let magicAttack = baseStats.magicAttack;
     let defense = baseStats.defense;
+    let armor = baseStats.armor;
+    let magicResist = baseStats.magicResist;
+    let evasion = baseStats.evasion;
     let criticalChance = baseStats.criticalChance + (basePlayer.bonusCritChance || 0);
 
     Object.values(basePlayer.equipment).forEach(item => {
@@ -78,11 +81,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             attack += item.attack || 0;
             magicAttack += item.magicAttack || 0;
             defense += item.defense || 0;
+            armor += item.armor || 0;
+            magicResist += item.magicResist || 0;
+            evasion += item.evasion || 0;
             criticalChance += item.criticalChance || 0;
         }
     });
 
-    return {...basePlayer, attack, magicAttack, defense, criticalChance};
+    return {...basePlayer, attack, magicAttack, defense, armor, magicResist, evasion, criticalChance};
   }, []);
 
   useEffect(() => {
@@ -116,7 +122,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [player.position, worldMap, updateViewport]);
   
   useEffect(() => {
-    const energyTimer = setInterval(() => {
+    const staminaTimer = setInterval(() => {
       setPlayer(p => {
         if (p.hp <= 0) return p; // Don't regen if dead
 
@@ -126,21 +132,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         const currentTile = worldMap[p.position.y]?.[p.position.x];
         const isResting = currentTile?.terrain === 'camp';
-        const energyBoost = isResting ? 5 : 0;
+        const staminaBoost = isResting ? 5 : 0;
         
-        let energyRegenMultiplier = 1;
-        const regenBuff = activeEffects.find(e => e.type === 'energy_regen_boost');
+        let staminaRegenMultiplier = 1;
+        const regenBuff = activeEffects.find(e => e.type === 'stamina_regen_boost');
         if (regenBuff) {
-            energyRegenMultiplier += regenBuff.value;
+            staminaRegenMultiplier += regenBuff.value;
         }
 
-        if (p.energy < p.maxEnergy || (isResting && p.hp < p.maxHp)) {
-          const energyRegen = (1 + energyBoost) * energyRegenMultiplier;
+        if (p.stamina < p.maxStamina || (isResting && p.hp < p.maxHp)) {
+          const staminaRegen = (1 + staminaBoost) * staminaRegenMultiplier;
           const hpRegen = isResting ? 5 : 0;
           
           return { 
             ...p, 
-            energy: Math.min(p.maxEnergy, p.energy + energyRegen),
+            stamina: Math.min(p.maxStamina, p.stamina + staminaRegen),
             hp: Math.min(p.maxHp, p.hp + hpRegen),
             activeEffects: activeEffects,
           };
@@ -153,8 +159,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         return p;
       });
-    }, ENERGY_REGEN_RATE);
-    return () => clearInterval(energyTimer);
+    }, STAMINA_REGEN_RATE);
+    return () => clearInterval(staminaTimer);
   }, [worldMap]);
 
 
@@ -271,7 +277,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       newStatus = 'defeat';
       addLog(`You were defeated by the ${monster.name}... You limp away.`);
       playAudio('/audio/combat-defeat.wav');
-      setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
+      setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) })); // Penalty on losing
     }
     
     setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot}));
@@ -285,7 +291,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         playAudio('/audio/combat-start.wav');
         setPendingCombat(monster);
         setCombatCountdown(3);
-    }, 400); // 400ms delay
+    }, 1300); // 1.3s delay
   }, [playAudio]);
 
   useEffect(() => {
@@ -334,17 +340,17 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     const targetTile = worldMap[newY][newX];
     
-    const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain];
-    if (player.energy < moveCost) {
-      addLog("Not enough energy to move!");
+    const moveCost = TERRAIN_STAMINA_COST[targetTile.terrain];
+    if (player.stamina < moveCost) {
+      addLog("Not enough stamina to move!");
       toast({
         title: (
           <div className="flex items-center gap-2">
             <ZapOff className="h-5 w-5 text-destructive" />
-            <span className="font-headline">Out of Energy</span>
+            <span className="font-headline">Out of Stamina</span>
           </div>
         ),
-        description: "You are too tired to move. Wait for your energy to recover.",
+        description: "You are too tired to move. Wait for your stamina to recover.",
         variant: "destructive"
       });
       return;
@@ -356,11 +362,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setPlayer(p => {
         const newPlayerState = {
             ...p,
-            energy: p.energy - moveCost,
+            stamina: p.stamina - moveCost,
             position: {x: newX, y: newY}
         };
 
-        addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
+        addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
 
         if (targetTile.monster) {
             initiateCombat(targetTile.monster);
@@ -468,11 +474,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     newPlayerState.attack += itemToUse.attack || 0;
                  }
                  addLog(`You feel a surge of power from the ${itemToUse.name}!`);
-            } else if (itemToUse.energyRegenBonus && itemToUse.effectDuration) {
+            } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
                 const newEffect: PlayerEffect = {
                     id: `effect_${itemToUse.id}_${Date.now()}`,
-                    type: 'energy_regen_boost',
-                    value: itemToUse.energyRegenBonus,
+                    type: 'stamina_regen_boost',
+                    value: itemToUse.staminaRegenBonus,
                     expiresAt: Date.now() + itemToUse.effectDuration * 1000,
                 };
                 newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];

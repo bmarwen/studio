@@ -2,11 +2,11 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
-export const ENERGY_REGEN_RATE = 1000; // ms, faster regen
+export const STAMINA_REGEN_RATE = 1000; // ms, faster regen
 export const MOVE_COOLDOWN = 1200; // ms
 export const INVENTORY_SIZE = 8;
 
-export const TERRAIN_ENERGY_COST: Record<string, number> = {
+export const TERRAIN_STAMINA_COST: Record<string, number> = {
     grass: 8,
     tree: 12,
     river: 16,
@@ -19,11 +19,14 @@ export const TERRAIN_ENERGY_COST: Record<string, number> = {
 export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'race'> = {
   hp: 100,
   maxHp: 100,
-  energy: 100,
-  maxEnergy: 100,
+  stamina: 100,
+  maxStamina: 100,
   attack: 10,
   magicAttack: 0,
   defense: 5,
+  armor: 0,
+  magicResist: 0,
+  evasion: 0,
   criticalChance: 5,
   position: { x: Math.floor(MAP_SIZE / 2), y: Math.floor(MAP_SIZE / 2) },
   inventory: [],
@@ -53,44 +56,56 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         class: 'warrior',
         hp: 120,
         maxHp: 120,
-        energy: 80,
-        maxEnergy: 80,
+        stamina: 80,
+        maxStamina: 80,
         attack: 15,
         magicAttack: 0,
         defense: 10,
+        armor: 10,
+        magicResist: 5,
+        evasion: 5,
         criticalChance: 5,
     },
     mage: {
         class: 'mage',
         hp: 80,
         maxHp: 80,
-        energy: 120,
-        maxEnergy: 120,
+        stamina: 120,
+        maxStamina: 120,
         attack: 5, // Low physical attack
         magicAttack: 15, // High magic attack
         defense: 5,
+        armor: 3,
+        magicResist: 10,
+        evasion: 7,
         criticalChance: 10, // Mages can crit with spells
     },
     ranger: {
         class: 'ranger',
         hp: 100,
         maxHp: 100,
-        energy: 100,
-        maxEnergy: 100,
+        stamina: 100,
+        maxStamina: 100,
         attack: 12,
         magicAttack: 0,
         defense: 7,
+        armor: 7,
+        magicResist: 7,
+        evasion: 10,
         criticalChance: 10,
     },
     assassin: {
         class: 'assassin',
         hp: 90,
         maxHp: 90,
-        energy: 110,
-        maxEnergy: 110,
+        stamina: 110,
+        maxStamina: 110,
         attack: 18,
         magicAttack: 0,
         defense: 5,
+        armor: 5,
+        magicResist: 5,
+        evasion: 15,
         criticalChance: 20,
     }
 };

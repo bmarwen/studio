@@ -7,7 +7,7 @@ import { Home, Mountain, Trees, Waves, Snowflake, Tent, Sprout } from 'lucide-re
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { VIEWPORT_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import { VIEWPORT_SIZE } from '@/lib/game-constants';
 import Image from 'next/image';
 
 interface TileProps {
@@ -42,7 +42,7 @@ const getTileIcon = (tile: TileData) => {
 const getTooltipContent = (tile: TileData) => {
     if (tile.terrain === 'snow') return 'Snowy field';
     if (tile.terrain === 'camp') return 'A safe place to rest.';
-    if (tile.terrain === 'mountain') return 'Treacherous mountains. Moving here costs a lot of energy.';
+    if (tile.terrain === 'mountain') return 'Treacherous mountains. Moving here costs a lot of stamina.';
     if (tile.terrain === 'grass') return 'Grass field';
     if (tile.terrain === 'tree') return 'Forest';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);

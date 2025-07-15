@@ -39,26 +39,32 @@ const RACES: { id: PlayerIcon; name: PlayerRace; bonus: RaceBonus; path: string;
 
 const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; }[] = [
     { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png' },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png' },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and stamina.', iconPath: '/icons/mage-icon.png' },
     { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png' },
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
 const STAT_DEFINITIONS: Record<string, { title: string; description: string }> = {
     maxHp: { title: 'Health Points', description: 'Determines how much damage you can take before being defeated.' },
-    maxEnergy: { title: 'Energy', description: 'Consumed when moving. Regenerates over time.' },
+    maxStamina: { title: 'Stamina', description: 'Consumed when moving. Regenerates over time.' },
     attack: { title: 'Physical Attack', description: 'Increases the amount of physical damage you deal in combat.' },
     magicAttack: { title: 'Magic Attack', description: 'Increases the amount of magical damage you deal in combat.' },
     defense: { title: 'Defense', description: 'Reduces the amount of damage you receive from enemy attacks.' },
+    armor: { title: 'Armor', description: 'Reduces physical damage taken.' },
+    magicResist: { title: 'Magic Resist', description: 'Reduces magical damage taken.' },
+    evasion: { title: 'Evasion', description: 'The chance to completely dodge an incoming attack.' },
     criticalChance: { title: 'Critical Chance', description: 'The probability of landing a critical hit for extra damage.' }
 }
 
 const STAT_LABELS: Record<string, string> = {
     maxHp: "HP",
-    maxEnergy: "EN",
+    maxStamina: "STM",
     pAttack: "P.ATT",
     mAttack: "M.ATT",
     defense: "DEF",
+    armor: "ARM",
+    magicResist: "M.RES",
+    evasion: "EVA",
     criticalChance: "CRIT"
 }
 
@@ -253,15 +259,21 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                 if (id === 'mage') return key !== 'attack';
                                                                 return key !== 'magicAttack';
                                                             }).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => {
-                                                                const statKey = key;
-                                                                const labelKey = key === 'attack' ? 'pAttack' : key === 'magicAttack' ? 'mAttack' : key;
+                                                                let statKey = key;
+                                                                let labelKey = key;
+
+                                                                if (key === 'attack') {
+                                                                    labelKey = 'pAttack';
+                                                                } else if (key === 'magicAttack') {
+                                                                    labelKey = 'mAttack';
+                                                                }
                                                                 
                                                                 return (
                                                                     <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
                                                                             <div className="flex items-center cursor-help">
                                                                                 <span className="font-bold uppercase w-[3.75rem] text-sm">{STAT_LABELS[labelKey as keyof typeof STAT_LABELS]}</span>
-                                                                                <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
+                                                                                <span className="font-mono text-primary">{value}{key.includes('Chance') || key.includes('evasion') ? '%' : ''}</span>
                                                                             </div>
                                                                         </TooltipTrigger>
                                                                         <TooltipPrimitive.Portal container={tooltipPortalRef.current}>

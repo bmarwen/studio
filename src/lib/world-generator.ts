@@ -1,5 +1,5 @@
 import type { TileData, Monster, Item } from "@/types/game";
-import { MAP_SIZE } from "./game-constants";
+import { MAP_SIZE, TERRAIN_STAMINA_COST } from "./game-constants";
 import { MONSTERS, TERRAIN_MONSTER_SPAWNS, createItem, TERRAIN_TILE_LOOT } from "./game-config";
 
 function simpleNoise(x: number, y: number, scale: number, offset: number = 0) {
