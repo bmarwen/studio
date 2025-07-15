@@ -131,7 +131,6 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                             stroke="hsl(var(--primary))"
                             strokeWidth="10"
                             fill="transparent"
-                            strokeDasharray="0 1"
                             pathLength="1"
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1 }}

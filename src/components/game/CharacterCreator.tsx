@@ -129,7 +129,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                         )}
                       >
                        <RadioGroupItem value={id} id={id} className="sr-only" />
-                       <Image src={path} alt={id} width={112} height={112} className="w-28 h-28 rounded-md" data-ai-hint={hint} />
+                       <Image src={path} alt={id} width={128} height={128} className="w-full h-full rounded-md" data-ai-hint={hint} />
                      </Label>
                   ))}
                 </RadioGroup>
@@ -164,6 +164,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                         <span>EN: {stats.maxEnergy}</span>
                                         <span>MAG: {stats.magic}</span>
                                     </div>
+
                                 </div>
                                 <img src={iconPath} className="w-14 h-14 rounded-full bg-secondary p-1 ml-4" />
                             </Label>
