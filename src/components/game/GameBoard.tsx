@@ -8,6 +8,7 @@ import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { VIEWPORT_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import Image from 'next/image';
 
 interface TileProps {
   tile: TileData;
@@ -47,9 +48,20 @@ const getTooltipContent = (tile: TileData) => {
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
+const TileContent = memo(({ tile }: {tile: TileData}) => {
+    const icon = getTileIcon(tile);
+    if(tile.monster) {
+        return <Image src={tile.monster.icon} alt={tile.monster.name} width={40} height={40} className="drop-shadow-lg"/>
+    }
+    if(tile.item) {
+        return <Image src={tile.item.icon} alt={tile.item.name} width={32} height={32} className="drop-shadow-md"/>
+    }
+    return icon;
+});
+TileContent.displayName = "TileContent";
+
+
 const Tile = memo(({ tile }: TileProps) => {
-  const icon = getTileIcon(tile);
-  
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
@@ -62,11 +74,15 @@ const Tile = memo(({ tile }: TileProps) => {
             tile.terrain === 'camp' && 'bg-orange-400/10 dark:bg-orange-900/40',
             "relative"
           )}>
-            {icon}
+            <TileContent tile={tile} />
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{getTooltipContent(tile)}</p>
+            <div className="space-y-1">
+                <p className="font-bold">{getTooltipContent(tile)}</p>
+                {tile.monster && <p className="text-sm text-destructive">Monster: {tile.monster.name}</p>}
+                {tile.item && <p className="text-sm text-blue-400">Item: {tile.item.name}</p>}
+            </div>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

@@ -8,7 +8,7 @@ import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
-import CombatDialog from './CombatDialog';
+import CombatDialog, { type CombatInfo } from './CombatDialog';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
@@ -34,7 +34,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [isMoving, setIsMoving] = useState(false);
   const [moveCooldown, setMoveCooldown] = useState(MOVE_COOLDOWN);
 
-  const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item[] } | null>(null);
+  const [combatInfo, setCombatInfo] = useState<CombatInfo | null>(null);
   const { toast } = useToast();
   const { playAudio } = useAudio();
 
@@ -167,21 +167,37 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const startCombat = useCallback((monster: Monster) => {
     addLog(`You encounter a fierce ${monster.name}!`);
-    const combatLog: CombatLogEntry[] = [];
-    setCombatInfo({ open: true, monster, log: combatLog, result: `Fighting ${monster.name}...` });
+    const initialPlayerState = gameStateRef.current.player;
 
-    let playerHp = gameStateRef.current.player.hp;
+    setCombatInfo({ 
+        open: true, 
+        monster, 
+        log: [], 
+        status: 'fighting', 
+        playerHp: initialPlayerState.hp, 
+        playerMaxHp: initialPlayerState.maxHp, 
+        monsterHp: monster.hp 
+    });
+
+    let playerHp = initialPlayerState.hp;
     let monsterHp = monster.hp;
     let turn = 0;
 
     const combatInterval = setInterval(() => {
       turn++;
       
+      const currentPlayerState = gameStateRef.current.player;
+
       // Player attacks
-      const playerDamage = Math.max(1, (gameStateRef.current.player.attack + gameStateRef.current.player.magicAttack) - monster.defense);
+      const playerDamage = Math.max(1, (currentPlayerState.attack + currentPlayerState.magicAttack) - monster.defense);
       monsterHp -= playerDamage;
       const playerAttackMessage = `You strike the ${monster.name} for ${playerDamage} damage.`;
-      setCombatInfo(info => ({...info!, log: [...info!.log, { id: turn * 2 - 1, message: playerAttackMessage }]}));
+      
+      setCombatInfo(info => ({
+          ...info!, 
+          log: [...info!.log, { id: turn * 2 - 1, message: playerAttackMessage }],
+          monsterHp: monsterHp,
+        }));
 
       if (monsterHp <= 0) {
         clearInterval(combatInterval);
@@ -190,10 +206,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       }
 
       // Monster attacks
-      const monsterDamage = Math.max(1, monster.attack - gameStateRef.current.player.defense);
+      const monsterDamage = Math.max(1, monster.attack - currentPlayerState.defense);
       playerHp -= monsterDamage;
       const monsterAttackMessage = `The ${monster.name} hits you for ${monsterDamage} damage.`;
-      setCombatInfo(info => ({...info!, log: [...info!.log, { id: turn * 2, message: monsterAttackMessage }]}));
+      setCombatInfo(info => ({
+          ...info!, 
+          log: [...info!.log, { id: turn * 2, message: monsterAttackMessage }],
+          playerHp: playerHp,
+      }));
       
       if (playerHp <= 0) {
         clearInterval(combatInterval);
@@ -204,10 +224,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, []); // Eslint ignore: we need stable function
 
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
-    let result = '';
+    let newStatus: 'victory' | 'defeat';
     const allLoot: Item[] = [];
     if (finalPlayerHp > 0) {
-      result = `You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`;
+      newStatus = 'victory';
+      addLog(`You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`);
       playAudio('/audio/combat-victory.wav');
 
       // Process loot table
@@ -250,12 +271,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
       });
     } else {
-      result = `You were defeated by the ${monster.name}... You limp away.`;
+      newStatus = 'defeat';
+      addLog(`You were defeated by the ${monster.name}... You limp away.`);
       playAudio('/audio/combat-defeat.wav');
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
-    addLog(result);
-    setCombatInfo(info => ({...info!, result, loot: allLoot}));
+    
+    setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot}));
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
@@ -329,57 +351,63 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
     playAudio('/audio/move.wav', { volume: 0.3 });
     setIsMoving(true);
-    moveTimeout.current = setTimeout(() => setIsMoving(false), currentMoveCooldown);
     
-    setPlayer(p => {
-        const newPlayerState = {
-            ...p,
-            energy: p.energy - moveCost,
-            position: {x: newX, y: newY}
-        };
+    const moveAction = () => {
+      setPlayer(p => {
+          const newPlayerState = {
+              ...p,
+              energy: p.energy - moveCost,
+              position: {x: newX, y: newY}
+          };
+  
+          addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
+  
+          if (targetTile.monster) {
+              initiateCombat(targetTile.monster);
+              setWorldMap(prevMap => {
+                  const newMap = prevMap.map(row => [...row]);
+                  newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
+                  return newMap;
+              });
+          }
+          
+          const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
+  
+          if (targetTile.item) {
+              const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
+              addLog(`You found a ${logMessage}!`);
+              playAudio('/audio/item-found.wav', { volume: 0.7 });
+              const newInventory = [...newPlayerState.inventory];
+              const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
+  
+              if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                  newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
+              } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
+                  const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                  if (emptySlotIndex !== -1) {
+                      newInventory[emptySlotIndex] = targetTile.item;
+                  } else {
+                      newInventory.push(targetTile.item);
+                  }
+              } else {
+                  addLog("Your inventory is full! You leave the item on the ground.");
+              }
+              newPlayerState.inventory = newInventory;
+              
+              setWorldMap(prevMap => {
+                  const newMap = prevMap.map(row => [...row]);
+                  newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
+                  return newMap;
+              });
+          }
+          return newPlayerState;
+      });
+    }
 
-        addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
-
-        if (targetTile.monster) {
-            initiateCombat(targetTile.monster);
-            setWorldMap(prevMap => {
-                const newMap = prevMap.map(row => [...row]);
-                newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
-                return newMap;
-            });
-        }
-        
-        const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
-
-        if (targetTile.item) {
-            const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
-            addLog(`You found a ${logMessage}!`);
-            playAudio('/audio/item-found.wav', { volume: 0.7 });
-            const newInventory = [...newPlayerState.inventory];
-            const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
-
-            if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
-            } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
-                const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                if (emptySlotIndex !== -1) {
-                    newInventory[emptySlotIndex] = targetTile.item;
-                } else {
-                    newInventory.push(targetTile.item);
-                }
-            } else {
-                addLog("Your inventory is full! You leave the item on the ground.");
-            }
-            newPlayerState.inventory = newInventory;
-            
-            setWorldMap(prevMap => {
-                const newMap = prevMap.map(row => [...row]);
-                newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
-                return newMap;
-            });
-        }
-        return newPlayerState;
-    });
+    moveTimeout.current = setTimeout(() => {
+      setIsMoving(false);
+      moveAction();
+    }, currentMoveCooldown);
 
   };
 
@@ -465,7 +493,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleEquipItem = (itemToEquip: Item, index: number) => {
-    if (itemToEquip.type === 'consumable' || itemToEquip.type === 'utility') return;
+    if (itemToUse.type === 'consumable' || itemToUse.type === 'utility') return;
 
     if (itemToEquip.allowedClasses && !itemToEquip.allowedClasses.includes(player.class)) {
         toast({
