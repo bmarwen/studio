@@ -1,6 +1,7 @@
+
 "use client";
 
-import type { Player, Item, EquipmentSlot, ItemRarity } from '@/types/game';
+import type { Player, Item, EquipmentSlot, ItemRarity, PlayerClass } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -40,6 +41,13 @@ const RARITY_COLORS: Record<ItemRarity, string> = {
     Epic: 'text-purple-500',
     Legendary: 'text-orange-400',
 };
+
+const CLASS_ICONS: Record<PlayerClass, string> = {
+    warrior: '/icons/class-warrior.png',
+    mage: '/icons/class-mage.png',
+    ranger: '/icons/class-ranger.png',
+    assassin: '/icons/class-assassin.png',
+}
 
 const ItemTooltipContent = ({ item }: { item: Item }) => (
     <div className="p-2 space-y-2 text-sm w-64">
@@ -98,7 +106,10 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
         <Card className="bg-card/50">
           <CardHeader>
             <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
-            <CardDescription>Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}</CardDescription>
+            <CardDescription className="flex items-center gap-2">
+                <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-5 h-5" />
+                Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
