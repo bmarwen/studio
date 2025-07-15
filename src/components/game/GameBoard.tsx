@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Feather } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -25,27 +25,6 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
     }
 }
 
-const GrassIcon = () => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-8 h-8 text-green-700 dark:text-green-500"
-    >
-        <path d="M2 22c1.25-.917 2.5-1.833 3.75-2.75" />
-        <path d="M18.25 19.25c1.25.917 2.5 1.833 3.75 2.75" />
-        <path d="M9.75 22c.417-.917.833-1.833 1.25-2.75" />
-        <path d="M12 19.25c.417.917.833 1.833 1.25 2.75" />
-    </svg>
-);
-
-
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
@@ -54,7 +33,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <GrassIcon />;
+    case 'grass': return <Sprout className="w-8 h-8 text-green-700 dark:text-green-500" />;
     default: return null;
   }
 };
