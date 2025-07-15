@@ -19,6 +19,7 @@ export type PlayerEffect = {
 
 export type Item = {
   id: string;
+  itemId: string;
   name: string;
   type: ItemType;
   rarity: ItemRarity;

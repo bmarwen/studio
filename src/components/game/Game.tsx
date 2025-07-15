@@ -251,7 +251,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             allLoot.forEach(loot => {
                 const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
                 addLog(`You found: ${logMessage}!`);
-                const existingItemIndex = newInventory.findIndex(i => i?.id === loot.id && i.type === 'consumable');
+                const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
 
                 if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
                     newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
@@ -287,7 +287,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const initiateCombat = useCallback((monster: Monster) => {
     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
 
-    // A short delay to give a feeling of landing on the tile before combat starts.
     setTimeout(() => {
         playAudio('/audio/combat-start.wav');
         setPendingCombat(monster);
@@ -385,7 +384,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             addLog(`You found a ${logMessage}!`);
             playAudio('/audio/item-found.wav', { volume: 0.7 });
             const newInventory = [...newPlayerState.inventory];
-            const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
+            const existingItemIndex = newInventory.findIndex(i => i?.itemId === targetTile.item!.itemId && i.type === 'consumable');
 
             if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
                 newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
@@ -468,7 +467,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
             newPlayerState.hp = newHp;
             
-            if (itemToUse.id.includes('elixir_of_power')) {
+            if (itemToUse.itemId?.includes('elixir_of_power')) {
                  if (p.magicAttack > p.attack) {
                     newPlayerState.magicAttack += itemToUse.magicAttack || 0;
                  } else {

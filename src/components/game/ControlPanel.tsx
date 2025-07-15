@@ -110,39 +110,47 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
+const SmallStatDisplay = ({ label, value, isPercent = false, icon }: {label: string, value: number, isPercent?: boolean, icon: React.ReactNode}) => (
+    <div className="flex items-center justify-between text-sm py-1.5 px-3 bg-secondary/50 rounded-md">
+        <div className="flex items-center gap-2 text-muted-foreground">
+            {icon}
+            <span className="font-bold uppercase">{label}</span>
+        </div>
+        <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
+    </div>
+)
+
 export default function ControlPanel({ player, log, moveCooldown, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
 
   const primaryAttackStat = player.class === 'mage' 
-    ? { label: "M.Attack", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" /> }
-    : { label: "P.Attack", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" /> };
+    ? { label: "M.ATT", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" /> }
+    : { label: "P.ATT", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" /> };
 
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 pr-4">
         <Card className="bg-card/50">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-                <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
-                <CardDescription className="flex items-center gap-2">
-                    Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
-                </CardDescription>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
             <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-14 h-14 rounded-full bg-secondary p-1" />
           </CardHeader>
           <CardContent className="space-y-4">
+            <CardDescription className="flex items-center gap-2">
+                Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
+            </CardDescription>
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
             <StatItem icon={<Zap className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
-            <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2">{primaryAttackStat.icon} {primaryAttackStat.label}:</div> <span className="font-mono">{primaryAttackStat.value}</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> DEF:</div> <span className="font-mono">{player.defense}</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> CRIT:</div> <span className="font-mono">{player.criticalChance}%</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-400" /> ARM:</div> <span className="font-mono">{player.armor}</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-purple-400" /> M.RES:</div> <span className="font-mono">{player.magicResist}</span></div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-400" /> EVA:</div> <span className="font-mono">{player.evasion}</span></div>
+            <div className="grid grid-cols-2 gap-2">
+                <SmallStatDisplay label={primaryAttackStat.label} value={primaryAttackStat.value} icon={primaryAttackStat.icon} />
+                <SmallStatDisplay label="DEF" value={player.defense} icon={<Shield className="w-4 h-4 text-gray-400" />} />
+                <SmallStatDisplay label="ARM" value={player.armor} icon={<Shield className="w-4 h-4 text-blue-400" />} />
+                <SmallStatDisplay label="M.RES" value={player.magicResist} icon={<Shield className="w-4 h-4 text-purple-400" />} />
+                <SmallStatDisplay label="CRIT" value={player.criticalChance} isPercent icon={<Star className="w-4 h-4 text-gray-400" />} />
+                <SmallStatDisplay label="EVA" value={player.evasion} isPercent icon={<Shield className="w-4 h-4 text-green-400" />} />
             </div>
           </CardContent>
         </Card>

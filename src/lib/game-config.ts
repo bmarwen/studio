@@ -3,7 +3,7 @@ import type { Item, Monster, PlayerClass } from "@/types/game";
 
 // --- ITEM DEFINITIONS ---
 // All items available in the game are defined here.
-export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity'>> = {
+export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity' | 'itemId'>> = {
     // --- Consumables ---
     'health_potion': { name: 'Health Potion', type: 'consumable', rarity: 'Common', hp: 20, description: 'Restores 20 health.', icon: '/icons/item-potion.svg'},
     'greater_health_potion': { name: 'Greater Health Potion', type: 'consumable', rarity: 'Rare', hp: 50, description: 'Restores 50 health.', icon: '/icons/item-potion.svg'},
@@ -287,7 +287,7 @@ export function createItem(itemId: string, quantity: number = 1): Item {
     if (!ITEMS[itemId]) throw new Error(`Item with id ${itemId} not found in ITEMS definition.`);
     const itemData = ITEMS[itemId];
     const newId = `${itemId}_${new Date().getTime()}_${Math.random()}`;
-    return { ...itemData, id: newId, quantity: quantity, allowedClasses: itemData.allowedClasses as PlayerClass[] | undefined };
+    return { ...itemData, id: newId, itemId, quantity: quantity, allowedClasses: itemData.allowedClasses as PlayerClass[] | undefined };
 }
 
 // --- MONSTER DEFINITIONS ---
@@ -296,7 +296,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
     'goblin': { 
         name: 'Goblin', 
         icon: '/icons/monster-goblin.svg',
-        hp: 20, maxHp: 20, attack: 8, defense: 2, 
+        hp: 35, maxHp: 35, attack: 12, defense: 4, 
         greed: 70, power: -20, 
         lootTable: [
             { itemId: 'health_potion', chance: 0.25, quantity: 1 },
@@ -310,7 +310,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
     'slime': { 
         name: 'Slime', 
         icon: '/icons/monster-slime.svg',
-        hp: 15, maxHp: 15, attack: 5, defense: 5, 
+        hp: 25, maxHp: 25, attack: 8, defense: 8, 
         greed: 20, power: -50, 
         lootTable: [
              { itemId: 'health_potion', chance: 0.1, quantity: 1 },
@@ -321,7 +321,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
     'orc_grunt': { 
         name: 'Orc Grunt', 
         icon: '/icons/monster-orc.svg',
-        hp: 40, maxHp: 40, attack: 12, defense: 4, 
+        hp: 60, maxHp: 60, attack: 18, defense: 8, 
         greed: 85, power: 10,
         lootTable: [
             { itemId: 'health_potion', chance: 0.2, quantity: 2 },
@@ -337,7 +337,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
     'ice_elemental': { 
         name: 'Ice Elemental', 
         icon: '/icons/monster-elemental.svg',
-        hp: 30, maxHp: 30, attack: 10, defense: 8, 
+        hp: 50, maxHp: 50, attack: 15, defense: 12, 
         greed: 50, power: 5, 
         lootTable: [
             { itemId: 'elixir_of_haste', chance: 0.2, quantity: 1 },
@@ -352,7 +352,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
     'ancient_dragon': { 
         name: 'Ancient Dragon', 
         icon: '/icons/monster-dragon.svg',
-        hp: 150, maxHp: 150, attack: 25, defense: 15, 
+        hp: 250, maxHp: 250, attack: 40, defense: 25, 
         greed: 95, power: 80, 
         lootTable: [
             { itemId: 'blade_of_the_ancients', chance: 0.3, quantity: 1 },
