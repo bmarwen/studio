@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -300,7 +301,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     setPlayer(newPlayerState);
 
-  }, [player, worldMap, combatInfo, pendingCombat, isMoving, initiateCombat, toast]);
+  }, [player, worldMap, combatInfo, pendingCombat, initiateCombat, toast]);
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
@@ -444,3 +445,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
+
+    
