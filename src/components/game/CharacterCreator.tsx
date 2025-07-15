@@ -11,8 +11,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Dices } from 'lucide-react';
 import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
@@ -34,11 +35,21 @@ const CLASSES: { id: PlayerClass; name: string; description: string; icon: React
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/class-assassin.png" className="w-5 h-5" /> },
 ];
 
+const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
+const NAME_SUFFIXES = ["dric", "wyn", "fire", "fall", "wood", "shield", "more", "fang", "lore", "gard"];
+
 export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
   const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
   const { toast } = useToast();
+
+  const handleGenerateName = () => {
+    const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
+    const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
+    const numbers = Math.floor(1000 + Math.random() * 9000);
+    setName(`${prefix}${suffix}${numbers}`);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,13 +90,27 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
             <div className="space-y-6">
               <div>
                 <Label htmlFor="name" className="text-lg font-headline">Hero Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Sir Reginald"
-                  className="mt-2 text-base"
-                />
+                <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g., Sir Reginald"
+                      className="text-base"
+                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button type="button" variant="outline" size="icon" onClick={handleGenerateName}>
+                            <Dices className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Generates random name</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                </div>
               </div>
               <div>
                 <Label className="text-lg font-headline">Choose Your Icon</Label>
