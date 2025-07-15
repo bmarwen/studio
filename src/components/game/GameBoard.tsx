@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Feather } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,14 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
     }
 }
 
+const GrassIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 22c0-2 2-4 4-4s4 2 4 4M12 22c0-2 2-4 4-4s4 2 4 4M8 18c-2 0-4-2-4-4 0-4 4-8 8-8s8 4 8 8c0 2-2 4-4 4" />
+      <path d="M12 14c-2 0-4-2-4-4" />
+    </svg>
+);
+
+
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
@@ -33,7 +41,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <Feather className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
+    case 'grass': return <GrassIcon className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
     default: return null;
   }
 };
@@ -113,23 +121,32 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
         }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
-          {isMoving && (
-              <div className="absolute w-14 h-14">
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                      <motion.circle
-                          cx="50"
-                          cy="50"
-                          r="48"
-                          stroke="hsl(var(--primary))"
-                          strokeWidth="4"
-                          fill="transparent"
-                          initial={{ pathLength: 0 }}
-                          animate={{ pathLength: 1.01 }}
-                          transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
-                      />
-                  </svg>
-              </div>
-          )}
+        <AnimatePresence>
+            {isMoving && (
+                <motion.div
+                    className="absolute w-14 h-14"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                >
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                        <motion.circle
+                            cx="50"
+                            cy="50"
+                            r="48"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth="4"
+                            fill="transparent"
+                            pathLength="0"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1.01 }}
+                            transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
+                        />
+                    </svg>
+                </motion.div>
+            )}
+        </AnimatePresence>
           <img src={iconPath} alt="player icon" className="w-12 h-12 rounded-full drop-shadow-lg" />
       </motion.div>
     </div>
