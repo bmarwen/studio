@@ -235,8 +235,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                )
                           })}
                       </CarouselContent>
-                      <CarouselPrevious className="-left-8" />
-                      <CarouselNext className="-right-8" />
+                      <CarouselPrevious className="-left-8"><ChevronLeft className="h-6 w-6" /></CarouselPrevious>
+                      <CarouselNext className="-right-8"><ChevronRight className="h-6 w-6" /></CarouselNext>
                   </Carousel>
               </div>
 
