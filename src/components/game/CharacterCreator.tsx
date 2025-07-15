@@ -47,7 +47,8 @@ const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: s
 const STAT_DEFINITIONS: Record<string, { title: string; description: string }> = {
     maxHp: { title: 'Health Points', description: 'Determines how much damage you can take before being defeated.' },
     maxEnergy: { title: 'Energy', description: 'Consumed when moving. Regenerates over time.' },
-    attack: { title: 'Attack Power', description: 'Increases the amount of damage you deal in combat.' },
+    attack: { title: 'Physical Attack', description: 'Increases the amount of physical damage you deal in combat.' },
+    magicAttack: { title: 'Magic Attack', description: 'Increases the amount of magical damage you deal in combat.' },
     defense: { title: 'Defense', description: 'Reduces the amount of damage you receive from enemy attacks.' },
     criticalChance: { title: 'Critical Chance', description: 'The probability of landing a critical hit for extra damage.' }
 }
@@ -55,7 +56,8 @@ const STAT_DEFINITIONS: Record<string, { title: string; description: string }> =
 const STAT_LABELS: Record<string, string> = {
     maxHp: "HP",
     maxEnergy: "EN",
-    attack: "ATT",
+    pAttack: "P.ATT",
+    mAttack: "M.ATT",
     defense: "DEF",
     criticalChance: "CRIT"
 }
@@ -247,24 +249,32 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                         </div>
                                                         <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
-                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
-                                                                <Tooltip key={key}>
-                                                                    <TooltipTrigger asChild>
-                                                                        <div className="flex items-center cursor-help">
-                                                                            <span className="font-bold uppercase w-[3.25rem] text-sm">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
-                                                                            <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
-                                                                        </div>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
-                                                                        <TooltipContent side="bottom">
-                                                                            <div className="space-y-1 w-48">
-                                                                                <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
-                                                                                <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
+                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS || key === 'magicAttack').map(([key, value]) => {
+                                                                const isMagic = id === 'mage' && key === 'attack';
+                                                                const statKey = isMagic ? 'magicAttack' : key;
+                                                                const labelKey = isMagic ? 'mAttack' : key === 'attack' ? 'pAttack' : key;
+                                                                
+                                                                if (!(statKey in STAT_DEFINITIONS)) return null;
+
+                                                                return (
+                                                                    <Tooltip key={statKey}>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div className="flex items-center cursor-help">
+                                                                                <span className="font-bold uppercase w-[3.75rem] text-sm">{STAT_LABELS[labelKey as keyof typeof STAT_LABELS]}</span>
+                                                                                <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                             </div>
-                                                                        </TooltipContent>
-                                                                    </TooltipPrimitive.Portal>
-                                                                </Tooltip>
-                                                            ))}
+                                                                        </TooltipTrigger>
+                                                                        <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
+                                                                            <TooltipContent side="bottom">
+                                                                                <div className="space-y-1 w-48">
+                                                                                    <p className="font-bold">{STAT_DEFINITIONS[statKey as keyof typeof STAT_DEFINITIONS].title}</p>
+                                                                                    <p className="text-muted-foreground">{STAT_DEFINITIONS[statKey as keyof typeof STAT_DEFINITIONS].description}</p>
+                                                                                </div>
+                                                                            </TooltipContent>
+                                                                        </TooltipPrimitive.Portal>
+                                                                    </Tooltip>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
                                                 </Card>
@@ -291,5 +301,3 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
-
-    

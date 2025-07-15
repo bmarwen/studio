@@ -16,6 +16,7 @@ export type Item = {
   type: ItemType;
   rarity: ItemRarity;
   attack?: number;
+  magicAttack?: number;
   defense?: number;
   criticalChance?: number;
   hp?: number;
