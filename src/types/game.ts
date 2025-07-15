@@ -8,7 +8,14 @@ export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Trol
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
 export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable' | 'legendary' | 'utility';
 export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
+export type PlayerEffectType = 'energy_regen_boost' | 'attack_boost';
 
+export type PlayerEffect = {
+  id: string;
+  type: PlayerEffectType;
+  value: number;
+  expiresAt: number; // unix timestamp
+}
 
 export type Item = {
   id: string;
@@ -21,6 +28,8 @@ export type Item = {
   criticalChance?: number;
   hp?: number;
   energyBoost?: number;
+  energyRegenBonus?: number; // e.g., 0.2 for 20%
+  effectDuration?: number; // in seconds
   description: string;
   icon: string;
   quantity: number;
@@ -81,6 +90,7 @@ export type Player = {
   inventory: (Item | null)[];
   quests: Quest[];
   equipment: Equipment;
+  activeEffects: PlayerEffect[];
 
   // Racial Bonuses
   bonusCritChance?: number;

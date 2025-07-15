@@ -8,6 +8,7 @@ export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity'>> = {
     'greater_health_potion': { name: 'Greater Health Potion', type: 'consumable', rarity: 'Rare', hp: 50, description: 'Restores 50 health.', icon: '/icons/item-potion.svg'},
     'elixir_of_vigor': { name: 'Elixir of Vigor', type: 'consumable', rarity: 'Rare', energyBoost: 1, description: 'Temporarily increases passive energy regeneration.', icon: '/icons/item-crystal.svg'},
     'elixir_of_power': { name: 'Elixir of Power', type: 'consumable', rarity: 'Epic', attack: 5, magicAttack: 5, description: 'Temporarily increases your primary attack stat by 5.', icon: '/icons/item-potion-red.svg'},
+    'elixir_of_haste': { name: 'Elixir of Haste', type: 'consumable', rarity: 'Rare', description: 'Increases energy regeneration by 20% for 60 seconds.', icon: '/icons/item-potion-yellow.svg', energyRegenBonus: 0.2, effectDuration: 60 },
 
     // --- Utility ---
     'scrying_orb': { name: 'Scrying Orb', type: 'utility', rarity: 'Rare', description: 'Reveals monsters in a small radius around you.', icon: '/icons/item-orb.svg'},
@@ -176,6 +177,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         greed: 50, power: 5, 
         lootTable: [
             { itemId: 'elixir_of_vigor', chance: 0.25, quantity: 1 },
+            { itemId: 'elixir_of_haste', chance: 0.1, quantity: 1 },
             { itemId: 'mage_weapon_common_balanced', chance: 0.1, quantity: 1 },
             { itemId: 'scrying_orb', chance: 0.02, quantity: 1 },
             { itemId: 'mage_weapon_rare_crit', chance: 0.03, quantity: 1 },

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, ItemType, PlayerClass } from '@/types/game';
+import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
 import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
@@ -121,20 +121,37 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setPlayer(p => {
         if (p.hp <= 0) return p; // Don't regen if dead
 
+        // Clean up expired effects
+        const now = Date.now();
+        const activeEffects = p.activeEffects.filter(effect => effect.expiresAt > now);
+
         const currentTile = worldMap[p.position.y]?.[p.position.x];
         const isResting = currentTile?.terrain === 'camp';
         const energyBoost = isResting ? 5 : 0;
         
+        let energyRegenMultiplier = 1;
+        const regenBuff = activeEffects.find(e => e.type === 'energy_regen_boost');
+        if (regenBuff) {
+            energyRegenMultiplier += regenBuff.value;
+        }
+
         if (p.energy < p.maxEnergy || (isResting && p.hp < p.maxHp)) {
-          const energyRegen = (1 + energyBoost);
+          const energyRegen = (1 + energyBoost) * energyRegenMultiplier;
           const hpRegen = isResting ? 5 : 0;
           
           return { 
             ...p, 
             energy: Math.min(p.maxEnergy, p.energy + energyRegen),
             hp: Math.min(p.maxHp, p.hp + hpRegen),
+            activeEffects: activeEffects,
           };
         }
+        
+        // If nothing else changes, still update effects if some expired
+        if (activeEffects.length !== p.activeEffects.length) {
+            return { ...p, activeEffects };
+        }
+
         return p;
       });
     }, ENERGY_REGEN_RATE);
@@ -404,9 +421,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                  } else {
                     newPlayerState.attack += itemToUse.attack || 0;
                  }
-                 // Note: This is a temporary boost. A real implementation would
-                 // need a system for timed effects to wear off.
                  addLog(`You feel a surge of power from the ${itemToUse.name}!`);
+            } else if (itemToUse.energyRegenBonus && itemToUse.effectDuration) {
+                const newEffect: PlayerEffect = {
+                    id: `effect_${itemToUse.id}_${Date.now()}`,
+                    type: 'energy_regen_boost',
+                    value: itemToUse.energyRegenBonus,
+                    expiresAt: Date.now() + itemToUse.effectDuration * 1000,
+                };
+                newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
+                addLog(`You feel energized by the ${itemToUse.name}!`);
             } else {
                 addLog(`You used ${itemToUse.name}.`);
             }
