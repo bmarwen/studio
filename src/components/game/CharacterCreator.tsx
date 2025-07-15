@@ -35,7 +35,7 @@ const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: s
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
-const STAT_DEFINITIONS = {
+const STAT_DEFINITIONS: Record<string, string> = {
     maxHp: "Health Points",
     maxEnergy: "Energy",
     attack: "Attack Power",
@@ -198,8 +198,9 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
-                                                                        <div className="flex justify-between items-center cursor-help">
-                                                                            <span className="font-bold uppercase">{STAT_LABELS[key]}</span>
+                                                                        <div className="flex items-center w-full cursor-help">
+                                                                            <span className="font-bold uppercase">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
+                                                                            <span className="flex-grow"></span>
                                                                             <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                         </div>
                                                                     </TooltipTrigger>
