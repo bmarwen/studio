@@ -80,8 +80,8 @@ const AnimatedStatCard = ({ classId }: { classId: PlayerClass }) => {
             className="w-full"
         >
             <Card className="bg-secondary/50">
-                <CardContent className="p-4">
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                <CardContent className="p-3">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                         <StatDisplay label={STAT_LABELS.maxHp} value={stats.maxHp} />
                         <StatDisplay label={STAT_LABELS.maxStamina} value={stats.maxStamina} />
                         {classId === 'mage' ? (
@@ -181,7 +181,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
-      <Card className="w-full max-w-2xl shadow-2xl relative">
+      <Card className="w-full max-w-xl shadow-2xl relative">
         <TooltipProvider>
             <div className="absolute top-4 right-4">
                 <Tooltip>
@@ -261,7 +261,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                 <CarouselItem key={id}>
                                     <div className="p-1 text-center flex flex-col items-center gap-2">
                                         <div className="p-2 bg-secondary rounded-full shadow-inner">
-                                            <Image src={iconPath} alt={name} width={128} height={128} className="w-24 h-24" />
+                                            <Image src={iconPath} alt={name} width={128} height={128} className="w-24 h-24 rounded-full" />
                                         </div>
                                         <p className="font-bold text-xl font-headline">{name}</p>
                                     </div>
