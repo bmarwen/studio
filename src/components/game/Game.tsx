@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Hourglass, ZapOff } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
+import { createItem } from '@/lib/game-config';
 
 interface GameProps {
   initialPlayer: Player;
@@ -32,7 +33,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const [isMoving, setIsMoving] = useState(false);
 
-  const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
+  const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item[] } | null>(null);
   const { toast } = useToast();
   const { playAudio } = useAudio();
 
@@ -183,26 +184,38 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let result = '';
-    let foundLoot: Item | null = null;
+    const allLoot: Item[] = [];
     if (finalPlayerHp > 0) {
       result = `You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`;
       playAudio('/audio/combat-victory.wav');
-      const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
+
+      // Process loot table
+      if(monster.lootTable) {
+          for(const loot of monster.lootTable) {
+              if (Math.random() < loot.chance) {
+                  allLoot.push(createItem(loot.itemId, loot.quantity));
+              }
+          }
+      }
+      
       setPlayer(p => {
         const newInventory = [...p.inventory];
-        if (loot) {
-            foundLoot = loot;
-            addLog(`You found: ${loot.name}!`);
-            const existingItemIndex = newInventory.findIndex(i => i.id === loot.id);
-            if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
-                newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
-            } else if(newInventory.length < INVENTORY_SIZE) {
-                newInventory.push({...loot, quantity: 1});
-            } else {
-                addLog("Your inventory is full! You couldn't pick up the loot.");
-                foundLoot = null;
-            }
+        if (allLoot.length > 0) {
+            allLoot.forEach(loot => {
+                const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
+                addLog(`You found: ${logMessage}!`);
+                const existingItemIndex = newInventory.findIndex(i => i.id === loot.id && i.type === 'consumable');
+
+                if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
+                    newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + loot.quantity;
+                } else if(newInventory.length < INVENTORY_SIZE) {
+                    newInventory.push(loot);
+                } else {
+                    addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
+                }
+            })
         }
+
         return {
           ...p,
           hp: finalPlayerHp,
@@ -215,7 +228,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
     addLog(result);
-    setCombatInfo(info => ({...info!, result, loot: foundLoot}));
+    setCombatInfo(info => ({...info!, result, loot: allLoot}));
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
@@ -310,14 +323,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
         
         if (targetTile.item) {
-            addLog(`You found a ${targetTile.item.name}!`);
+            const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
+            addLog(`You found a ${logMessage}!`);
             playAudio('/audio/item-found.wav', { volume: 0.7 });
             const newInventory = [...newPlayerState.inventory];
-            const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id);
+            const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id && i.type === 'consumable');
+
             if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
-                newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + 1;
+                newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + (targetTile.item.quantity || 1);
             } else if (newInventory.length < INVENTORY_SIZE) {
-                newInventory.push({...targetTile.item, quantity: 1});
+                newInventory.push(targetTile.item);
             } else {
                 addLog("Your inventory is full! You leave the item on the ground.");
             }

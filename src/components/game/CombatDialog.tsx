@@ -21,7 +21,7 @@ interface CombatDialogProps {
     monster: Monster;
     log: CombatLogEntry[];
     result: string;
-    loot?: Item | null;
+    loot?: Item[];
   };
   onClose: () => void;
 }
@@ -53,23 +53,31 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
             </div>
             <div className='w-1/2'>
                 <h3 className="font-bold mb-2">Aftermath</h3>
-                <div className="h-48 w-full rounded-md border p-4 flex flex-col justify-center items-center">
+                <ScrollArea className="h-48 w-full rounded-md border p-4">
                   {playerWon ? (
-                    loot ? (
+                    (loot && loot.length > 0) ? (
                       <div className="text-center space-y-2">
                         <p className="font-bold">Loot Found!</p>
                         <div className="flex flex-col items-center gap-2 p-2 rounded-md bg-secondary">
-                          <Image src={loot.icon} alt={loot.name} width={40} height={40} />
-                          <p className="text-sm font-medium">{loot.name}</p>
+                          {loot.map((item, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <Image src={item.icon} alt={item.name} width={40} height={40} />
+                                <p className="text-sm font-medium">{item.name}{item.quantity && item.quantity > 1 ? ` x${item.quantity}` : ''}</p>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">The {monster.name} had nothing of value.</p>
+                      <div className="flex justify-center items-center h-full">
+                        <p className="text-sm text-muted-foreground">The {monster.name} had nothing of value.</p>
+                      </div>
                     )
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center">You gather your senses and prepare to continue your journey.</p>
+                    <div className="flex justify-center items-center h-full">
+                        <p className="text-sm text-muted-foreground text-center">You gather your senses and prepare to continue your journey.</p>
+                    </div>
                   )}
-                </div>
+                </ScrollArea>
             </div>
         </div>
 

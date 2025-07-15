@@ -6,7 +6,7 @@ export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4' | 'hero5' | 'hero
 export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Troll' | 'Male Human' | 'Female Human';
 
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
-export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable';
+export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable' | 'legendary';
 export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 
 
@@ -23,8 +23,14 @@ export type Item = {
   energyBoost?: number;
   description: string;
   icon: string;
-  quantity?: number;
+  quantity: number;
 };
+
+export type MonsterLoot = {
+    itemId: string;
+    chance: number; // 0 to 1
+    quantity: number;
+}
 
 export type Monster = {
   id: string;
@@ -34,7 +40,7 @@ export type Monster = {
   maxHp: number;
   attack: number;
   defense: number;
-  loot: Item[];
+  lootTable: MonsterLoot[];
   greed: number;
   power: number;
 };
