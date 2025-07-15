@@ -11,6 +11,8 @@ import CombatDialog from './CombatDialog';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle, Hourglass, ZapOff } from 'lucide-react';
 
 interface GameProps {
   initialPlayer: Player;
@@ -28,8 +30,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [isMoving, setIsMoving] = useState(false);
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
+  const { toast } = useToast();
 
   const countdownTimer = useRef<NodeJS.Timeout>();
+  const moveTimeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const map = generateWorld();
@@ -211,8 +215,22 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (combatInfo?.open || pendingCombat || isMoving) return;
+    if (combatInfo?.open || pendingCombat) return;
     
+    if (isMoving) {
+      toast({
+        title: (
+          <div className="flex items-center gap-2">
+            <Hourglass className="h-5 w-5 text-destructive" />
+            <span className="font-headline">Movement Cooldown</span>
+          </div>
+        ),
+        description: "You must wait before moving again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newX = player.position.x + dx;
     const newY = player.position.y + dy;
     
@@ -230,11 +248,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     const moveCost = TERRAIN_ENERGY_COST[targetTile.terrain];
     if (player.energy < moveCost) {
       addLog("Not enough energy to move!");
+      toast({
+        title: (
+          <div className="flex items-center gap-2">
+            <ZapOff className="h-5 w-5 text-destructive" />
+            <span className="font-headline">Out of Energy</span>
+          </div>
+        ),
+        description: "You are too tired to move. Wait for your energy to recover.",
+        variant: "destructive"
+      });
       return;
     }
     
     setIsMoving(true);
-    setTimeout(() => setIsMoving(false), MOVE_COOLDOWN);
+    moveTimeout.current = setTimeout(() => setIsMoving(false), MOVE_COOLDOWN);
     
     const newPlayerState = {
         ...player,
@@ -272,7 +300,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     setPlayer(newPlayerState);
 
-  }, [player, worldMap, combatInfo, pendingCombat, isMoving, initiateCombat]);
+  }, [player, worldMap, combatInfo, pendingCombat, isMoving, initiateCombat, toast]);
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
@@ -354,7 +382,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-          if (combatInfo?.open || pendingCombat || isMoving) return;
           if (document.activeElement?.tagName === 'INPUT') return;
           if (e.key === 'ArrowUp') handleMove(0, -1);
           if (e.key === 'ArrowDown') handleMove(0, 1);
@@ -363,8 +390,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         };
     
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleMove, combatInfo, pendingCombat, isMoving]);
+
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+          clearTimeout(moveTimeout.current);
+          clearInterval(countdownTimer.current);
+        }
+    }, [handleMove]);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
