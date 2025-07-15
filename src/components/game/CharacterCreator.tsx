@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Player, PlayerClass, PlayerIcon, PlayerRace } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,8 @@ import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { AnimatePresence, motion } from 'framer-motion';
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
@@ -62,6 +64,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   const [iconApi, setIconApi] = useState<CarouselApi>();
   const [classApi, setClassApi] = useState<CarouselApi>();
+  const tooltipPortalRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (!iconApi) return;
@@ -125,7 +129,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
       <TooltipProvider>
-        <Card className="w-full max-w-lg shadow-2xl">
+        <Card className="w-full max-w-lg shadow-2xl relative">
+           <div id="tooltip-portal-container" ref={tooltipPortalRef} />
           <form onSubmit={handleSubmit}>
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
@@ -149,9 +154,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                           <Dices className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Generates random name</p>
-                      </TooltipContent>
+                       <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
+                        <TooltipContent>
+                          <p>Generates random name</p>
+                        </TooltipContent>
+                      </TooltipPrimitive.Portal>
                     </Tooltip>
                 </div>
               </div>
@@ -209,12 +216,14 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                           <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                       </div>
                                                                   </TooltipTrigger>
-                                                                  <TooltipContent side="bottom">
-                                                                      <div className="space-y-1 w-48">
-                                                                          <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
-                                                                          <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
-                                                                      </div>
-                                                                  </TooltipContent>
+                                                                  <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
+                                                                      <TooltipContent>
+                                                                          <div className="space-y-1 w-48">
+                                                                              <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
+                                                                              <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
+                                                                          </div>
+                                                                      </TooltipContent>
+                                                                  </TooltipPrimitive.Portal>
                                                               </Tooltip>
                                                           ))}
                                                       </div>
