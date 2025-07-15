@@ -177,8 +177,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                               </CarouselItem>
                           ))}
                       </CarouselContent>
-                      <CarouselPrevious variant="ghost" className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-background/50 hover:bg-background/80 text-foreground" />
-                      <CarouselNext variant="ghost" className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-background/50 hover:bg-background/80 text-foreground" />
+                      <CarouselPrevious variant="ghost" />
+                      <CarouselNext variant="ghost" />
                   </Carousel>
               </div>
 
