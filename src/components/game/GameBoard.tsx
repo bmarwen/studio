@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
+import { Home, Mountain, Trees, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -27,7 +27,7 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
 
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
-    case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
+    case 'tree': return <Trees className="w-8 h-8 text-green-700 dark:text-green-500" />;
     case 'mountain': return <Mountain className="w-8 h-8 text-gray-600 dark:text-gray-400" />;
     case 'river': return <Waves className="w-8 h-8 text-blue-600 dark:text-blue-400" />;
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
@@ -43,6 +43,7 @@ const getTooltipContent = (tile: TileData) => {
     if (tile.terrain === 'camp') return 'A safe place to rest.';
     if (tile.terrain === 'mountain') return 'Treacherous mountains. Moving here costs a lot of energy.';
     if (tile.terrain === 'grass') return 'Grass field';
+    if (tile.terrain === 'tree') return 'Forest';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
