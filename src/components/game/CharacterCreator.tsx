@@ -226,13 +226,15 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 </div>
 
                 <div className="space-y-4">
-                    <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
+                    <Label className="font-headline text-center block">Choose Your Class</Label>
                     <Tabs defaultValue="warrior" className="w-full" onValueChange={(v) => setSelectedClass(v as PlayerClass)}>
-                        <TabsList className="grid w-full grid-cols-4">
+                        <TabsList className="grid w-full grid-cols-4 gap-2">
                              {CLASSES.map(({ id, name, iconPath }) => (
-                                <TabsTrigger key={id} value={id} className="flex flex-col sm:flex-row items-center gap-2">
-                                    <Image src={iconPath} alt={name} width={24} height={24} className="w-6 h-6" />
-                                    {name}
+                                <TabsTrigger key={id} value={id} className="flex-1 p-0">
+                                    <Card className="flex items-center gap-2 p-2 w-full h-full transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                                        <Image src={iconPath} alt={name} width={24} height={24} className="w-6 h-6" />
+                                        <span className="font-bold">{name}</span>
+                                    </Card>
                                 </TabsTrigger>
                             ))}
                         </TabsList>
@@ -288,5 +290,3 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
-
-    
