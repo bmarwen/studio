@@ -29,10 +29,10 @@ const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/warrior-icon.png" className="w-5 h-5" /> },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/mage-icon.png" className="w-5 h-5" /> },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/ranger-icon.png" className="w-5 h-5" /> },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/assassin-icon.png" className="w-5 h-5" /> },
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/warrior-icon.png" className="w-8 h-8" /> },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/mage-icon.png" className="w-8 h-8" /> },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/ranger-icon.png" className="w-8 h-8" /> },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/assassin-icon.png" className="w-8 h-8" /> },
 ];
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
@@ -155,8 +155,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                     <div className="flex items-center gap-3">
                                         <RadioGroupItem value={id} id={id} />
                                         <span className="font-bold text-base">{name}</span>
-                                        {icon}
                                     </div>
+                                    {icon}
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-2 pl-8">{description}</p>
                                 <div className="text-xs grid grid-cols-3 gap-x-4 pl-8 mt-2 text-muted-foreground">
