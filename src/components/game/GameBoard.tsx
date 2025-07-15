@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -25,12 +25,6 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
     }
 }
 
-const GrassIcon = () => (
-    <svg width="32" height="32" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 opacity-70 text-green-700 dark:text-green-500">
-        <path d="M5.5 15V4.5C5.5 3.67157 4.82843 3 4 3C3.17157 3 2.5 3.67157 2.5 4.5V15H1.5V4.5C1.5 3.11929 2.61929 2 4 2C5.38071 2 6.5 3.11929 6.5 4.5V15H5.5ZM12.5 15V4.5C12.5 3.67157 11.8284 3 11 3C10.1716 3 9.5 3.67157 9.5 4.5V15H8.5V4.5C8.5 3.11929 9.61929 2 11 2C12.3807 2 13.5 3.11929 13.5 4.5V15H12.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-    </svg>
-)
-
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
     case 'tree': return <TreePine className="w-8 h-8 text-green-700 dark:text-green-500" />;
@@ -39,7 +33,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <GrassIcon />;
+    case 'grass': return <Sprout className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
     default: return null;
   }
 };
@@ -137,7 +131,6 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                             stroke="hsl(var(--primary))"
                             strokeWidth="4"
                             fill="transparent"
-                            pathLength="1"
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1.01 }}
                             transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
