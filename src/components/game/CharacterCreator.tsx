@@ -231,7 +231,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
                 <div className="space-y-2">
                     <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
-                    <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                    <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-md mx-auto">
                         <CarouselContent>
                             {CLASSES.map(({ id, name, description, iconPath }) => {
                                 const stats = PLAYER_CLASSES[id];
@@ -251,22 +251,20 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                 transition={{ duration: 0.3 }}
                                             >
                                                 <Card className="bg-secondary/50 relative text-card-foreground">
-                                                    <div className="grid grid-cols-5 gap-4 p-4">
-                                                        <div className="col-span-3 flex flex-col">
-                                                            <div className="flex items-center gap-4">
-                                                                <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
-                                                                <CardTitle className="font-headline text-2xl">{name}</CardTitle>
-                                                            </div>
-                                                            <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
+                                                    <div className="grid grid-cols-3 gap-4 p-4 items-center">
+                                                        <div className="col-span-1 flex flex-col items-center gap-4">
+                                                            <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
+                                                            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+                                                            <p className="text-sm text-muted-foreground text-center min-h-[40px] pt-2">{description}</p>
                                                         </div>
-                                                        <div className="col-span-2 grid grid-cols-2 gap-x-3 gap-y-2 justify-center pl-2">
+                                                        <div className="col-span-2 grid grid-cols-2 gap-x-4 gap-y-2">
                                                             {relevantStats.map(([key, value]) => {
                                                                 const statKey = key;
                                                                 
                                                                 return (
                                                                     <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
-                                                                            <div className="flex items-center justify-between gap-2 cursor-help text-xs">
+                                                                            <div className="flex items-center justify-between cursor-help text-sm">
                                                                                 <span className="font-bold uppercase text-muted-foreground">{STAT_LABELS[statKey as keyof typeof STAT_LABELS]}</span>
                                                                                 <span className="font-mono text-primary">{value}{key.includes('Chance') || key.includes('evasion') ? '%' : ''}</span>
                                                                             </div>
