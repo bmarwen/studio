@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Dices, HelpCircle } from 'lucide-react';
+import { AlertTriangle, Dices } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
@@ -41,6 +41,14 @@ const STAT_DEFINITIONS = {
     attack: "Attack Power",
     defense: "Defense",
     criticalChance: "Critical Hit Chance"
+}
+
+const STAT_LABELS: Record<string, string> = {
+    maxHp: "HP",
+    maxEnergy: "EN",
+    attack: "ATT",
+    defense: "DEF",
+    criticalChance: "CRIT"
 }
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
@@ -191,7 +199,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <div className="flex justify-between items-center cursor-help">
-                                                                            <span className="font-bold uppercase flex items-center gap-1.5">{key.replace('max', '').replace('critical', 'crit').replace('Chance', '')} <HelpCircle className="w-3 h-3 text-muted-foreground" /></span>
+                                                                            <span className="font-bold uppercase">{STAT_LABELS[key]}</span>
                                                                             <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                         </div>
                                                                     </TooltipTrigger>
