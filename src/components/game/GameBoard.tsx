@@ -66,8 +66,11 @@ const Tile = memo(({ tile }: TileProps) => {
         </TooltipTrigger>
         <TooltipContent>
           <p>{getTooltipContent(tile)}</p>
+          {/*
+          We hide these for now to add surprise
           {tile.monster && <p className="font-bold text-destructive">Danger lurks...</p>}
           {tile.item && <p className="font-bold text-accent">Something glitters...</p>}
+          */}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
