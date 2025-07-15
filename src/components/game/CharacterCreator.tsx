@@ -65,18 +65,28 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   useEffect(() => {
     if (!iconApi) return;
-    iconApi.on("select", () => {
+    const onSelect = () => {
       const selectedIndex = iconApi.selectedScrollSnap();
       setSelectedIcon(RACES[selectedIndex].id);
-    });
+    };
+    iconApi.on("select", onSelect);
+    // Cleanup
+    return () => {
+      iconApi.off("select", onSelect);
+    };
   }, [iconApi]);
 
   useEffect(() => {
     if (!classApi) return;
-    classApi.on("select", () => {
+    const onSelect = () => {
       const selectedIndex = classApi.selectedScrollSnap();
       setSelectedClass(CLASSES[selectedIndex].id);
-    });
+    };
+    classApi.on("select", onSelect);
+    // Cleanup
+    return () => {
+      classApi.off("select", onSelect);
+    };
   }, [classApi]);
 
 
@@ -198,9 +208,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
-                                                                        <div className="flex items-center w-full cursor-help">
-                                                                            <span className="font-bold uppercase">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
-                                                                            <span className="flex-grow"></span>
+                                                                        <div className="flex items-center gap-4 cursor-help">
+                                                                            <span className="font-bold uppercase w-10">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
                                                                             <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                         </div>
                                                                     </TooltipTrigger>
