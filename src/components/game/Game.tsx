@@ -336,6 +336,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
+    
+    if (itemToUse.hp && player.hp >= player.maxHp) {
+        toast({
+            title: (
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-400" />
+                    <span className="font-headline">Health is Full</span>
+                </div>
+            ),
+            description: "You cannot use this item, your health is already full.",
+            variant: "destructive",
+        });
+        return;
+    }
 
     let itemUsed = false;
     const newInventory = [...player.inventory];
