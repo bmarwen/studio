@@ -56,7 +56,7 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
         <p className="text-xs text-muted-foreground italic">({item.rarity})</p>
         <p className="text-muted-foreground">{item.description}</p>
         {(item.allowedClasses && item.allowedClasses.length > 0) && (
-            <p className="text-xs text-cyan-400">Classes: {item.allowedClasses.join(', ')}</p>
+            <p className="text-xs text-cyan-400">Classes: {item.allowedClasses.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')}</p>
         )}
         <Separator/>
         <div className="space-y-1">

@@ -78,7 +78,7 @@ export type Player = {
   defense: number;
   criticalChance: number;
   position: Coordinates;
-  inventory: Item[];
+  inventory: (Item | null)[];
   quests: Quest[];
   equipment: Equipment;
 

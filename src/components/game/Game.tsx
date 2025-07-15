@@ -208,8 +208,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 addLog(`You found: ${logMessage}!`);
                 const existingItemIndex = newInventory.findIndex(i => i?.id === loot.id && i.type === 'consumable');
 
-                if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
-                    newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + loot.quantity;
+                if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                    newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
                 } else {
                     const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                     if (emptySlotIndex !== -1) {
@@ -336,10 +336,15 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             const newInventory = [...newPlayerState.inventory];
             const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
 
-            if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
-                newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + (targetTile.item.quantity || 1);
-            } else if (newInventory.length < INVENTORY_SIZE) {
-                newInventory.push(targetTile.item);
+            if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
+            } else if (newInventory.filter(i => i !== null).length < INVENTORY_SIZE) {
+                const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                if (emptySlotIndex !== -1) {
+                    newInventory[emptySlotIndex] = targetTile.item;
+                } else {
+                    newInventory.push(targetTile.item);
+                }
             } else {
                 addLog("Your inventory is full! You leave the item on the ground.");
             }
@@ -381,7 +386,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         if(itemInInventory.quantity && itemInInventory.quantity > 1) {
             itemInInventory.quantity -= 1;
         } else {
-            newInventory.splice(index, 1);
+            newInventory[index] = null;
         }
         itemUsed = true;
     }
@@ -389,9 +394,25 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     if(itemUsed) {
         playAudio('/audio/use-potion.wav');
         setPlayer(p => {
+            const newPlayerState = {...p};
             const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
-            addLog(`You used ${itemToUse.name}.`);
-            return {...p, hp: newHp, inventory: newInventory };
+            newPlayerState.hp = newHp;
+            
+            if (itemToUse.id.includes('elixir_of_power')) {
+                 if (p.magicAttack > p.attack) {
+                    newPlayerState.magicAttack += itemToUse.magicAttack || 0;
+                 } else {
+                    newPlayerState.attack += itemToUse.attack || 0;
+                 }
+                 // Note: This is a temporary boost. A real implementation would
+                 // need a system for timed effects to wear off.
+                 addLog(`You feel a surge of power from the ${itemToUse.name}!`);
+            } else {
+                addLog(`You used ${itemToUse.name}.`);
+            }
+
+            newPlayerState.inventory = newInventory;
+            return calculateStats(newPlayerState);
         })
     }
   };
@@ -419,7 +440,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         const slot = itemToEquip.type as EquipmentSlot;
 
         // Remove from inventory
-        newInventory.splice(index, 1);
+        newInventory[index] = null;
 
         // If something is already equipped in that slot, move it to inventory
         const currentlyEquipped = newEquipment[slot];
@@ -428,12 +449,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             if (emptySlotIndex !== -1) {
                 newInventory[emptySlotIndex] = currentlyEquipped;
                 addLog(`You unequipped ${currentlyEquipped.name}.`);
-            } else if (newInventory.length < INVENTORY_SIZE) {
-                newInventory.push(currentlyEquipped);
-                addLog(`You unequipped ${currentlyEquipped.name}.`);
             } else {
                  addLog(`Your inventory is full! Could not unequip ${currentlyEquipped.name}.`);
-                 newInventory.splice(index, 0, itemToEquip); // add it back
+                 newInventory[index] = itemToEquip; // add it back
                  return p; // Abort if no space
             }
         }
@@ -450,8 +468,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const handleUnequipItem = (slot: EquipmentSlot) => {
     setPlayer(p => {
-        if (p.inventory.length >= INVENTORY_SIZE) {
+        const emptySlotIndex = p.inventory.findIndex(i => !i);
+        if (emptySlotIndex === -1) {
             addLog("Cannot unequip, inventory is full!");
+            toast({
+                title: (
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        <span className="font-headline">Inventory Full</span>
+                    </div>
+                ),
+                description: "You cannot unequip this item because your inventory is full.",
+                variant: "destructive",
+            });
             return p;
         }
 
@@ -462,7 +491,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         if (itemToUnequip) {
             playAudio('/audio/equip-item.wav', { volume: 0.5 });
             newEquipment[slot] = null;
-            newInventory.push(itemToUnequip);
+            newInventory[emptySlotIndex] = itemToUnequip;
             addLog(`You unequipped ${itemToUnequip.name}.`);
         }
 
