@@ -65,6 +65,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [iconApi, setIconApi] = useState<CarouselApi>();
   const [classApi, setClassApi] = useState<CarouselApi>();
   const tooltipPortalRef = useRef<HTMLDivElement>(null);
+  const [isShaking, setIsShaking] = useState(false);
 
 
   useEffect(() => {
@@ -110,8 +111,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
             </div>
         ),
         description: "Please enter a name for your hero to begin.",
-        variant: "destructive"
-      })
+        variant: "destructive",
+        duration: 4000,
+      });
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 1000);
       return;
     }
 
@@ -138,7 +142,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
             </CardHeader>
             <CardContent className="space-y-8 p-6">
               
-              <div className="space-y-2">
+              <motion.div 
+                className="space-y-2"
+                animate={isShaking ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.5 }}
+              >
                 <Label htmlFor="name" className="text-lg font-headline text-center block">Hero Name</Label>
                 <div className="flex items-center gap-2 max-w-sm mx-auto">
                     <Input
@@ -161,7 +169,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                       </TooltipPrimitive.Portal>
                     </Tooltip>
                 </div>
-              </div>
+              </motion.div>
 
               <div className="space-y-2">
                   <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
