@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Player, PlayerClass, PlayerIcon } from '@/types/game';
+import type { Player, PlayerClass, PlayerIcon, PlayerRace } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,20 +19,20 @@ type Props = {
   onPlayerCreate: (player: Player) => void;
 };
 
-const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
-    { id: 'hero1', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
-    { id: 'hero2', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
-    { id: 'hero3', path: '/icons/hero-avatar-3.png', hint: 'male elf' },
-    { id: 'hero4', path: '/icons/hero-avatar-4.png', hint: 'female elf' },
-    { id: 'hero5', path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
-    { id: 'hero6', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
+const RACES: { id: PlayerIcon; name: PlayerRace; bonus: string; path: string; hint: string;}[] = [
+    { id: 'hero1', name: 'Male Elf', bonus: '+5 Magic', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
+    { id: 'hero2', name: 'Female Elf', bonus: '+5 Magic', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
+    { id: 'hero3', name: 'Male Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-3.png', hint: 'male elf' },
+    { id: 'hero4', name: 'Female Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-4.png', hint: 'female elf' },
+    { id: 'hero5', name: 'Male Human', bonus: '+5 Attack', path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
+    { id: 'hero6', name: 'Female Human', bonus: '+5 Attack', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
-const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png' },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png' },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png' },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
+const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; bgPath: string; }[] = [
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png', bgPath: '/backgrounds/warrior-bg.jpg' },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png', bgPath: '/backgrounds/mage-bg.jpg' },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png', bgPath: '/backgrounds/ranger-bg.jpg' },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png', bgPath: '/backgrounds/assassin-bg.jpg' },
 ];
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
@@ -51,7 +51,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     if (!iconApi) return;
     iconApi.on("select", () => {
       const selectedIndex = iconApi.selectedScrollSnap();
-      setSelectedIcon(ICONS[selectedIndex].id);
+      setSelectedIcon(RACES[selectedIndex].id);
     });
   }, [iconApi]);
 
@@ -93,6 +93,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
       ...classStats,
       name,
       icon: selectedIcon,
+      race: RACES.find(r => r.id === selectedIcon)?.name || 'Male Human',
     };
     onPlayerCreate(newPlayer);
   };
@@ -107,7 +108,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
           </CardHeader>
           <CardContent className="space-y-8 p-6">
             
-            {/* Name Input */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-lg font-headline text-center block">Hero Name</Label>
               <div className="flex items-center gap-2 max-w-sm mx-auto">
@@ -133,17 +133,18 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
               </div>
             </div>
 
-            {/* Icon Selector */}
-            <div className="space-y-2">
-                <Label className="text-lg font-headline text-center block">Choose Your Icon</Label>
+            <div className="space-y-4">
+                <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
                 <Carousel setApi={setIconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                     <CarouselContent>
-                        {ICONS.map(({ id, path, hint }) => (
+                        {RACES.map(({ id, name, bonus, path, hint }) => (
                             <CarouselItem key={id}>
-                                <div className="p-1">
+                                <div className="p-1 text-center">
                                     <div className="flex aspect-square items-center justify-center p-2">
-                                        <Image src={path} alt={id} width={200} height={200} className="w-48 h-48 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
+                                        <Image src={path} alt={id} width={128} height={128} className="w-32 h-32 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
                                     </div>
+                                    <p className="font-bold text-lg font-headline">{name}</p>
+                                    <p className="text-sm text-accent">{bonus}</p>
                                 </div>
                             </CarouselItem>
                         ))}
@@ -153,32 +154,32 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 </Carousel>
             </div>
 
-            {/* Class Selector */}
             <div className="space-y-2">
                 <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
                  <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                     <CarouselContent>
-                        {CLASSES.map(({ id, name, description, iconPath }) => {
+                        {CLASSES.map(({ id, name, description, iconPath, bgPath }) => {
                              const stats = PLAYER_CLASSES[id];
                              return (
                                 <CarouselItem key={id}>
                                     <div className="p-1">
-                                        <Card className="bg-secondary/50">
-                                            <CardHeader className="items-center pb-2">
-                                                <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary" />
+                                        <Card className="bg-secondary/50 overflow-hidden relative text-white">
+                                            <Image src={bgPath} alt={`${name} background`} layout="fill" objectFit="cover" className="absolute inset-0 z-0 opacity-30" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-10"></div>
+                                            
+                                            <div className="relative z-20 flex flex-col items-center p-4 text-center">
+                                                <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/50 p-2 border-2 border-primary/80" />
                                                 <CardTitle className="font-headline text-2xl pt-2">{name}</CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="text-center space-y-4">
-                                                <p className="text-sm text-muted-foreground min-h-[40px]">{description}</p>
-                                                <div className="text-xs grid grid-cols-3 gap-x-2 gap-y-1 text-muted-foreground">
+                                                <p className="text-sm text-white/80 min-h-[40px] pt-2">{description}</p>
+                                                
+                                                <div className="text-xs grid grid-cols-3 gap-x-4 gap-y-2 text-white/90 pt-4">
                                                     <span>HP: {stats.maxHp}</span>
                                                     <span>ATK: {stats.attack}</span>
                                                     <span>DEF: {stats.defense}</span>
                                                     <span>EN: {stats.maxEnergy}</span>
                                                     <span>MAG: {stats.magic}</span>
-                                                    <span></span>
                                                 </div>
-                                            </CardContent>
+                                            </div>
                                         </Card>
                                     </div>
                                 </CarouselItem>

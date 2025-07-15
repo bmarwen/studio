@@ -1,4 +1,4 @@
-import type { Player, PlayerClass } from '@/types/game';
+import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
@@ -15,7 +15,7 @@ export const TERRAIN_ENERGY_COST: Record<string, number> = {
     camp: 1,
 };
 
-export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon'> = {
+export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'race'> = {
   hp: 100,
   maxHp: 100,
   energy: 100,
@@ -39,7 +39,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon'> = {
   }
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,

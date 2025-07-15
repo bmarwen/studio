@@ -3,6 +3,7 @@ export type Coordinates = { x: number; y: number };
 export type TerrainType = 'grass' | 'tree' | 'mountain' | 'river' | 'town' | 'snow' | 'camp';
 export type PlayerClass = 'warrior' | 'mage' | 'ranger' | 'assassin';
 export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4' | 'hero5' | 'hero6';
+export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Troll' | 'Male Human' | 'Female Human';
 
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
 export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable';
@@ -58,6 +59,7 @@ export type Equipment = {
 export type Player = {
   name: string;
   class: PlayerClass;
+  race: PlayerRace;
   icon: PlayerIcon;
   hp: number;
   maxHp: number;
