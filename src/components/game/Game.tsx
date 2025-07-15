@@ -30,17 +30,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [combatCountdown, setCombatCountdown] = useState(0);
 
   const [isMoving, setIsMoving] = useState(false);
-  const isMovingRef = useRef(false);
+  const isMovingRef = useRef(isMoving);
+  isMovingRef.current = isMoving;
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
   const { toast } = useToast();
 
   const countdownTimer = useRef<NodeJS.Timeout>();
   const moveTimeout = useRef<NodeJS.Timeout>();
-
-  useEffect(() => {
-    isMovingRef.current = isMoving;
-  }, [isMoving]);
 
   useEffect(() => {
     const map = generateWorld();
@@ -221,7 +218,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }
   }, [combatCountdown, pendingCombat]);
 
-  const handleMove = useCallback((dx: number, dy: number) => {
+  const handleMove = (dx: number, dy: number) => {
     if (combatInfo?.open || pendingCombat || isMovingRef.current) {
         if (isMovingRef.current) {
              toast({
@@ -307,7 +304,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     setPlayer(newPlayerState);
 
-  }, [player, worldMap, combatInfo, pendingCombat, initiateCombat, toast]);
+  };
 
   const handleUseItem = (itemToUse: Item, index: number) => {
     if (itemToUse.type !== 'consumable') return;
@@ -403,7 +400,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
           clearTimeout(moveTimeout.current);
           clearInterval(countdownTimer.current);
         }
-    }, [handleMove]);
+    }, [handleMove, player, worldMap, combatInfo, pendingCombat, initiateCombat, toast]);
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
