@@ -49,14 +49,7 @@ const getTooltipContent = (tile: TileData) => {
 }
 
 const TileContent = memo(({ tile }: {tile: TileData}) => {
-    const icon = getTileIcon(tile);
-    if(tile.monster) {
-        return <Image src={tile.monster.icon} alt={tile.monster.name} width={40} height={40} className="drop-shadow-lg"/>
-    }
-    if(tile.item) {
-        return <Image src={tile.item.icon} alt={tile.item.name} width={32} height={32} className="drop-shadow-md"/>
-    }
-    return icon;
+    return getTileIcon(tile);
 });
 TileContent.displayName = "TileContent";
 
@@ -78,11 +71,7 @@ const Tile = memo(({ tile }: TileProps) => {
           </div>
         </TooltipTrigger>
         <TooltipContent>
-            <div className="space-y-1">
-                <p className="font-bold">{getTooltipContent(tile)}</p>
-                {tile.monster && <p className="text-sm text-destructive">Monster: {tile.monster.name}</p>}
-                {tile.item && <p className="text-sm text-blue-400">Item: {tile.item.name}</p>}
-            </div>
+            <p className="font-bold">{getTooltipContent(tile)}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
