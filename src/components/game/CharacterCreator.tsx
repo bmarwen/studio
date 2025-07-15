@@ -177,8 +177,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                               </CarouselItem>
                           ))}
                       </CarouselContent>
-                      <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronLeft className="h-6 w-6" /></CarouselPrevious>
-                      <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronRight className="h-6 w-6" /></CarouselNext>
+                      <CarouselPrevious />
+                      <CarouselNext />
                   </Carousel>
               </div>
 
@@ -235,8 +235,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                )
                           })}
                       </CarouselContent>
-                      <CarouselPrevious className="-left-8"><ChevronLeft className="h-6 w-6" /></CarouselPrevious>
-                      <CarouselNext className="-right-8"><ChevronRight className="h-6 w-6" /></CarouselNext>
+                      <CarouselPrevious />
+                      <CarouselNext />
                   </Carousel>
               </div>
 
