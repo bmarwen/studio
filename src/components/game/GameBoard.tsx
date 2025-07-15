@@ -26,9 +26,11 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
 }
 
 const GrassIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M4 22c0-2 2-4 4-4s4 2 4 4M12 22c0-2 2-4 4-4s4 2 4 4M8 18c-2 0-4-2-4-4 0-4 4-8 8-8s8 4 8 8c0 2-2 4-4 4" />
-      <path d="M12 14c-2 0-4-2-4-4" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="#4ade80" d="M20.94 21.94c0-2.2-1.79-4-4-4s-4 1.8-4 4h8zm-8.01 0c0-2.2-1.79-4-4-4s-4 1.8-4 4h8z"/>
+        <path fill="#22c55e" d="M18.89 21.94c-1.39-2.31-3.6-3.81-6.22-4.14.9.9 1.48 2.22 1.48 3.64v.5h4.74zM8.33 21.94c1.39-2.31 3.6-3.81 6.22-4.14-.9.9-1.48 2.22-1.48 3.64v.5H8.33z"/>
+        <path fill="#4ade80" d="M12.5 12.03c-1.92.5-3.69 1.56-5.07 3.03.8-.5 1.7-1 2.67-1.31 2.29-.71 4.1-2.4 4.88-4.59-.57 1.3-1.63 2.37-2.48 2.87zM11.5 12.03c1.92.5 3.69 1.56 5.07 3.03-.8-.5-1.7-1-2.67-1.31-2.29-.71-4.1-2.4-4.88-4.59.57 1.3 1.63 2.37 2.48 2.87z"/>
+        <path fill="#22c55e" d="M12 2.06c-1.79 3.98-5.3 6.77-9.56 7.7.93-.24 1.88-.42 2.86-.53 3.32-.38 6.13-2.48 7.6-5.32-1.2.93-2.02 2.28-2.61 3.86l1.71-5.71z"/>
     </svg>
 );
 
@@ -138,7 +140,6 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                             stroke="hsl(var(--primary))"
                             strokeWidth="4"
                             fill="transparent"
-                            pathLength="0"
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1.01 }}
                             transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
@@ -154,5 +155,3 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
 };
 
 export default GameBoard;
-
-    
