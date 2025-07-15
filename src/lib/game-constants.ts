@@ -4,7 +4,7 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 1500; // ms, slower regen
-export const MOVE_COOLDOWN = 2600; // ms
+export const MOVE_COOLDOWN = 2000; // ms
 export const INVENTORY_SIZE = 16; // 4 rows of 4
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
@@ -46,7 +46,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   utilityItemFindChance: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'magicAttack'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,
@@ -64,7 +64,6 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         energy: 120,
         maxEnergy: 120,
         attack: 5,
-        magicAttack: 15,
         defense: 5,
         criticalChance: 15,
     },
