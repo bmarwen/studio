@@ -43,10 +43,10 @@ const RARITY_COLORS: Record<ItemRarity, string> = {
 };
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
-    warrior: '/icons/class-warrior.png',
-    mage: '/icons/class-mage.png',
-    ranger: '/icons/class-ranger.png',
-    assassin: '/icons/class-assassin.png',
+    warrior: '/icons/warrior-icon.png',
+    mage: '/icons/mage-icon.png',
+    ranger: '/icons/ranger-icon.png',
+    assassin: '/icons/assassin-icon.png',
 }
 
 const ItemTooltipContent = ({ item }: { item: Item }) => (

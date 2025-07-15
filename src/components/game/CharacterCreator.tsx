@@ -29,10 +29,10 @@ const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/class-warrior.png" className="w-5 h-5" /> },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/class-mage.png" className="w-5 h-5" /> },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/class-ranger.png" className="w-5 h-5" /> },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/class-assassin.png" className="w-5 h-5" /> },
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/warrior-icon.png" className="w-5 h-5" /> },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/mage-icon.png" className="w-5 h-5" /> },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/ranger-icon.png" className="w-5 h-5" /> },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/assassin-icon.png" className="w-5 h-5" /> },
 ];
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
