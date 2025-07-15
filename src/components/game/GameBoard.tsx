@@ -2,7 +2,7 @@
 "use client";
 
 import { memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -115,11 +115,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
           {isMoving && (
-              <motion.div
-                  key="loader"
-                  initial={{ scale: 1, opacity: 1 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.2 }}
+              <div
                   className="absolute w-14 h-14"
               >
                   <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -132,11 +128,11 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                           fill="transparent"
                           pathLength="1"
                           initial={{ pathLength: 0 }}
-                          animate={{ pathLength: 1 }}
+                          animate={{ pathLength: 1.01 }}
                           transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
                       />
                   </svg>
-              </motion.div>
+              </div>
           )}
           <img src={iconPath} alt="player icon" className="w-12 h-12 rounded-full drop-shadow-lg" />
       </motion.div>
