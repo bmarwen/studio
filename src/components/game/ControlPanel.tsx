@@ -152,10 +152,17 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                     const inventorySlot = (
                         <div
                             key={item ? `item-${item.id}-${index}`: `empty-${index}`}
-                            onClick={() => item && item.type !== 'consumable' && onEquipItem(item, index)}
+                            onClick={() => {
+                                if (!item) return;
+                                if (item.type === 'consumable') {
+                                    onUseItem(item, index);
+                                } else {
+                                    onEquipItem(item, index);
+                                }
+                            }}
                             className={cn(
                                 'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
-                                item && item.type !== 'consumable' && 'cursor-pointer hover:border-primary'
+                                item && 'cursor-pointer hover:border-primary'
                             )}
                         >
                             {item && (
@@ -165,14 +172,6 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                                         <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
                                             {item.quantity}
                                         </span>
-                                    )}
-                                    {item.type === 'consumable' && (
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); onUseItem(item, index); }}
-                                            className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 hover:bg-green-700 rounded-full z-20 flex items-center justify-center cursor-pointer"
-                                        >
-                                            <PlusCircle className="w-4 h-4 text-white" />
-                                        </button>
                                     )}
                                 </>
                             )}

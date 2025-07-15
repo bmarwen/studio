@@ -37,6 +37,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const { playAudio } = useAudio();
 
   const moveTimeout = useRef<NodeJS.Timeout>();
+  const combatTimerRef = useRef<NodeJS.Timeout>();
 
   // --- Music Effect ---
   useEffect(() => {
@@ -225,14 +226,18 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [playAudio]);
 
   useEffect(() => {
-    if (combatCountdown > 0) {
-      const timer = setTimeout(() => {
-        setCombatCountdown(combatCountdown - 1);
+    if (combatCountdown > 0 && pendingCombat) {
+      combatTimerRef.current = setTimeout(() => {
+        setCombatCountdown(prev => prev - 1);
       }, 1000);
-      return () => clearTimeout(timer);
-    } else if (pendingCombat) {
+    } else if (combatCountdown === 0 && pendingCombat) {
       startCombat(pendingCombat);
       setPendingCombat(null);
+    }
+    return () => {
+      if (combatTimerRef.current) {
+        clearTimeout(combatTimerRef.current);
+      }
     }
   }, [combatCountdown, pendingCombat, startCombat]);
 
