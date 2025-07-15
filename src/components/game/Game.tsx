@@ -186,6 +186,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let foundLoot: Item | null = null;
     if (finalPlayerHp > 0) {
       result = `You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`;
+      playAudio('/audio/combat-victory.wav');
       const loot = monster.loot[Math.floor(Math.random() * monster.loot.length)];
       setPlayer(p => {
         const newInventory = [...p.inventory];
@@ -210,6 +211,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       });
     } else {
       result = `You were defeated by the ${monster.name}... You limp away.`;
+      playAudio('/audio/combat-defeat.wav');
       setPlayer(p => ({ ...p, hp: 1, energy: Math.floor(p.energy/2) })); // Penalty on losing
     }
     addLog(result);
@@ -219,6 +221,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const initiateCombat = useCallback((monster: Monster) => {
      if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
 
+    playAudio('/audio/combat-start.wav');
     setPendingCombat(monster);
     setCombatCountdown(3);
 
@@ -230,7 +233,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return c - 1;
       });
     }, 1000);
-  }, []);
+  }, [playAudio]);
 
   useEffect(() => {
     if (combatCountdown === 0 && pendingCombat) {
@@ -288,6 +291,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       return;
     }
     
+    playAudio('/audio/move.wav', { volume: 0.3 });
     setIsMoving(true);
     moveTimeout.current = setTimeout(() => setIsMoving(false), MOVE_COOLDOWN);
     
@@ -311,6 +315,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         
         if (targetTile.item) {
             addLog(`You found a ${targetTile.item.name}!`);
+            playAudio('/audio/item-found.wav', { volume: 0.7 });
             const newInventory = [...newPlayerState.inventory];
             const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id);
             if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
@@ -350,6 +355,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }
 
     if(itemUsed) {
+        playAudio('/audio/use-potion.wav');
         setPlayer(p => {
             const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
             addLog(`You used ${itemToUse.name}.`);
@@ -381,6 +387,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
 
         // Equip new item
+        playAudio('/audio/equip-item.wav');
         newEquipment[slot] = itemToEquip;
         addLog(`You equipped ${itemToEquip.name}.`);
         
@@ -401,6 +408,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         const itemToUnequip = newEquipment[slot];
 
         if (itemToUnequip) {
+            playAudio('/audio/equip-item.wav', { volume: 0.5 });
             newEquipment[slot] = null;
             newInventory.push(itemToUnequip);
             addLog(`You unequipped ${itemToUnequip.name}.`);
