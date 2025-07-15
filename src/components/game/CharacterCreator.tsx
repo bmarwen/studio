@@ -249,7 +249,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                         </div>
                                                         <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
-                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS || key === 'magicAttack').map(([key, value]) => {
+                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => {
                                                                 const isMagic = id === 'mage' && key === 'attack';
                                                                 const statKey = isMagic ? 'magicAttack' : key;
                                                                 const labelKey = isMagic ? 'mAttack' : key === 'attack' ? 'pAttack' : key;
@@ -257,7 +257,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                 if (!(statKey in STAT_DEFINITIONS)) return null;
 
                                                                 return (
-                                                                    <Tooltip key={statKey}>
+                                                                    <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
                                                                             <div className="flex items-center cursor-help">
                                                                                 <span className="font-bold uppercase w-[3.75rem] text-sm">{STAT_LABELS[labelKey as keyof typeof STAT_LABELS]}</span>
