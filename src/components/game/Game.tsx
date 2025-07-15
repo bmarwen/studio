@@ -36,7 +36,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const { toast } = useToast();
   const { playAudio } = useAudio();
 
-  const countdownTimer = useRef<NodeJS.Timeout>();
   const moveTimeout = useRef<NodeJS.Timeout>();
 
   // --- Music Effect ---
@@ -143,7 +142,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setGameLog(prev => [message, ...prev.slice(0, 19)]);
   };
 
-  const startCombat = (monster: Monster) => {
+  const startCombat = useCallback((monster: Monster) => {
     addLog(`You encounter a fierce ${monster.name}!`);
     const combatLog: CombatLogEntry[] = [];
     setCombatInfo({ open: true, monster, log: combatLog, result: `Fighting ${monster.name}...` });
@@ -179,7 +178,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
       }
     }, 1000); // One action per second
-  };
+  }, []); // Eslint ignore: we need stable function
 
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let result = '';
@@ -220,28 +219,23 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   const initiateCombat = useCallback((monster: Monster) => {
     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
-
     playAudio('/audio/combat-start.wav');
     setPendingCombat(monster);
     setCombatCountdown(3);
-
-    countdownTimer.current = setInterval(() => {
-      setCombatCountdown(currentCountdown => {
-        const newCountdown = currentCountdown - 1;
-        if (newCountdown === 0) {
-          clearInterval(countdownTimer.current);
-        }
-        return newCountdown;
-      });
-    }, 1000);
   }, [playAudio]);
 
   useEffect(() => {
-    if (combatCountdown === 0 && pendingCombat) {
+    if (combatCountdown > 0) {
+      const timer = setTimeout(() => {
+        setCombatCountdown(combatCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (pendingCombat) {
       startCombat(pendingCombat);
       setPendingCombat(null);
     }
-  }, [combatCountdown, pendingCombat]);
+  }, [combatCountdown, pendingCombat, startCombat]);
+
 
   const handleMove = (dx: number, dy: number) => {
     const { player, worldMap, combatInfo, pendingCombat, isMoving } = gameStateRef.current;
@@ -430,7 +424,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return () => {
           window.removeEventListener('keydown', handleKeyDown);
           clearTimeout(moveTimeout.current);
-          clearInterval(countdownTimer.current);
         }
     }, []);
 
