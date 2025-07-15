@@ -213,18 +213,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                     <div><CarouselPrevious /></div>
                     <div><CarouselNext /></div>
                 </Carousel>
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={selectedClass}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-center mt-2"
-                    >
-                        <p className="font-bold text-lg font-headline">{CLASSES.find(c => c.id === selectedClass)?.name}</p>
-                    </motion.div>
-                </AnimatePresence>
             </div>
 
           </CardContent>
@@ -238,5 +226,3 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
-
-    
