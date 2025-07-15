@@ -185,15 +185,15 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                             transition={{ duration: 0.3 }}
                                         >
                                             <Card className="bg-secondary/50 overflow-hidden relative text-card-foreground">
-                                                <div className="grid grid-cols-3 gap-4 p-4">
-                                                    <div className="col-span-2 flex flex-col">
+                                                <div className="grid grid-cols-5 gap-4 p-4">
+                                                    <div className="col-span-3 flex flex-col">
                                                         <div className="flex items-center gap-4">
                                                             <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
                                                             <CardTitle className="font-headline text-2xl">{name}</CardTitle>
                                                         </div>
                                                         <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                     </div>
-                                                    <div className="col-span-1 flex flex-col justify-center space-y-3 text-sm">
+                                                    <div className="col-span-2 flex flex-col justify-center space-y-3 text-sm">
                                                         {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
