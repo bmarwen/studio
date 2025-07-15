@@ -4,7 +4,7 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 1500; // ms, slower regen
-export const MOVE_COOLDOWN = 300; // ms
+export const MOVE_COOLDOWN = 3000; // ms
 export const INVENTORY_SIZE = 16; // 4 rows of 4
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {

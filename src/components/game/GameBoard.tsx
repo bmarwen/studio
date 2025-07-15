@@ -61,19 +61,13 @@ const Tile = memo(({ tile }: TileProps) => {
             tile.terrain === 'camp' && 'bg-orange-400/10 dark:bg-orange-900/40',
             "relative"
           )}>
-            {tile.monster && (
-                 <img src={tile.monster.icon} alt={tile.monster.name} className="w-10 h-10 absolute z-10 drop-shadow-lg animate-pulse" />
-            )}
-            {tile.item && (
-                 <img src={tile.item.icon} alt={tile.item.name} className="w-8 h-8 absolute z-10 drop-shadow-lg" />
-            )}
             {icon}
           </div>
         </TooltipTrigger>
         <TooltipContent>
           <p>{getTooltipContent(tile)}</p>
-          {tile.monster && <p className="font-bold text-destructive">{tile.monster.name}</p>}
-          {tile.item && <p className="font-bold text-accent">{tile.item.name}</p>}
+          {tile.monster && <p className="font-bold text-destructive">Danger lurks...</p>}
+          {tile.item && <p className="font-bold text-accent">Something glitters...</p>}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
