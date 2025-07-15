@@ -59,8 +59,8 @@ const STAT_DEFINITIONS: Record<string, { title: string; description: string }> =
 const STAT_LABELS: Record<string, string> = {
     maxHp: "HP",
     maxStamina: "STM",
-    pAttack: "P.ATT",
-    mAttack: "M.ATT",
+    attack: "P.ATT",
+    magicAttack: "M.ATT",
     defense: "DEF",
     armor: "ARM",
     magicResist: "M.RES",
@@ -235,6 +235,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                         <CarouselContent>
                             {CLASSES.map(({ id, name, description, iconPath }) => {
                                 const stats = PLAYER_CLASSES[id];
+                                const relevantStats = Object.entries(stats).filter(([key]) => {
+                                    if (id === 'mage') return key !== 'attack';
+                                    return key !== 'magicAttack';
+                                }).filter(([key]) => key in STAT_DEFINITIONS);
+
                                 return (
                                     <CarouselItem key={id}>
                                         <AnimatePresence mode="wait">
@@ -254,25 +259,15 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             </div>
                                                             <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                         </div>
-                                                        <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
-                                                            {Object.entries(stats).filter(([key]) => {
-                                                                if (id === 'mage') return key !== 'attack';
-                                                                return key !== 'magicAttack';
-                                                            }).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => {
-                                                                let statKey = key;
-                                                                let labelKey = key;
-
-                                                                if (key === 'attack') {
-                                                                    labelKey = 'pAttack';
-                                                                } else if (key === 'magicAttack') {
-                                                                    labelKey = 'mAttack';
-                                                                }
+                                                        <div className="col-span-2 grid grid-cols-2 gap-x-3 gap-y-2 justify-center pl-2">
+                                                            {relevantStats.map(([key, value]) => {
+                                                                const statKey = key;
                                                                 
                                                                 return (
                                                                     <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
-                                                                            <div className="flex items-center cursor-help">
-                                                                                <span className="font-bold uppercase w-[3.75rem] text-sm">{STAT_LABELS[labelKey as keyof typeof STAT_LABELS]}</span>
+                                                                            <div className="flex items-center justify-between cursor-help text-xs">
+                                                                                <span className="font-bold uppercase text-muted-foreground">{STAT_LABELS[statKey as keyof typeof STAT_LABELS]}</span>
                                                                                 <span className="font-mono text-primary">{value}{key.includes('Chance') || key.includes('evasion') ? '%' : ''}</span>
                                                                             </div>
                                                                         </TooltipTrigger>
