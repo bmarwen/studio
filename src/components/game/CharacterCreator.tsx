@@ -29,11 +29,11 @@ type RaceBonus = {
 
 const RACES: { id: PlayerIcon; name: PlayerRace; bonus: RaceBonus; path: string; hint: string;}[] = [
     { id: 'hero1', name: 'Male Elf', bonus: { key: 'bonusCritChance', value: 5, text: '+5% Critical Chance' }, path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
-    { id: 'hero2', name: 'Female Elf', bonus: { key: 'bonusCritChance', value: 5, text: '+5% Critical Chance' }, path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
+    { id: 'hero2', name: 'Female Elf', bonus: { key: 'bonusXpGain', value: 5, text: '+5% Experience Gain' }, path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
     { id: 'hero3', name: 'Male Troll', bonus: { key: 'consumableFindChance', value: 10, text: '+10% Consumable Find Chance' }, path: '/icons/hero-avatar-3.png', hint: 'male elf' },
-    { id: 'hero4', name: 'Female Troll', bonus: { key: 'consumableFindChance', value: 10, text: '+10% Consumable Find Chance' }, path: '/icons/hero-avatar-4.png', hint: 'female elf' },
-    { id: 'hero5', name: 'Male Human', bonus: { key: 'bonusXpGain', value: 5, text: '+5% Experience Gain' }, path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
-    { id: 'hero6', name: 'Female Human', bonus: { key: 'bonusXpGain', value: 5, text: '+5% Experience Gain' }, path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
+    { id: 'hero4', name: 'Female Troll', bonus: { key: 'utilityItemFindChance', value: 10, text: '+10% Utility Item Find Chance' }, path: '/icons/hero-avatar-4.png', hint: 'female elf' },
+    { id: 'hero5', name: 'Male Human', bonus: { key: 'rareEquipmentFindChance', value: 5, text: '+5% Rare Equipment Find Chance' }, path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
+    { id: 'hero6', name: 'Female Human', bonus: { key: 'consumableFindChance', value: 5, text: '+5% Consumable Find Chance' }, path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; }[] = [
@@ -137,7 +137,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
     if (selectedRace) {
         // @ts-ignore
-        newPlayer[selectedRace.bonus.key] = selectedRace.bonus.value;
+        newPlayer[selectedRace.bonus.key] = (newPlayer[selectedRace.bonus.key] || 0) + selectedRace.bonus.value;
     }
 
     onPlayerCreate(newPlayer);
