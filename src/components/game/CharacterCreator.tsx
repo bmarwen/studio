@@ -70,7 +70,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
       setSelectedIcon(RACES[selectedIndex].id);
     };
     iconApi.on("select", onSelect);
-    // Cleanup
     return () => {
       iconApi.off("select", onSelect);
     };
@@ -83,7 +82,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
       setSelectedClass(CLASSES[selectedIndex].id);
     };
     classApi.on("select", onSelect);
-    // Cleanup
     return () => {
       classApi.off("select", onSelect);
     };
@@ -211,7 +209,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                           <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                       </div>
                                                                   </TooltipTrigger>
-                                                                  <TooltipContent>
+                                                                  <TooltipContent side="bottom">
                                                                       <div className="space-y-1 w-48">
                                                                           <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
                                                                           <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
