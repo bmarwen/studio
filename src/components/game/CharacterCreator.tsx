@@ -203,13 +203,13 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                         </div>
                                                         <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                     </div>
-                                                    <div className="col-span-2 flex flex-col justify-center space-y-3 text-sm">
+                                                    <div className="col-span-2 flex flex-col justify-center space-y-3 text-sm pl-2">
                                                         {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <div className="flex items-center gap-4 cursor-help">
-                                                                            <span className="font-bold uppercase w-10">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
+                                                                            <span className="font-bold uppercase w-12">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
                                                                             <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                         </div>
                                                                     </TooltipTrigger>
