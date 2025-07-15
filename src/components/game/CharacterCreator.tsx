@@ -16,7 +16,6 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, Car
 import { AnimatePresence, motion } from 'framer-motion';
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 import { useAudio } from '@/context/AudioContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 
@@ -47,18 +46,6 @@ const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: s
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
-const STAT_DEFINITIONS: Record<string, { title: string; description: string }> = {
-    maxHp: { title: 'Health Points', description: 'Determines how much damage you can take before being defeated.' },
-    maxStamina: { title: 'Stamina', description: 'Consumed when moving. Regenerates over time.' },
-    attack: { title: 'Physical Attack', description: 'Increases the amount of physical damage you deal in combat.' },
-    magicAttack: { title: 'Magic Attack', description: 'Increases the amount of magical damage you deal in combat.' },
-    defense: { title: 'Defense', description: 'Reduces the amount of damage you receive from enemy attacks.' },
-    armor: { title: 'Armor', description: 'Reduces physical damage taken.' },
-    magicResist: { title: 'Magic Resist', description: 'Reduces magical damage taken.' },
-    evasion: { title: 'Evasion', description: 'The chance to completely dodge an incoming attack.' },
-    criticalChance: { title: 'Critical Chance', description: 'The probability of landing a critical hit for extra damage.' }
-}
-
 const STAT_LABELS: Record<string, string> = {
     maxHp: "HP",
     maxStamina: "STM",
@@ -81,6 +68,39 @@ const StatDisplay = ({ label, value, isPercent = false }: { label: string, value
     </div>
 );
 
+const AnimatedStatCard = ({ classId }: { classId: PlayerClass }) => {
+    const stats = PLAYER_CLASSES[classId];
+    return (
+        <motion.div
+            key={classId}
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="w-full"
+        >
+            <Card className="bg-secondary/50">
+                <CardContent className="p-4">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                        <StatDisplay label={STAT_LABELS.maxHp} value={stats.maxHp} />
+                        <StatDisplay label={STAT_LABELS.maxStamina} value={stats.maxStamina} />
+                        {classId === 'mage' ? (
+                            <StatDisplay label={STAT_LABELS.magicAttack} value={stats.magicAttack} />
+                        ) : (
+                            <StatDisplay label={STAT_LABELS.attack} value={stats.attack} />
+                        )}
+                        <StatDisplay label={STAT_LABELS.defense} value={stats.defense} />
+                        <StatDisplay label={STAT_LABELS.armor} value={stats.armor} />
+                        <StatDisplay label={STAT_LABELS.magicResist} value={stats.magicResist} />
+                        <StatDisplay label={STAT_LABELS.evasion} value={stats.evasion} isPercent />
+                        <StatDisplay label={STAT_LABELS.criticalChance} value={stats.criticalChance} isPercent />
+                        </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+    )
+}
+
 export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
@@ -88,26 +108,31 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const { toast } = useToast();
 
   const [iconApi, setIconApi] = useState<CarouselApi>();
+  const [classApi, setClassApi] = useState<CarouselApi>();
   const tooltipPortalRef = useRef<HTMLDivElement>(null);
   const [isShaking, setIsShaking] = useState(false);
   const { isMuted, toggleMute, playAudio } = useAudio();
+  
+  const currentClassDescription = CLASSES.find(c => c.id === selectedClass)?.description;
+
 
   useEffect(() => {
     playAudio('/audio/menu-music.wav', { loop: true });
   }, [playAudio]);
 
-
   useEffect(() => {
     if (!iconApi) return;
-    const onSelect = () => {
-      const selectedIndex = iconApi.selectedScrollSnap();
-      setSelectedIcon(RACES[selectedIndex].id);
-    };
+    const onSelect = () => setSelectedIcon(RACES[iconApi.selectedScrollSnap()].id);
     iconApi.on("select", onSelect);
-    return () => {
-      iconApi.off("select", onSelect);
-    };
+    return () => iconApi.off("select", onSelect);
   }, [iconApi]);
+
+  useEffect(() => {
+    if (!classApi) return;
+    const onSelect = () => setSelectedClass(CLASSES[classApi.selectedScrollSnap()].id);
+    classApi.on("select", onSelect);
+    return () => classApi.off("select", onSelect);
+  }, [classApi]);
 
 
   const handleGenerateName = () => {
@@ -153,8 +178,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
     onPlayerCreate(newPlayer);
   };
-  
-  const currentClassDescription = CLASSES.find(c => c.id === selectedClass)?.description;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
@@ -211,7 +234,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
                 <div className="space-y-2">
                     <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
-                    <Carousel setApi={iconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                    <Carousel setApi={setIconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                         <CarouselContent>
                             {RACES.map(({ id, name, bonus, path, hint }) => (
                                 <CarouselItem key={id}>
@@ -232,58 +255,42 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                 
                 <div className="space-y-4">
                     <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
-                    <Tabs defaultValue="warrior" className="w-full" onValueChange={(v) => setSelectedClass(v as PlayerClass)}>
-                        <TabsList className="grid w-full grid-cols-4">
-                             {CLASSES.map(({ id, name, iconPath }) => (
-                                <TabsTrigger key={id} value={id} className="flex flex-col h-full items-center justify-center gap-2 p-2 text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-lg transition-all">
-                                    <Image src={iconPath} alt={name} width={32} height={32} className="w-8 h-8" />
-                                    <span className="font-bold">{name}</span>
-                                </TabsTrigger>
+                     <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-md mx-auto">
+                        <CarouselContent>
+                            {CLASSES.map(({ id, name, iconPath }) => (
+                                <CarouselItem key={id}>
+                                    <div className="p-1 text-center flex flex-col items-center gap-2">
+                                        <div className="p-2 bg-secondary rounded-full shadow-inner">
+                                            <Image src={iconPath} alt={name} width={128} height={128} className="w-24 h-24" />
+                                        </div>
+                                        <p className="font-bold text-xl font-headline">{name}</p>
+                                    </div>
+                                </CarouselItem>
                             ))}
-                        </TabsList>
-                        
-                        <div className="mt-4 text-center text-muted-foreground min-h-[40px]">
-                          <AnimatePresence mode="wait">
-                            <motion.p
-                              key={selectedClass}
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {currentClassDescription}
-                            </motion.p>
-                          </AnimatePresence>
-                        </div>
+                        </CarouselContent>
+                        <CarouselPrevious type="button" variant="ghost" className="left-0 -translate-x-1/2" />
+                        <CarouselNext type="button" variant="ghost" className="right-0 translate-x-1/2" />
+                    </Carousel>
+                    
+                    <div className="mt-4 text-center text-muted-foreground min-h-[40px] px-8">
+                        <AnimatePresence mode="wait">
+                        <motion.p
+                            key={selectedClass}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {currentClassDescription}
+                        </motion.p>
+                        </AnimatePresence>
+                    </div>
 
-                        {CLASSES.map(({ id, name, iconPath }) => {
-                            const stats = PLAYER_CLASSES[id];
-                            
-                            return (
-                                <TabsContent key={id} value={id} className="mt-0">
-                                    <Card className="bg-secondary/50">
-                                        <CardContent className="p-4">
-                                             <h4 className="font-headline text-lg mb-2 text-center text-primary">Base Stats</h4>
-                                             <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                                                <StatDisplay label={STAT_LABELS.maxHp} value={stats.maxHp} />
-                                                <StatDisplay label={STAT_LABELS.maxStamina} value={stats.maxStamina} />
-                                                {id === 'mage' ? (
-                                                    <StatDisplay label={STAT_LABELS.magicAttack} value={stats.magicAttack} />
-                                                ) : (
-                                                    <StatDisplay label={STAT_LABELS.attack} value={stats.attack} />
-                                                )}
-                                                <StatDisplay label={STAT_LABELS.defense} value={stats.defense} />
-                                                <StatDisplay label={STAT_LABELS.armor} value={stats.armor} />
-                                                <StatDisplay label={STAT_LABELS.magicResist} value={stats.magicResist} />
-                                                <StatDisplay label={STAT_LABELS.evasion} value={stats.evasion} isPercent />
-                                                <StatDisplay label={STAT_LABELS.criticalChance} value={stats.criticalChance} isPercent />
-                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-                            )
-                        })}
-                    </Tabs>
+                    <div className="mt-4 flex justify-center">
+                        <AnimatePresence mode="wait">
+                            <AnimatedStatCard classId={selectedClass} />
+                        </AnimatePresence>
+                    </div>
                 </div>
 
                 </CardContent>
@@ -298,5 +305,3 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
-
-    
