@@ -10,12 +10,24 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import type { CombatLogEntry, Monster, Item, Player } from '@/types/game';
+import type { CombatLogEntry, Monster, Item, Player, PlayerIcon } from '@/types/game';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import LootAttemptClient from './LootAttemptClient';
 import Image from 'next/image';
 import { Progress } from '../ui/progress';
+
+const getPlayerIconPath = (icon: PlayerIcon) => {
+    switch (icon) {
+        case 'hero1': return '/icons/hero-avatar-1.png';
+        case 'hero2': return '/icons/hero-avatar-2.png';
+        case 'hero3': return '/icons/hero-avatar-3.png';
+        case 'hero4': return '/icons/hero-avatar-4.png';
+        case 'hero5': return '/icons/hero-avatar-5.png';
+        case 'hero6': return '/icons/hero-avatar-6.png';
+        default: return '/icons/hero-avatar-1.png';
+    }
+}
 
 export interface CombatInfo {
     open: boolean;
@@ -26,6 +38,7 @@ export interface CombatInfo {
     playerHp: number;
     playerMaxHp: number;
     monsterHp: number;
+    playerIcon: PlayerIcon;
 }
 
 interface CombatDialogProps {
@@ -34,7 +47,7 @@ interface CombatDialogProps {
 }
 
 export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps) {
-  const { open, monster, log, status, loot, playerHp, playerMaxHp, monsterHp } = combatInfo;
+  const { open, monster, log, status, loot, playerHp, playerMaxHp, monsterHp, playerIcon } = combatInfo;
   const isFighting = status === 'fighting';
   
   const getTitle = () => {
@@ -64,8 +77,11 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
         <div className="flex gap-4">
             <div className='w-1/2 space-y-2'>
                 <h3 className="font-bold">Player</h3>
-                <div className="rounded-md border p-2">
-                    <p className="text-sm font-medium">You</p>
+                <div className="rounded-md border p-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Image src={getPlayerIconPath(playerIcon)} alt="Player Icon" width={40} height={40} className="rounded-md bg-secondary p-1" />
+                        <p className="text-sm font-medium">You</p>
+                    </div>
                     <Progress value={(playerHp / playerMaxHp) * 100} className="h-4" indicatorClassName="bg-green-500" />
                     <p className="text-xs text-right font-mono">{Math.round(playerHp)} / {playerMaxHp}</p>
                 </div>

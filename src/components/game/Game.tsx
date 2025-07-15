@@ -179,7 +179,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         status: 'fighting', 
         playerHp: initialPlayerState.hp, 
         playerMaxHp: initialPlayerState.maxHp, 
-        monsterHp: monster.hp 
+        monsterHp: monster.hp,
+        playerIcon: initialPlayerState.icon
     });
 
     let playerHp = initialPlayerState.hp;
@@ -199,7 +200,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setCombatInfo(info => ({
           ...info!, 
           log: [...info!.log, { id: turn * 2 - 1, message: playerAttackMessage }],
-          monsterHp: monsterHp,
+          monsterHp: Math.max(0, monsterHp),
         }));
 
       if (monsterHp <= 0) {
