@@ -66,11 +66,6 @@ const Tile = memo(({ tile }: TileProps) => {
         </TooltipTrigger>
         <TooltipContent>
           <p>{getTooltipContent(tile)}</p>
-          {/*
-          We hide these for now to add surprise
-          {tile.monster && <p className="font-bold text-destructive">Danger lurks...</p>}
-          {tile.item && <p className="font-bold text-accent">Something glitters...</p>}
-          */}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -119,33 +114,30 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
         }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
-          <AnimatePresence>
-            {isMoving && (
-                <motion.div
-                    key="loader"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute w-14 h-14"
-                >
-                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                        <motion.circle
-                            cx="50"
-                            cy="50"
-                            r="48"
-                            stroke="hsl(var(--primary))"
-                            strokeWidth="4"
-                            fill="transparent"
-                            pathLength="1"
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
-                        />
-                    </svg>
-                </motion.div>
-            )}
-          </AnimatePresence>
+          {isMoving && (
+              <motion.div
+                  key="loader"
+                  initial={{ scale: 1, opacity: 1 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute w-14 h-14"
+              >
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                      <motion.circle
+                          cx="50"
+                          cy="50"
+                          r="48"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth="4"
+                          fill="transparent"
+                          pathLength="1"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: MOVE_COOLDOWN / 1000, ease: "linear" }}
+                      />
+                  </svg>
+              </motion.div>
+          )}
           <img src={iconPath} alt="player icon" className="w-12 h-12 rounded-full drop-shadow-lg" />
       </motion.div>
     </div>
