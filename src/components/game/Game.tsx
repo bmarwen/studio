@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, ItemType } from '@/types/game';
+import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, ItemType, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
 import { MAP_SIZE, VIEWPORT_SIZE, ENERGY_REGEN_RATE, TERRAIN_ENERGY_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
@@ -70,18 +70,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const calculateStats = useCallback((basePlayer: Player) => {
     const baseStats = PLAYER_CLASSES[basePlayer.class];
     let attack = baseStats.attack;
+    let magicAttack = baseStats.magicAttack;
     let defense = baseStats.defense;
     let criticalChance = baseStats.criticalChance + (basePlayer.bonusCritChance || 0);
 
     Object.values(basePlayer.equipment).forEach(item => {
         if(item) {
             attack += item.attack || 0;
+            magicAttack += item.magicAttack || 0;
             defense += item.defense || 0;
             criticalChance += item.criticalChance || 0;
         }
     });
 
-    return {...basePlayer, attack, defense, criticalChance};
+    return {...basePlayer, attack, magicAttack, defense, criticalChance};
   }, []);
 
   useEffect(() => {
@@ -157,7 +159,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       turn++;
       
       // Player attacks
-      const playerDamage = Math.max(1, gameStateRef.current.player.attack - monster.defense);
+      const playerDamage = Math.max(1, (gameStateRef.current.player.attack + gameStateRef.current.player.magicAttack) - monster.defense);
       monsterHp -= playerDamage;
       const playerAttackMessage = `You strike the ${monster.name} for ${playerDamage} damage.`;
       setCombatInfo(info => ({...info!, log: [...info!.log, { id: turn * 2 - 1, message: playerAttackMessage }]}));
@@ -204,14 +206,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             allLoot.forEach(loot => {
                 const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
                 addLog(`You found: ${logMessage}!`);
-                const existingItemIndex = newInventory.findIndex(i => i.id === loot.id && i.type === 'consumable');
+                const existingItemIndex = newInventory.findIndex(i => i?.id === loot.id && i.type === 'consumable');
 
                 if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
                     newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + loot.quantity;
-                } else if(newInventory.length < INVENTORY_SIZE) {
-                    newInventory.push(loot);
                 } else {
-                    addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
+                    const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                    if (emptySlotIndex !== -1) {
+                         newInventory[emptySlotIndex] = loot;
+                    } else if (newInventory.length < INVENTORY_SIZE) {
+                         newInventory.push(loot);
+                    } else {
+                         addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
+                    }
                 }
             })
         }
@@ -327,7 +334,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             addLog(`You found a ${logMessage}!`);
             playAudio('/audio/item-found.wav', { volume: 0.7 });
             const newInventory = [...newPlayerState.inventory];
-            const existingItemIndex = newInventory.findIndex(i => i.id === targetTile.item!.id && i.type === 'consumable');
+            const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
 
             if (existingItemIndex > -1 && newInventory[existingItemIndex].quantity) {
                 newInventory[existingItemIndex].quantity = (newInventory[existingItemIndex].quantity || 1) + (targetTile.item.quantity || 1);
@@ -350,7 +357,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleUseItem = (itemToUse: Item, index: number) => {
-    if (itemToUse.type !== 'consumable') return;
+    if (itemToUse.type !== 'consumable' && itemToUse.type !== 'utility') return;
     
     if (itemToUse.hp && player.hp >= player.maxHp) {
         toast({
@@ -390,7 +397,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleEquipItem = (itemToEquip: Item, index: number) => {
-    if (itemToEquip.type === 'consumable') return;
+    if (itemToEquip.type === 'consumable' || itemToEquip.type === 'utility') return;
+
+    if (itemToEquip.allowedClasses && !itemToEquip.allowedClasses.includes(player.class)) {
+        toast({
+            title: (
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    <span className="font-headline">Wrong Class</span>
+                </div>
+            ),
+            description: `You are a ${player.class}. You cannot equip this item.`,
+            variant: "destructive",
+        });
+        return;
+    }
 
     setPlayer(p => {
         const newInventory = [...p.inventory];
@@ -402,13 +423,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         // If something is already equipped in that slot, move it to inventory
         const currentlyEquipped = newEquipment[slot];
-        if(currentlyEquipped && newInventory.length < INVENTORY_SIZE) {
-            newInventory.push(currentlyEquipped);
-             addLog(`You unequipped ${currentlyEquipped.name}.`);
-        } else if (currentlyEquipped) {
-            addLog(`Your inventory is full! Could not unequip ${currentlyEquipped.name}.`);
-            newInventory.splice(index, 0, itemToEquip); // add it back
-            return p; // Abort if no space
+        if(currentlyEquipped) {
+            const emptySlotIndex = newInventory.findIndex(i => !i);
+            if (emptySlotIndex !== -1) {
+                newInventory[emptySlotIndex] = currentlyEquipped;
+                addLog(`You unequipped ${currentlyEquipped.name}.`);
+            } else if (newInventory.length < INVENTORY_SIZE) {
+                newInventory.push(currentlyEquipped);
+                addLog(`You unequipped ${currentlyEquipped.name}.`);
+            } else {
+                 addLog(`Your inventory is full! Could not unequip ${currentlyEquipped.name}.`);
+                 newInventory.splice(index, 0, itemToEquip); // add it back
+                 return p; // Abort if no space
+            }
         }
 
         // Equip new item

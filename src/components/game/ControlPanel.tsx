@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, ShieldCheck, Volume2, VolumeX } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -55,9 +55,13 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
         <p className={cn("font-bold text-base", RARITY_COLORS[item.rarity])}>{item.name}</p>
         <p className="text-xs text-muted-foreground italic">({item.rarity})</p>
         <p className="text-muted-foreground">{item.description}</p>
+        {(item.allowedClasses && item.allowedClasses.length > 0) && (
+            <p className="text-xs text-cyan-400">Classes: {item.allowedClasses.join(', ')}</p>
+        )}
         <Separator/>
         <div className="space-y-1">
             {item.attack ? <p>Attack: <span className="font-mono text-primary">+{item.attack}</span></p> : null}
+            {item.magicAttack ? <p>Magic Attack: <span className="font-mono text-purple-400">+{item.magicAttack}</span></p> : null}
             {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
             {item.criticalChance ? <p>Crit: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
@@ -121,6 +125,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             <Separator />
             <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-gray-400" /> Attack: <span className="font-mono">{player.attack}</span></div>
+                <div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" /> M.Attack: <span className="font-mono">{player.magicAttack}</span></div>
                 <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-400" /> Defense: <span className="font-mono">{player.defense}</span></div>
                 <div className="flex items-center gap-2"><Star className="w-4 h-4 text-gray-400" /> Crit: <span className="font-mono">{player.criticalChance}%</span></div>
             </div>
@@ -146,7 +151,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                 <div className="flex items-center gap-2"><Package />Inventory</div>
             </AccordionTrigger>
             <AccordionContent>
-               <div className="grid grid-cols-4 gap-2">
+               <div className="grid grid-cols-4 gap-4">
                  {inventorySlots.map((_, index) => {
                     const item = player.inventory[index];
                     const inventorySlot = (
@@ -154,7 +159,7 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
                             key={item ? `item-${item.id}-${index}`: `empty-${index}`}
                             onClick={() => {
                                 if (!item) return;
-                                if (item.type === 'consumable') {
+                                if (item.type === 'consumable' || item.type === 'utility') {
                                     onUseItem(item, index);
                                 } else {
                                     onEquipItem(item, index);

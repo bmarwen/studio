@@ -70,8 +70,10 @@ export function generateWorld(): TileData[][] {
   for(let i = -1; i <= 1; i++) {
     for(let j = -1; j <= 1; j++) {
         if(i === 0 && j === 0) continue;
-        world[townY+j][townX+i].monster = undefined;
-        world[townY+j][townX+i].item = undefined;
+        if (world[townY+j] && world[townY+j][townX+i]) {
+            world[townY+j][townX+i].monster = undefined;
+            world[townY+j][townX+i].item = undefined;
+        }
     }
   }
 

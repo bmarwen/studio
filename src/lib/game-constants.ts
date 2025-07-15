@@ -1,11 +1,10 @@
-
 import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 1000; // ms, faster regen
-export const MOVE_COOLDOWN = 2000; // ms
-export const INVENTORY_SIZE = 4;
+export const MOVE_COOLDOWN = 200; // ms
+export const INVENTORY_SIZE = 16;
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
     grass: 8,
@@ -23,6 +22,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   energy: 100,
   maxEnergy: 100,
   attack: 10,
+  magicAttack: 0,
   defense: 5,
   criticalChance: 5,
   position: { x: Math.floor(MAP_SIZE / 2), y: Math.floor(MAP_SIZE / 2) },
@@ -46,7 +46,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   utilityItemFindChance: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'magicAttack'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,
@@ -54,6 +54,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         energy: 80,
         maxEnergy: 80,
         attack: 15,
+        magicAttack: 0,
         defense: 10,
         criticalChance: 5,
     },
@@ -63,9 +64,10 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         maxHp: 80,
         energy: 120,
         maxEnergy: 120,
-        attack: 5,
+        attack: 5, // Low physical attack
+        magicAttack: 15, // High magic attack
         defense: 5,
-        criticalChance: 15,
+        criticalChance: 10, // Mages can crit with spells
     },
     ranger: {
         class: 'ranger',
@@ -74,6 +76,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         energy: 100,
         maxEnergy: 100,
         attack: 12,
+        magicAttack: 0,
         defense: 7,
         criticalChance: 10,
     },
@@ -84,6 +87,7 @@ export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inve
         energy: 110,
         maxEnergy: 110,
         attack: 18,
+        magicAttack: 0,
         defense: 5,
         criticalChance: 20,
     }
