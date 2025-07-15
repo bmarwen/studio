@@ -165,7 +165,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                         <span>MAG: {stats.magic}</span>
                                     </div>
                                 </div>
-                                <img src={iconPath} className="w-12 h-12 rounded-full bg-secondary p-1 ml-4" />
+                                <img src={iconPath} className="w-14 h-14 rounded-full bg-secondary p-1 ml-4" />
                             </Label>
                         )
                     })}
