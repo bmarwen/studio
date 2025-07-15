@@ -249,13 +249,13 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                         </div>
                                                         <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
-                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => {
-                                                                const isMagic = id === 'mage' && key === 'attack';
-                                                                const statKey = isMagic ? 'magicAttack' : key;
-                                                                const labelKey = isMagic ? 'mAttack' : key === 'attack' ? 'pAttack' : key;
+                                                            {Object.entries(stats).filter(([key]) => {
+                                                                if (id === 'mage') return key !== 'attack';
+                                                                return key !== 'magicAttack';
+                                                            }).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => {
+                                                                const statKey = key;
+                                                                const labelKey = key === 'attack' ? 'pAttack' : key === 'magicAttack' ? 'mAttack' : key;
                                                                 
-                                                                if (!(statKey in STAT_DEFINITIONS)) return null;
-
                                                                 return (
                                                                     <Tooltip key={`${id}-${key}`}>
                                                                         <TooltipTrigger asChild>
