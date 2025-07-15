@@ -133,9 +133,9 @@ const GameBoard = ({ viewport, playerIcon, isMoving }: GameBoardProps) => {
                         <motion.circle
                             cx="50"
                             cy="50"
-                            r="45"
+                            r="48"
                             stroke="hsl(var(--primary))"
-                            strokeWidth="10"
+                            strokeWidth="4"
                             fill="transparent"
                             pathLength="1"
                             initial={{ pathLength: 0 }}
