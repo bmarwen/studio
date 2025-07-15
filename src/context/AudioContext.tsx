@@ -1,7 +1,9 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useRef, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react';
+
+const AUDIO_VOLUME = 0.3;
 
 type AudioOptions = {
     loop?: boolean;
@@ -27,9 +29,31 @@ export const useAudio = (): AudioContextType => {
 };
 
 export const AudioProvider = ({ children }: { children: ReactNode }) => {
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true); // Default to muted until client-side check
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        try {
+            const savedMuteState = localStorage.getItem('isMuted');
+            setIsMuted(savedMuteState ? JSON.parse(savedMuteState) : false);
+        } catch (error) {
+            console.error("Could not parse mute state from localStorage", error)
+            setIsMuted(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem('isMuted', JSON.stringify(isMuted));
+            if (audioRef.current) {
+                audioRef.current.muted = isMuted;
+                audioRef.current.volume = isMuted ? 0 : (audioRef.current.dataset.volume ? parseFloat(audioRef.current.dataset.volume) : AUDIO_VOLUME);
+            }
+        } catch (error) {
+            console.error("Could not save mute state to localStorage", error);
+        }
+    }, [isMuted]);
 
     const cleanup = () => {
         if (audioRef.current) {
@@ -63,7 +87,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const playAudio = useCallback((src: string, options: AudioOptions = {}) => {
-        const { loop = false, fade = false, volume = 0.5 } = options;
+        const { loop = false, fade = false, volume = AUDIO_VOLUME } = options;
 
         const startPlayback = () => {
             cleanup();
@@ -71,6 +95,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             audio.loop = loop;
             audio.muted = isMuted;
             audio.volume = isMuted ? 0 : volume;
+            audio.dataset.volume = String(volume); // Store original volume
             audio.play().catch(error => console.error("Audio play failed:", error));
             audioRef.current = audio;
         };
@@ -96,12 +121,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }, [fadeOut]);
 
     const toggleMute = () => {
-        const newMutedState = !isMuted;
-        setIsMuted(newMutedState);
-        if (audioRef.current) {
-            audioRef.current.muted = newMutedState;
-            audioRef.current.volume = newMutedState ? 0 : 0.5;
-        }
+        setIsMuted(prevMuted => !prevMuted);
     };
 
     return (
