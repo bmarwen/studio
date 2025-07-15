@@ -210,7 +210,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                   <div className="grid grid-cols-5 gap-4 p-4">
                                                       <div className="col-span-3 flex flex-col">
                                                           <div className="flex items-center gap-4">
-                                                              <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
+                                                              <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
                                                               <CardTitle className="font-headline text-2xl">{name}</CardTitle>
                                                           </div>
                                                           <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
