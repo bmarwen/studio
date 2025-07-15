@@ -16,6 +16,8 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, Car
 import { AnimatePresence, motion } from 'framer-motion';
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 import { useAudio } from '@/context/AudioContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { cn } from '@/lib/utils';
 
 
 type Props = {
@@ -71,6 +73,13 @@ const STAT_LABELS: Record<string, string> = {
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
 const NAME_SUFFIXES = ["dric", "wyn", "fire", "fall", "wood", "shield", "more", "fang", "lore", "gard"];
 
+const StatDisplay = ({ label, value, isPercent = false }: { label: string, value: number, isPercent?: boolean }) => (
+    <div className="flex justify-between items-center text-sm py-1 border-b border-border/50">
+        <span className="font-bold uppercase text-muted-foreground">{label}</span>
+        <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
+    </div>
+);
+
 export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [name, setName] = useState('');
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
@@ -78,7 +87,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const { toast } = useToast();
 
   const [iconApi, setIconApi] = useState<CarouselApi>();
-  const [classApi, setClassApi] = useState<CarouselApi>();
   const tooltipPortalRef = useRef<HTMLDivElement>(null);
   const [isShaking, setIsShaking] = useState(false);
   const { isMuted, toggleMute, playAudio } = useAudio();
@@ -99,18 +107,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
       iconApi.off("select", onSelect);
     };
   }, [iconApi]);
-
-  useEffect(() => {
-    if (!classApi) return;
-    const onSelect = () => {
-      const selectedIndex = classApi.selectedScrollSnap();
-      setSelectedClass(CLASSES[selectedIndex].id);
-    };
-    classApi.on("select", onSelect);
-    return () => {
-      classApi.off("select", onSelect);
-    };
-  }, [classApi]);
 
 
   const handleGenerateName = () => {
@@ -159,7 +155,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
-      <Card className="w-full max-w-lg shadow-2xl relative">
+      <Card className="w-full max-w-2xl shadow-2xl relative">
         <TooltipProvider>
             <div className="absolute top-4 right-4">
                 <Tooltip>
@@ -229,69 +225,55 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                     </Carousel>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                     <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
-                    <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-md mx-auto">
-                        <CarouselContent>
-                            {CLASSES.map(({ id, name, description, iconPath }) => {
-                                const stats = PLAYER_CLASSES[id];
-                                const relevantStats = Object.entries(stats).filter(([key]) => {
-                                    if (id === 'mage') return key !== 'attack';
-                                    return key !== 'magicAttack';
-                                }).filter(([key]) => key in STAT_DEFINITIONS);
+                    <Tabs defaultValue="warrior" className="w-full" onValueChange={(v) => setSelectedClass(v as PlayerClass)}>
+                        <TabsList className="grid w-full grid-cols-4">
+                             {CLASSES.map(({ id, name, iconPath }) => (
+                                <TabsTrigger key={id} value={id} className="flex flex-col sm:flex-row items-center gap-2">
+                                    <Image src={iconPath} alt={name} width={24} height={24} className="w-6 h-6" />
+                                    {name}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
 
-                                return (
-                                    <CarouselItem key={id}>
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={id}
-                                                initial={{ opacity: 0, x: 50 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -50 }}
-                                                transition={{ duration: 0.3 }}
-                                            >
-                                                <Card className="bg-secondary/50 relative text-card-foreground">
-                                                    <div className="grid grid-cols-3 gap-4 p-4 items-center">
-                                                        <div className="col-span-1 flex flex-col items-center gap-4">
-                                                            <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
-                                                            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
-                                                            <p className="text-sm text-muted-foreground text-center min-h-[40px] pt-2">{description}</p>
-                                                        </div>
-                                                        <div className="col-span-2 grid grid-cols-2 gap-x-4 gap-y-2">
-                                                            {relevantStats.map(([key, value]) => {
-                                                                const statKey = key;
-                                                                
-                                                                return (
-                                                                    <Tooltip key={`${id}-${key}`}>
-                                                                        <TooltipTrigger asChild>
-                                                                            <div className="flex items-center justify-between cursor-help text-sm">
-                                                                                <span className="font-bold uppercase text-muted-foreground">{STAT_LABELS[statKey as keyof typeof STAT_LABELS]}</span>
-                                                                                <span className="font-mono text-primary">{value}{key.includes('Chance') || key.includes('evasion') ? '%' : ''}</span>
-                                                                            </div>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
-                                                                            <TooltipContent side="bottom">
-                                                                                <div className="space-y-1 w-48">
-                                                                                    <p className="font-bold">{STAT_DEFINITIONS[statKey as keyof typeof STAT_DEFINITIONS].title}</p>
-                                                                                    <p className="text-muted-foreground">{STAT_DEFINITIONS[statKey as keyof typeof STAT_DEFINITIONS].description}</p>
-                                                                                </div>
-                                                                            </TooltipContent>
-                                                                        </TooltipPrimitive.Portal>
-                                                                    </Tooltip>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                </Card>
-                                            </motion.div>
-                                        </AnimatePresence>
-                                    </CarouselItem>
-                                )
-                            })}
-                        </CarouselContent>
-                        <CarouselPrevious type="button" variant="ghost" />
-                        <CarouselNext type="button" variant="ghost" />
-                    </Carousel>
+                        {CLASSES.map(({ id, name, description, iconPath }) => {
+                            const stats = PLAYER_CLASSES[id];
+                            
+                            return (
+                                <TabsContent key={id} value={id}>
+                                    <Card className="bg-secondary/50">
+                                        <CardContent className="p-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div className="md:col-span-1 flex flex-col items-center text-center">
+                                                    <Image src={iconPath} alt={name} width={100} height={100} className="w-28 h-28 rounded-full bg-primary/20 p-2 border-4 border-primary/80 mb-4" />
+                                                    <h3 className="text-2xl font-headline text-primary">{name}</h3>
+                                                    <p className="text-sm text-muted-foreground mt-2">{description}</p>
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                     <h4 className="font-headline text-lg mb-2 text-center md:text-left">Base Stats</h4>
+                                                     <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                                                        <StatDisplay label={STAT_LABELS.maxHp} value={stats.maxHp} />
+                                                        <StatDisplay label={STAT_LABELS.maxStamina} value={stats.maxStamina} />
+                                                        {id === 'mage' ? (
+                                                            <StatDisplay label={STAT_LABELS.magicAttack} value={stats.magicAttack} />
+                                                        ) : (
+                                                            <StatDisplay label={STAT_LABELS.attack} value={stats.attack} />
+                                                        )}
+                                                        <StatDisplay label={STAT_LABELS.defense} value={stats.defense} />
+                                                        <StatDisplay label={STAT_LABELS.armor} value={stats.armor} />
+                                                        <StatDisplay label={STAT_LABELS.magicResist} value={stats.magicResist} />
+                                                        <StatDisplay label={STAT_LABELS.evasion} value={stats.evasion} isPercent />
+                                                        <StatDisplay label={STAT_LABELS.criticalChance} value={stats.criticalChance} isPercent />
+                                                     </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </TabsContent>
+                            )
+                        })}
+                    </Tabs>
                 </div>
 
                 </CardContent>
@@ -306,3 +288,5 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
+
+    
