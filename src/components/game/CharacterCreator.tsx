@@ -1,19 +1,19 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Player, PlayerClass, PlayerIcon } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Dices } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
+import { AnimatePresence, motion } from 'framer-motion';
 
 type Props = {
   onPlayerCreate: (player: Player) => void;
@@ -43,6 +43,26 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [selectedClass, setSelectedClass] = useState<PlayerClass>('warrior');
   const [selectedIcon, setSelectedIcon] = useState<PlayerIcon>('hero1');
   const { toast } = useToast();
+
+  const [iconApi, setIconApi] = useState<CarouselApi>();
+  const [classApi, setClassApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!iconApi) return;
+    iconApi.on("select", () => {
+      const selectedIndex = iconApi.selectedScrollSnap();
+      setSelectedIcon(ICONS[selectedIndex].id);
+    });
+  }, [iconApi]);
+
+  useEffect(() => {
+    if (!classApi) return;
+    classApi.on("select", () => {
+      const selectedIndex = classApi.selectedScrollSnap();
+      setSelectedClass(CLASSES[selectedIndex].id);
+    });
+  }, [classApi]);
+
 
   const handleGenerateName = () => {
     const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
@@ -78,102 +98,112 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-background font-body">
-      <Card className="w-full max-w-3xl shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
+      <Card className="w-full max-w-md shadow-2xl">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="font-headline text-4xl text-center text-primary">Create Your Hero</CardTitle>
-            <CardDescription className="text-center">Begin your adventure in the world of Square Clash.</CardDescription>
+          <CardHeader className="text-center">
+            <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
+            <CardDescription>Customize your character and start your adventure.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-            {/* Left Side: Name and Icon */}
-            <div className="space-y-6">
-              <div>
-                <Label htmlFor="name" className="text-lg font-headline">Hero Name</Label>
-                <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Sir Reginald"
-                      className="text-base"
-                    />
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Button type="button" variant="outline" size="icon" onClick={handleGenerateName}>
-                            <Dices className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Generates random name</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                </div>
-              </div>
-              <div>
-                <Label className="text-lg font-headline">Choose Your Icon</Label>
-                <RadioGroup
-                  value={selectedIcon}
-                  onValueChange={(val) => setSelectedIcon(val as PlayerIcon)}
-                  className="mt-2 grid grid-cols-2 gap-4"
-                >
-                  {ICONS.map(({ id, path, hint }) => (
-                     <Label
-                        key={id}
-                        htmlFor={id}
-                        className={cn(
-                          'flex items-center justify-center p-2 border-2 rounded-lg cursor-pointer transition-all aspect-square',
-                          selectedIcon === id ? 'border-primary bg-primary/10' : 'border-border'
-                        )}
-                      >
-                       <RadioGroupItem value={id} id={id} className="sr-only" />
-                       <Image src={path} alt={id} width={128} height={128} className="w-full h-full rounded-md" data-ai-hint={hint} />
-                     </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-            </div>
-
-            {/* Right Side: Class Selection */}
+          <CardContent className="space-y-8 p-6">
+            
+            {/* Name Input */}
             <div className="space-y-2">
-                <Label className="text-lg font-headline">Choose Your Class</Label>
-                <RadioGroup
-                    value={selectedClass}
-                    onValueChange={(val) => setSelectedClass(val as PlayerClass)}
-                    className="space-y-2"
-                >
-                    {CLASSES.map(({ id, name, description, iconPath }) => {
-                        const stats = PLAYER_CLASSES[id];
-                        return (
-                            <Label key={id} htmlFor={id} className={cn(
-                                'flex items-center justify-between p-6 border-2 rounded-lg cursor-pointer transition-all',
-                                selectedClass === id ? 'border-primary bg-primary/10' : 'border-border'
-                            )}>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3">
-                                        <RadioGroupItem value={id} id={id} />
-                                        <span className="font-bold text-base">{name}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-2 pl-8">{description}</p>
-                                    <div className="text-xs grid grid-cols-3 gap-x-4 pl-8 mt-2 text-muted-foreground">
-                                        <span>HP: {stats.maxHp}</span>
-                                        <span>ATK: {stats.attack}</span>
-                                        <span>DEF: {stats.defense}</span>
-                                        <span>EN: {stats.maxEnergy}</span>
-                                        <span>MAG: {stats.magic}</span>
-                                    </div>
-
-                                </div>
-                                <img src={iconPath} className="w-14 h-14 rounded-full bg-secondary p-1 ml-4" />
-                            </Label>
-                        )
-                    })}
-                </RadioGroup>
+              <Label htmlFor="name" className="text-lg font-headline text-center block">Hero Name</Label>
+              <div className="flex items-center gap-2 max-w-sm mx-auto">
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., Sir Reginald"
+                    className="text-base text-center"
+                  />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                         <Button type="button" variant="outline" size="icon" onClick={handleGenerateName}>
+                          <Dices className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Generates random name</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+              </div>
             </div>
+
+            {/* Icon Selector */}
+            <div className="space-y-2">
+                <Label className="text-lg font-headline text-center block">Choose Your Icon</Label>
+                <Carousel setApi={setIconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                    <CarouselContent>
+                        {ICONS.map(({ id, path, hint }) => (
+                            <CarouselItem key={id}>
+                                <div className="p-1">
+                                    <div className="flex aspect-square items-center justify-center p-2">
+                                        <Image src={path} alt={id} width={200} height={200} className="w-48 h-48 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
+                                    </div>
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </div>
+
+            {/* Class Selector */}
+            <div className="space-y-2">
+                <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
+                 <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                    <CarouselContent>
+                        {CLASSES.map(({ id, name, description, iconPath }) => {
+                             const stats = PLAYER_CLASSES[id];
+                             return (
+                                <CarouselItem key={id}>
+                                    <div className="p-1">
+                                        <Card className="bg-secondary/50">
+                                            <CardHeader className="items-center pb-2">
+                                                <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary" />
+                                                <CardTitle className="font-headline text-2xl pt-2">{name}</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="text-center space-y-4">
+                                                <p className="text-sm text-muted-foreground min-h-[40px]">{description}</p>
+                                                <div className="text-xs grid grid-cols-3 gap-x-2 gap-y-1 text-muted-foreground">
+                                                    <span>HP: {stats.maxHp}</span>
+                                                    <span>ATK: {stats.attack}</span>
+                                                    <span>DEF: {stats.defense}</span>
+                                                    <span>EN: {stats.maxEnergy}</span>
+                                                    <span>MAG: {stats.magic}</span>
+                                                    <span></span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </CarouselItem>
+                             )
+                        })}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={selectedClass}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-center mt-2"
+                    >
+                        <p className="font-bold text-lg font-headline">{CLASSES.find(c => c.id === selectedClass)?.name}</p>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
           </CardContent>
-          <CardFooter className="flex-col gap-4">
+          <CardFooter className="flex-col gap-4 p-6">
             <Button type="submit" size="lg" className="w-full font-headline text-xl">
               Begin Adventure
             </Button>
