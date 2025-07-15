@@ -14,6 +14,7 @@ import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Hourglass, ZapOff } from 'lucide-react';
+import { useAudio } from '@/context/AudioContext';
 
 interface GameProps {
   initialPlayer: Player;
@@ -33,9 +34,15 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
   const { toast } = useToast();
+  const { playAudio } = useAudio();
 
   const countdownTimer = useRef<NodeJS.Timeout>();
   const moveTimeout = useRef<NodeJS.Timeout>();
+
+  // --- Music Effect ---
+  useEffect(() => {
+    playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
+  }, [playAudio]);
 
   // --- State Ref for Callbacks ---
   // This holds all the state that our move handler needs.
@@ -63,7 +70,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     const baseStats = PLAYER_CLASSES[basePlayer.class];
     let attack = baseStats.attack;
     let defense = baseStats.defense;
-    let criticalChance = baseStats.criticalChance;
+    let criticalChance = baseStats.criticalChance + (basePlayer.bonusCritChance || 0);
 
     Object.values(basePlayer.equipment).forEach(item => {
         if(item) {

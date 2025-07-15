@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel } from 'lucide-react';
+import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, PlusCircle, Shirt, ShieldCheck, Crown, Gavel, Volume2, VolumeX } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import { INVENTORY_SIZE } from '@/lib/game-constants';
+import { useAudio } from '@/context/AudioContext';
 
 interface ControlPanelProps {
   player: Player;
@@ -99,6 +100,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
 
 export default function ControlPanel({ player, log, onReset, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventorySlots = Array.from({ length: INVENTORY_SIZE });
+  const { isMuted, toggleMute } = useAudio();
 
   return (
     <ScrollArea className="h-full">
@@ -219,6 +221,18 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
             <AccordionContent className="p-4 space-y-4">
                <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
                <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
+               <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="outline" size="icon" onClick={toggleMute} className="w-full">
+                            {isMuted ? <VolumeX /> : <Volume2 />}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                    </TooltipContent>
+                </Tooltip>
+               </TooltipProvider>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

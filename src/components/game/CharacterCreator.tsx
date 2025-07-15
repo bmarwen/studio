@@ -9,12 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, ChevronLeft, ChevronRight, Dices } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Dices, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { AnimatePresence, motion } from 'framer-motion';
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import { useAudio } from '@/context/AudioContext';
 
 
 type Props = {
@@ -72,6 +73,11 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [classApi, setClassApi] = useState<CarouselApi>();
   const tooltipPortalRef = useRef<HTMLDivElement>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const { isMuted, toggleMute, playAudio } = useAudio();
+
+  useEffect(() => {
+    playAudio('/audio/menu-music.wav', { loop: true });
+  }, [playAudio]);
 
 
   useEffect(() => {
@@ -146,130 +152,144 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
       <Card className="w-full max-w-lg shadow-2xl relative">
-          <div id="tooltip-portal-container" ref={tooltipPortalRef} />
         <TooltipProvider>
-          <form onSubmit={handleSubmit}>
-            <CardHeader className="text-center">
-              <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
-              <CardDescription>Customize your character and start your adventure.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8 p-6">
-              
-              <motion.div 
-                className="space-y-2"
-                animate={isShaking ? { x: [0, -10, 10, -10, 10, 0] } : {}}
-                transition={{ duration: 0.5 }}
-              >
-                <Label htmlFor="name" className="text-lg font-headline text-center block">Hero Name</Label>
-                <div className="flex items-center gap-2 max-w-sm mx-auto">
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Sir Reginald"
-                      className="text-base text-center"
-                    />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                         <Button type="button" variant="outline" size="icon" onClick={handleGenerateName}>
-                          <Dices className="h-4 w-4" />
+            <div className="absolute top-4 right-4">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={toggleMute}>
+                            {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                         </Button>
-                      </TooltipTrigger>
-                       <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
-                        <TooltipContent>
-                          <p>Generates random name</p>
-                        </TooltipContent>
-                      </TooltipPrimitive.Portal>
-                    </Tooltip>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                    </TooltipContent>
+                </Tooltip>
+            </div>
+            <div id="tooltip-portal-container" ref={tooltipPortalRef} />
+            <form onSubmit={handleSubmit}>
+                <CardHeader className="text-center">
+                <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
+                <CardDescription>Customize your character and start your adventure.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8 p-6">
+                
+                <motion.div 
+                    className="space-y-2"
+                    animate={isShaking ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Label htmlFor="name" className="text-lg font-headline text-center block">Hero Name</Label>
+                    <div className="flex items-center gap-2 max-w-sm mx-auto">
+                        <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g., Sir Reginald"
+                        className="text-base text-center"
+                        />
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button type="button" variant="outline" size="icon" onClick={handleGenerateName}>
+                            <Dices className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
+                            <TooltipContent>
+                            <p>Generates random name</p>
+                            </TooltipContent>
+                        </TooltipPrimitive.Portal>
+                        </Tooltip>
+                    </div>
+                </motion.div>
+
+                <div className="space-y-2">
+                    <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
+                    <Carousel setApi={iconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                        <CarouselContent>
+                            {RACES.map(({ id, name, bonus, path, hint }) => (
+                                <CarouselItem key={id}>
+                                    <div className="p-1 text-center flex flex-col items-center gap-1">
+                                        <Image src={path} alt={id} width={128} height={128} className="w-40 h-40 rounded-2xl shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
+                                        <p className="font-bold text-lg font-headline">{name}</p>
+                                        <p className="text-sm text-accent">{bonus.text}</p>
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious type="button" variant="ghost" className="left-0" />
+                        <CarouselNext type="button" variant="ghost" className="right-0" />
+                    </Carousel>
                 </div>
-              </motion.div>
 
-              <div className="space-y-2">
-                  <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
-                  <Carousel setApi={iconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
-                      <CarouselContent>
-                          {RACES.map(({ id, name, bonus, path, hint }) => (
-                              <CarouselItem key={id}>
-                                  <div className="p-1 text-center flex flex-col items-center gap-1">
-                                      <Image src={path} alt={id} width={128} height={128} className="w-40 h-40 rounded-2xl shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
-                                      <p className="font-bold text-lg font-headline">{name}</p>
-                                      <p className="text-sm text-accent">{bonus.text}</p>
-                                  </div>
-                              </CarouselItem>
-                          ))}
-                      </CarouselContent>
-                      <CarouselPrevious type="button" variant="ghost" className="left-0" />
-                      <CarouselNext type="button" variant="ghost" className="right-0" />
-                  </Carousel>
-              </div>
+                <div className="space-y-2">
+                    <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
+                    <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                        <CarouselContent>
+                            {CLASSES.map(({ id, name, description, iconPath }) => {
+                                const stats = PLAYER_CLASSES[id];
+                                return (
+                                    <CarouselItem key={id}>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={id}
+                                                initial={{ opacity: 0, x: 50 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -50 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <Card className="bg-secondary/50 relative text-card-foreground">
+                                                    <div className="grid grid-cols-5 gap-4 p-4">
+                                                        <div className="col-span-3 flex flex-col">
+                                                            <div className="flex items-center gap-4">
+                                                                <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
+                                                                <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+                                                            </div>
+                                                            <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
+                                                        </div>
+                                                        <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
+                                                            {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
+                                                                <Tooltip key={key}>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div className="flex items-center cursor-help">
+                                                                            <span className="font-bold uppercase w-[3.25rem] text-sm">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
+                                                                            <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
+                                                                        <TooltipContent side="bottom">
+                                                                            <div className="space-y-1 w-48">
+                                                                                <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
+                                                                                <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
+                                                                            </div>
+                                                                        </TooltipContent>
+                                                                    </TooltipPrimitive.Portal>
+                                                                </Tooltip>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </CarouselItem>
+                                )
+                            })}
+                        </CarouselContent>
+                        <CarouselPrevious type="button" variant="ghost" />
+                        <CarouselNext type="button" variant="ghost" />
+                    </Carousel>
+                </div>
 
-              <div className="space-y-2">
-                  <Label className="text-lg font-headline text-center block">Choose Your Class</Label>
-                   <Carousel setApi={setClassApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
-                      <CarouselContent>
-                          {CLASSES.map(({ id, name, description, iconPath }) => {
-                               const stats = PLAYER_CLASSES[id];
-                               return (
-                                  <CarouselItem key={id}>
-                                       <AnimatePresence mode="wait">
-                                          <motion.div
-                                              key={id}
-                                              initial={{ opacity: 0, x: 50 }}
-                                              animate={{ opacity: 1, x: 0 }}
-                                              exit={{ opacity: 0, x: -50 }}
-                                              transition={{ duration: 0.3 }}
-                                          >
-                                              <Card className="bg-secondary/50 relative text-card-foreground">
-                                                  <div className="grid grid-cols-5 gap-4 p-4">
-                                                      <div className="col-span-3 flex flex-col">
-                                                          <div className="flex items-center gap-4">
-                                                              <Image src={iconPath} alt={name} width={80} height={80} className="w-20 h-20 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
-                                                              <CardTitle className="font-headline text-2xl">{name}</CardTitle>
-                                                          </div>
-                                                          <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
-                                                      </div>
-                                                      <div className="col-span-2 flex flex-col justify-center space-y-2 pl-4">
-                                                          {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
-                                                              <Tooltip key={key}>
-                                                                  <TooltipTrigger asChild>
-                                                                      <div className="flex items-center cursor-help">
-                                                                          <span className="font-bold uppercase w-[3.25rem] text-sm">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
-                                                                          <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
-                                                                      </div>
-                                                                  </TooltipTrigger>
-                                                                  <TooltipPrimitive.Portal container={tooltipPortalRef.current}>
-                                                                      <TooltipContent side="bottom">
-                                                                          <div className="space-y-1 w-48">
-                                                                              <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
-                                                                              <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
-                                                                          </div>
-                                                                      </TooltipContent>
-                                                                  </TooltipPrimitive.Portal>
-                                                              </Tooltip>
-                                                          ))}
-                                                      </div>
-                                                  </div>
-                                              </Card>
-                                          </motion.div>
-                                      </AnimatePresence>
-                                  </CarouselItem>
-                               )
-                          })}
-                      </CarouselContent>
-                      <CarouselPrevious type="button" variant="ghost" />
-                      <CarouselNext type="button" variant="ghost" />
-                  </Carousel>
-              </div>
-
-            </CardContent>
-            <CardFooter className="flex-col gap-4 p-6">
-              <Button type="submit" size="lg" className="w-full font-headline text-xl">
-                Begin Adventure
-              </Button>
-            </CardFooter>
-          </form>
+                </CardContent>
+                <CardFooter className="flex-col gap-4 p-6">
+                <Button type="submit" size="lg" className="w-full font-headline text-xl">
+                    Begin Adventure
+                </Button>
+                </CardFooter>
+            </form>
         </TooltipProvider>
       </Card>
     </div>
   );
 }
+
+    

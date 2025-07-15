@@ -3,8 +3,8 @@ import type { Player, PlayerClass, PlayerRace } from '@/types/game';
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
 export const ENERGY_REGEN_RATE = 1500; // ms, slower regen
-export const MOVE_COOLDOWN = 3000; // 3 seconds
-export const INVENTORY_SIZE = 8; // 2 rows of 4
+export const MOVE_COOLDOWN = 300; // ms
+export const INVENTORY_SIZE = 16; // 4 rows of 4
 
 export const TERRAIN_ENERGY_COST: Record<string, number> = {
     grass: 8,
@@ -44,7 +44,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   utilityItemFindChance: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,
