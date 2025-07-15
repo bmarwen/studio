@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Dices } from 'lucide-react';
+import { AlertTriangle, Dices, HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
@@ -34,6 +34,14 @@ const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: s
     { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png' },
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
+
+const STAT_DEFINITIONS = {
+    maxHp: "Health Points",
+    maxEnergy: "Energy",
+    attack: "Attack Power",
+    defense: "Defense",
+    criticalChance: "Critical Hit Chance"
+}
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
 const NAME_SUFFIXES = ["dric", "wyn", "fire", "fall", "wood", "shield", "more", "fang", "lore", "gard"];
@@ -100,7 +108,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background font-body p-4">
-      <Card className="w-full max-w-md shadow-2xl">
+      <Card className="w-full max-w-lg shadow-2xl">
         <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">
             <CardTitle className="font-headline text-4xl text-primary">Create Your Hero</CardTitle>
@@ -139,8 +147,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                     <CarouselContent>
                         {RACES.map(({ id, name, bonus, path, hint }) => (
                             <CarouselItem key={id}>
-                                <div className="p-1 text-center flex flex-col items-center gap-2">
-                                    <Image src={path} alt={id} width={128} height={128} className="w-32 h-32 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
+                                <div className="p-1 text-center flex flex-col items-center gap-1">
+                                    <Image src={path} alt={id} width={128} height={128} className="w-48 h-48 rounded-lg shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
                                     <p className="font-bold text-lg font-headline">{name}</p>
                                     <p className="text-sm text-accent">{bonus}</p>
                                 </div>
@@ -160,23 +168,44 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                              const stats = PLAYER_CLASSES[id];
                              return (
                                 <CarouselItem key={id}>
-                                    <div className="p-1">
-                                        <Card className="bg-secondary/50 overflow-hidden relative text-card-foreground">
-                                            <div className="relative z-20 flex flex-col items-center p-4 text-center">
-                                                <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/50 p-2 border-2 border-primary/80" />
-                                                <CardTitle className="font-headline text-2xl pt-2">{name}</CardTitle>
-                                                <p className="text-sm text-muted-foreground min-h-[40px] pt-2">{description}</p>
-                                                
-                                                <div className="text-xs grid grid-cols-3 gap-x-4 gap-y-2 pt-4">
-                                                    <span>HP: {stats.maxHp}</span>
-                                                    <span>EN: {stats.maxEnergy}</span>
-                                                    <span>ATK: {stats.attack}</span>
-                                                    <span>DEF: {stats.defense}</span>
-                                                    <span className="col-span-2">Crit: {stats.criticalChance}%</span>
+                                     <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={id}
+                                            initial={{ opacity: 0, x: 50 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -50 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <Card className="bg-secondary/50 overflow-hidden relative text-card-foreground">
+                                                <div className="grid grid-cols-3 gap-4 p-4">
+                                                    <div className="col-span-2 flex flex-col">
+                                                        <div className="flex items-center gap-4">
+                                                            <Image src={iconPath} alt={name} width={64} height={64} className="w-16 h-16 rounded-full bg-primary/20 p-2 border-2 border-primary/80" />
+                                                            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
+                                                    </div>
+                                                    <div className="col-span-1 flex flex-col justify-center space-y-3 text-sm">
+                                                        {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
+                                                            <TooltipProvider key={key}>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div className="flex justify-between items-center cursor-help">
+                                                                            <span className="font-bold uppercase flex items-center gap-1.5">{key.replace('max', '').replace('critical', 'crit').replace('Chance', '')} <HelpCircle className="w-3 h-3 text-muted-foreground" /></span>
+                                                                            <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>
+                                                                        <p>{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS]}</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </Card>
-                                    </div>
+                                            </Card>
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </CarouselItem>
                              )
                         })}
@@ -209,3 +238,5 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
+
+    
