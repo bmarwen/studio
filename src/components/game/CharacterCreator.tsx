@@ -194,7 +194,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                             exit={{ opacity: 0, x: -50 }}
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <Card className="bg-secondary/50 overflow-hidden relative text-card-foreground">
+                                            <Card className="bg-secondary/50 relative text-card-foreground">
                                                 <div className="grid grid-cols-5 gap-4 p-4">
                                                     <div className="col-span-3 flex flex-col">
                                                         <div className="flex items-center gap-4">
@@ -203,7 +203,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                         </div>
                                                         <p className="text-sm text-muted-foreground min-h-[40px] pt-4">{description}</p>
                                                     </div>
-                                                    <div className="col-span-2 flex flex-col justify-center space-y-3 text-sm pl-2">
+                                                    <div className="col-span-2 flex flex-col justify-center space-y-3 pl-4">
                                                         {Object.entries(stats).filter(([key]) => key in STAT_DEFINITIONS).map(([key, value]) => (
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
@@ -214,7 +214,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                                         </div>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
-                                                                        <div className="space-y-1">
+                                                                        <div className="space-y-1 w-48">
                                                                             <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
                                                                             <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
                                                                         </div>
