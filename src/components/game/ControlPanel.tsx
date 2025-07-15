@@ -104,12 +104,14 @@ export default function ControlPanel({ player, log, onReset, onUseItem, onEquipI
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 pr-4">
         <Card className="bg-card/50">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
-            <CardDescription className="flex items-center gap-2">
-                <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-5 h-5" />
-                Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                    Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
+                </CardDescription>
+            </div>
+            <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-12 h-12 rounded-full bg-secondary p-1" />
           </CardHeader>
           <CardContent className="space-y-4">
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />

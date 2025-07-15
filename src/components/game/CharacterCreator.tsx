@@ -28,11 +28,11 @@ const ICONS: { id: PlayerIcon; path: string; hint: string;}[] = [
     { id: 'hero6', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
-const CLASSES: { id: PlayerClass; name: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', icon: <img src="/icons/warrior-icon.png" className="w-8 h-8" /> },
-    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', icon: <img src="/icons/mage-icon.png" className="w-8 h-8" /> },
-    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', icon: <img src="/icons/ranger-icon.png" className="w-8 h-8" /> },
-    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', icon: <img src="/icons/assassin-icon.png" className="w-8 h-8" /> },
+const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string }[] = [
+    { id: 'warrior', name: 'Warrior', description: 'A master of melee combat, boasting high health and defense.', iconPath: '/icons/warrior-icon.png' },
+    { id: 'mage', name: 'Mage', description: 'A powerful spellcaster with high magic and energy.', iconPath: '/icons/mage-icon.png' },
+    { id: 'ranger', name: 'Ranger', description: 'A skilled archer with balanced stats.', iconPath: '/icons/ranger-icon.png' },
+    { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
@@ -144,28 +144,28 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                     onValueChange={(val) => setSelectedClass(val as PlayerClass)}
                     className="space-y-2"
                 >
-                    {CLASSES.map(({ id, name, description, icon }) => {
+                    {CLASSES.map(({ id, name, description, iconPath }) => {
                         const stats = PLAYER_CLASSES[id];
                         return (
                             <Label key={id} htmlFor={id} className={cn(
-                                'flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all',
+                                'flex items-center justify-between p-6 border-2 rounded-lg cursor-pointer transition-all',
                                 selectedClass === id ? 'border-primary bg-primary/10' : 'border-border'
                             )}>
-                                <div className="flex items-center justify-between">
+                                <div className="flex-1">
                                     <div className="flex items-center gap-3">
                                         <RadioGroupItem value={id} id={id} />
                                         <span className="font-bold text-base">{name}</span>
                                     </div>
-                                    {icon}
+                                    <p className="text-sm text-muted-foreground mt-2 pl-8">{description}</p>
+                                    <div className="text-xs grid grid-cols-3 gap-x-4 pl-8 mt-2 text-muted-foreground">
+                                        <span>HP: {stats.maxHp}</span>
+                                        <span>ATK: {stats.attack}</span>
+                                        <span>DEF: {stats.defense}</span>
+                                        <span>EN: {stats.maxEnergy}</span>
+                                        <span>MAG: {stats.magic}</span>
+                                    </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground mt-2 pl-8">{description}</p>
-                                <div className="text-xs grid grid-cols-3 gap-x-4 pl-8 mt-2 text-muted-foreground">
-                                    <span>HP: {stats.maxHp}</span>
-                                    <span>ATK: {stats.attack}</span>
-                                    <span>DEF: {stats.defense}</span>
-                                    <span>EN: {stats.maxEnergy}</span>
-                                    <span>MAG: {stats.magic}</span>
-                                </div>
+                                <img src={iconPath} className="w-12 h-12 rounded-full bg-secondary p-1" />
                             </Label>
                         )
                     })}

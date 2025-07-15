@@ -28,13 +28,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   const [pendingCombat, setPendingCombat] = useState<Monster | null>(null);
   const [combatCountdown, setCombatCountdown] = useState(0);
+
   const [isMoving, setIsMoving] = useState(false);
+  const isMovingRef = useRef(false);
 
   const [combatInfo, setCombatInfo] = useState<{ open: boolean, monster: Monster, log: CombatLogEntry[], result: string, loot?: Item | null } | null>(null);
   const { toast } = useToast();
 
   const countdownTimer = useRef<NodeJS.Timeout>();
   const moveTimeout = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    isMovingRef.current = isMoving;
+  }, [isMoving]);
 
   useEffect(() => {
     const map = generateWorld();
@@ -216,20 +222,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [combatCountdown, pendingCombat]);
 
   const handleMove = useCallback((dx: number, dy: number) => {
-    if (combatInfo?.open || pendingCombat) return;
-    
-    if (isMoving) {
-      toast({
-        title: (
-          <div className="flex items-center gap-2">
-            <Hourglass className="h-5 w-5 text-destructive" />
-            <span className="font-headline">Movement Cooldown</span>
-          </div>
-        ),
-        description: "You must wait before moving again.",
-        variant: "destructive"
-      });
-      return;
+    if (combatInfo?.open || pendingCombat || isMovingRef.current) {
+        if (isMovingRef.current) {
+             toast({
+                title: (
+                <div className="flex items-center gap-2">
+                    <Hourglass className="h-5 w-5 text-destructive" />
+                    <span className="font-headline">Movement Cooldown</span>
+                </div>
+                ),
+                description: "You must wait before moving again.",
+                variant: "destructive"
+            });
+        }
+        return;
     }
 
     const newX = player.position.x + dx;
@@ -445,5 +451,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
-
-    
