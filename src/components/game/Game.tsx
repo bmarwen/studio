@@ -38,7 +38,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const { toast } = useToast();
   const { playAudio } = useAudio();
 
-  const moveTimeout = useRef<NodeJS.Timeout>();
   const combatTimerRef = useRef<NodeJS.Timeout>();
 
   // --- Music Effect ---
@@ -47,8 +46,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, [playAudio]);
 
   // --- State Ref for Callbacks ---
-  // This holds all the state that our move handler needs.
-  // By using a ref, our keydown event listener can always access the latest state.
   const gameStateRef = useRef({
     player,
     worldMap,
@@ -282,9 +279,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
   const initiateCombat = useCallback((monster: Monster) => {
     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
-    playAudio('/audio/combat-start.wav');
-    setPendingCombat(monster);
-    setCombatCountdown(3);
+
+    // A short delay to give a feeling of landing on the tile before combat starts.
+    setTimeout(() => {
+        playAudio('/audio/combat-start.wav');
+        setPendingCombat(monster);
+        setCombatCountdown(3);
+    }, 400); // 400ms delay
   }, [playAudio]);
 
   useEffect(() => {
@@ -349,64 +350,61 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       return;
     }
     
-    playAudio('/audio/move.wav', { volume: 0.3 });
     setIsMoving(true);
+    playAudio('/audio/move.wav', { volume: 0.3 });
     
-    const moveAction = () => {
-      setPlayer(p => {
-          const newPlayerState = {
-              ...p,
-              energy: p.energy - moveCost,
-              position: {x: newX, y: newY}
-          };
-  
-          addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
-  
-          if (targetTile.monster) {
-              initiateCombat(targetTile.monster);
-              setWorldMap(prevMap => {
-                  const newMap = prevMap.map(row => [...row]);
-                  newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
-                  return newMap;
-              });
-          }
-          
-          const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
-  
-          if (targetTile.item) {
-              const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
-              addLog(`You found a ${logMessage}!`);
-              playAudio('/audio/item-found.wav', { volume: 0.7 });
-              const newInventory = [...newPlayerState.inventory];
-              const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
-  
-              if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                  newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
-              } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
-                  const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                  if (emptySlotIndex !== -1) {
-                      newInventory[emptySlotIndex] = targetTile.item;
-                  } else {
-                      newInventory.push(targetTile.item);
-                  }
-              } else {
-                  addLog("Your inventory is full! You leave the item on the ground.");
-              }
-              newPlayerState.inventory = newInventory;
-              
-              setWorldMap(prevMap => {
-                  const newMap = prevMap.map(row => [...row]);
-                  newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
-                  return newMap;
-              });
-          }
-          return newPlayerState;
-      });
-    }
+    setPlayer(p => {
+        const newPlayerState = {
+            ...p,
+            energy: p.energy - moveCost,
+            position: {x: newX, y: newY}
+        };
 
-    moveTimeout.current = setTimeout(() => {
+        addLog(`You move to (${newX}, ${newY}). Energy spent: ${moveCost}.`);
+
+        if (targetTile.monster) {
+            initiateCombat(targetTile.monster);
+            setWorldMap(prevMap => {
+                const newMap = prevMap.map(row => [...row]);
+                newMap[newY][newX] = {...newMap[newY][newX], monster: undefined};
+                return newMap;
+            });
+        }
+        
+        const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
+
+        if (targetTile.item) {
+            const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
+            addLog(`You found a ${logMessage}!`);
+            playAudio('/audio/item-found.wav', { volume: 0.7 });
+            const newInventory = [...newPlayerState.inventory];
+            const existingItemIndex = newInventory.findIndex(i => i?.id === targetTile.item!.id && i.type === 'consumable');
+
+            if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
+            } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
+                const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                if (emptySlotIndex !== -1) {
+                    newInventory[emptySlotIndex] = targetTile.item;
+                } else {
+                    newInventory.push(targetTile.item);
+                }
+            } else {
+                addLog("Your inventory is full! You leave the item on the ground.");
+            }
+            newPlayerState.inventory = newInventory;
+            
+            setWorldMap(prevMap => {
+                const newMap = prevMap.map(row => [...row]);
+                newMap[newY][newX] = {...newMap[newY][newX], item: undefined};
+                return newMap;
+            });
+        }
+        return newPlayerState;
+    });
+
+    setTimeout(() => {
       setIsMoving(false);
-      moveAction();
     }, currentMoveCooldown);
 
   };
@@ -493,7 +491,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleEquipItem = (itemToEquip: Item, index: number) => {
-    if (itemToUse.type === 'consumable' || itemToUse.type === 'utility') return;
+    if (itemToEquip.type === 'consumable' || itemToEquip.type === 'utility') return;
 
     if (itemToEquip.allowedClasses && !itemToEquip.allowedClasses.includes(player.class)) {
         toast({
@@ -589,7 +587,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         return () => {
           window.removeEventListener('keydown', handleKeyDown);
-          clearTimeout(moveTimeout.current);
         }
     }, []);
 
