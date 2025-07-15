@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Dices } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Dices } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
@@ -165,7 +165,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
 
               <div className="space-y-2">
                   <Label className="text-lg font-headline text-center block">Choose Your Race</Label>
-                  <Carousel setApi={setIconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
+                  <Carousel setApi={iconApi} opts={{loop: true}} className="w-full max-w-xs mx-auto">
                       <CarouselContent>
                           {RACES.map(({ id, name, bonus, path, hint }) => (
                               <CarouselItem key={id}>
@@ -177,8 +177,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                               </CarouselItem>
                           ))}
                       </CarouselContent>
-                      <div><CarouselPrevious /></div>
-                      <div><CarouselNext /></div>
+                      <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronLeft className="h-6 w-6" /></CarouselPrevious>
+                      <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronRight className="h-6 w-6" /></CarouselNext>
                   </Carousel>
               </div>
 
@@ -235,8 +235,8 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                )
                           })}
                       </CarouselContent>
-                      <div><CarouselPrevious /></div>
-                      <div><CarouselNext /></div>
+                      <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronLeft className="h-6 w-6" /></CarouselPrevious>
+                      <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-black/20 hover:bg-black/50 border-none text-white rounded-full disabled:opacity-0"><ChevronRight className="h-6 w-6" /></CarouselNext>
                   </Carousel>
               </div>
 
