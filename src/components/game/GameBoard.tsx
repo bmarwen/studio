@@ -3,7 +3,7 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, TreePine, Waves, Snowflake, Tent, Trees } from 'lucide-react';
+import { Home, Mountain, TreePine, Waves, Snowflake, Tent } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ const getTileIcon = (tile: TileData) => {
     case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
     case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
     case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <Trees className="w-8 h-8 text-green-700 dark:text-green-500 opacity-70" />;
+    case 'grass': return null;
     default: return null;
   }
 };
@@ -42,6 +42,7 @@ const getTooltipContent = (tile: TileData) => {
     if (tile.terrain === 'snow') return 'Snowy field';
     if (tile.terrain === 'camp') return 'A safe place to rest.';
     if (tile.terrain === 'mountain') return 'Treacherous mountains. Moving here costs a lot of energy.';
+    if (tile.terrain === 'grass') return 'Grass field';
     return tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
 }
 
@@ -58,6 +59,7 @@ const Tile = memo(({ tile }: TileProps) => {
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
             tile.terrain === 'camp' && 'bg-orange-400/10 dark:bg-orange-900/40',
+            tile.terrain === 'grass' && 'bg-green-400/10 dark:bg-green-900/40',
             "relative"
           )}>
             {icon}
