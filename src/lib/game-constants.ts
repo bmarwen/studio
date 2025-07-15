@@ -36,7 +36,12 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
     helmet: null,
     armor: null,
     belt: null,
-  }
+  },
+  bonusCritChance: 0,
+  consumableFindChance: 0,
+  rareEquipmentFindChance: 0,
+  bonusXpGain: 0,
+  utilityItemFindChance: 0,
 };
 
 export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race'>> = {

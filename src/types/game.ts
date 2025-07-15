@@ -72,6 +72,13 @@ export type Player = {
   inventory: Item[];
   quests: Quest[];
   equipment: Equipment;
+
+  // Racial Bonuses
+  bonusCritChance?: number;
+  consumableFindChance?: number;
+  rareEquipmentFindChance?: number;
+  bonusXpGain?: number;
+  utilityItemFindChance?: number;
 };
 
 export type CombatLogEntry = {

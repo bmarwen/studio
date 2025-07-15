@@ -21,13 +21,19 @@ type Props = {
   onPlayerCreate: (player: Player) => void;
 };
 
-const RACES: { id: PlayerIcon; name: PlayerRace; bonus: string; path: string; hint: string;}[] = [
-    { id: 'hero1', name: 'Male Elf', bonus: '+5 Critical Chance', path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
-    { id: 'hero2', name: 'Female Elf', bonus: '+5 Critical Chance', path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
-    { id: 'hero3', name: 'Male Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-3.png', hint: 'male elf' },
-    { id: 'hero4', name: 'Female Troll', bonus: '+5 Defense', path: '/icons/hero-avatar-4.png', hint: 'female elf' },
-    { id: 'hero5', name: 'Male Human', bonus: '+5 Attack', path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
-    { id: 'hero6', name: 'Female Human', bonus: '+5 Attack', path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
+type RaceBonus = {
+    key: keyof Player;
+    value: number;
+    text: string;
+}
+
+const RACES: { id: PlayerIcon; name: PlayerRace; bonus: RaceBonus; path: string; hint: string;}[] = [
+    { id: 'hero1', name: 'Male Elf', bonus: { key: 'bonusCritChance', value: 5, text: '+5% Critical Chance' }, path: '/icons/hero-avatar-1.png', hint: 'bearded warrior' },
+    { id: 'hero2', name: 'Female Elf', bonus: { key: 'bonusCritChance', value: 5, text: '+5% Critical Chance' }, path: '/icons/hero-avatar-2.png', hint: 'female warrior' },
+    { id: 'hero3', name: 'Male Troll', bonus: { key: 'consumableFindChance', value: 10, text: '+10% Consumable Find Chance' }, path: '/icons/hero-avatar-3.png', hint: 'male elf' },
+    { id: 'hero4', name: 'Female Troll', bonus: { key: 'consumableFindChance', value: 10, text: '+10% Consumable Find Chance' }, path: '/icons/hero-avatar-4.png', hint: 'female elf' },
+    { id: 'hero5', name: 'Male Human', bonus: { key: 'bonusXpGain', value: 5, text: '+5% Experience Gain' }, path: '/icons/hero-avatar-5.png', hint: 'dragon character' },
+    { id: 'hero6', name: 'Female Human', bonus: { key: 'bonusXpGain', value: 5, text: '+5% Experience Gain' }, path: '/icons/hero-avatar-6.png', hint: 'dark knight' },
 ];
 
 const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: string; }[] = [
@@ -120,13 +126,20 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     }
 
     const classStats = PLAYER_CLASSES[selectedClass];
+    const selectedRace = RACES.find(r => r.id === selectedIcon);
     const newPlayer: Player = {
       ...INITIAL_PLAYER_STATE,
       ...classStats,
       name,
       icon: selectedIcon,
-      race: RACES.find(r => r.id === selectedIcon)?.name || 'Male Human',
+      race: selectedRace?.name || 'Male Human',
     };
+
+    if (selectedRace) {
+        // @ts-ignore
+        newPlayer[selectedRace.bonus.key] = selectedRace.bonus.value;
+    }
+
     onPlayerCreate(newPlayer);
   };
 
@@ -180,7 +193,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                   <div className="p-1 text-center flex flex-col items-center gap-1">
                                       <Image src={path} alt={id} width={128} height={128} className="w-40 h-40 rounded-2xl shadow-lg border-4 border-transparent group-hover:border-primary transition-colors" data-ai-hint={hint} />
                                       <p className="font-bold text-lg font-headline">{name}</p>
-                                      <p className="text-sm text-accent">{bonus}</p>
+                                      <p className="text-sm text-accent">{bonus.text}</p>
                                   </div>
                               </CarouselItem>
                           ))}
