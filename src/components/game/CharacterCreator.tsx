@@ -35,12 +35,12 @@ const CLASSES: { id: PlayerClass; name: string; description: string; iconPath: s
     { id: 'assassin', name: 'Assassin', description: 'A deadly rogue with high attack and speed.', iconPath: '/icons/assassin-icon.png' },
 ];
 
-const STAT_DEFINITIONS: Record<string, string> = {
-    maxHp: "Health Points",
-    maxEnergy: "Energy",
-    attack: "Attack Power",
-    defense: "Defense",
-    criticalChance: "Critical Hit Chance"
+const STAT_DEFINITIONS: Record<string, { title: string; description: string }> = {
+    maxHp: { title: 'Health Points', description: 'Determines how much damage you can take before being defeated.' },
+    maxEnergy: { title: 'Energy', description: 'Consumed when moving. Regenerates over time.' },
+    attack: { title: 'Attack Power', description: 'Increases the amount of damage you deal in combat.' },
+    defense: { title: 'Defense', description: 'Reduces the amount of damage you receive from enemy attacks.' },
+    criticalChance: { title: 'Critical Chance', description: 'The probability of landing a critical hit for extra damage.' }
 }
 
 const STAT_LABELS: Record<string, string> = {
@@ -208,13 +208,16 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                                                             <TooltipProvider key={key}>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
-                                                                        <div className="flex items-center gap-4 cursor-help">
+                                                                        <div className="flex items-center cursor-help">
                                                                             <span className="font-bold uppercase w-12">{STAT_LABELS[key as keyof typeof STAT_LABELS]}</span>
                                                                             <span className="font-mono text-primary">{value}{key.includes('Chance') ? '%' : ''}</span>
                                                                         </div>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
-                                                                        <p>{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS]}</p>
+                                                                        <div className="space-y-1">
+                                                                            <p className="font-bold">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].title}</p>
+                                                                            <p className="text-muted-foreground">{STAT_DEFINITIONS[key as keyof typeof STAT_DEFINITIONS].description}</p>
+                                                                        </div>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </TooltipProvider>
