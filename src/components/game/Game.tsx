@@ -598,23 +598,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="flex justify-center h-screen w-screen bg-background font-body text-foreground overflow-hidden">
-      <div className="flex w-full">
-        <main className="flex-1 flex flex-col items-stretch p-4 gap-4">
-          <div className="flex items-center justify-center gap-8">
-              <div className="flex-1 flex flex-col items-center">
-                <h1 className="w-full text-left text-4xl font-headline text-primary pl-12 mb-4">Square Clash</h1>
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                >
-                  <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-                </motion.div>
-              </div>
-              <div className="flex-shrink-0">
-                <MovementControls onMove={handleMove} />
-              </div>
-          </div>
+      <div className="flex w-full items-center justify-center">
+        <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+          <h1 className="w-full text-left text-4xl font-headline text-primary pl-12 mb-4">Square Clash</h1>
+          <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+          >
+            <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+          </motion.div>
           <Card className="w-full max-w-4xl lg:max-w-5xl mt-4 mx-auto">
               <CardHeader className="p-4">
                   <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
@@ -626,7 +619,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
               </CardContent>
           </Card>
         </main>
-        <aside className="w-1/3 max-w-sm lg:max-w-md bg-card border-l-2 border-border p-4 overflow-y-auto">
+         <div className="flex-shrink-0 px-8">
+            <MovementControls onMove={handleMove} />
+        </div>
+        <aside className="w-1/3 max-w-sm lg:max-w-md bg-card border-l-2 border-border p-4 overflow-y-auto h-full">
           <ControlPanel 
               player={player} 
               onReset={onReset} 
