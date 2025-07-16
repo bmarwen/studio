@@ -125,6 +125,8 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           {isMoving && (
             <motion.div
               className="absolute w-14 h-14"
+              exit={{ opacity: 0 }}
+              transition={{ delay: moveCooldown / 1000, duration: 0.2 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
@@ -134,12 +136,11 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
                   stroke="hsl(var(--primary))"
                   strokeWidth="4"
                   fill="transparent"
-                  initial={{ pathLength: 0, opacity: 1 }}
-                  animate={{ pathLength: 1.01, opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1.01 }}
                   transition={{ 
-                    pathLength: { duration: moveCooldown / 1000, ease: 'linear' },
-                    opacity: { delay: moveCooldown / 1000, duration: 0.2 }
+                    duration: moveCooldown / 1000, 
+                    ease: 'linear' 
                   }}
                 />
               </svg>
