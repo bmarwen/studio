@@ -57,17 +57,16 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         armor: <Shirt className="w-8 h-8 text-muted-foreground opacity-75" />,
         belt: (
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />
-                <path d="M18 14h-4.5a2 2 0 0 1 0-4H18" />
-                <path d="M22 10h-2" />
-                <path d="M14 2v4" />
-                <path d="M10 6h4" />
-                <path d="M6 6h.01" />
+                <path d="M10.29 2.86a2 2 0 0 1 3.42 0l2.55 4.38a2 2 0 0 0 1.71 1.05h5.03a2 2 0 0 1 1.98 2.29l-1.07 7.51a2 2 0 0 1-2 1.84H4.08a2 2 0 0 1-2-1.84L1.01 10.58a2 2 0 0 1 1.98-2.29h5.03a2 2 0 0 0 1.71-1.05l2.56-4.38z"></path>
+                <path d="M9 18V6"></path>
+                <path d="M15 18V6"></path>
             </svg>
         ),
         boots: (
              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M20 17h-2.26a1 1 0 0 0-.95.69L14 22H9.86a1 1 0 0 1-.95-.69L6.64 17H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" />
+                <path d="M7 17v-4h4v4h-4z"></path>
+                <path d="M13 17v-4h4v4h-4z"></path>
+                <path d="M5.5 13.5A2.5 2.5 0 0 0 3 11V9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2.5 2.5 0 0 0-2.5 2.5V17a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1v-3.5z"></path>
             </svg>
         )
     }
@@ -113,18 +112,15 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 <Card className="bg-card/50">
                     <CardContent className="p-4 flex justify-center">
                        <div className="flex flex-col items-center gap-y-2">
-                            {/* Row 1: Helmet */}
                             <div className="flex justify-center">
                                 <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
                             </div>
                             
-                            {/* Row 2: Weapon & Armor */}
                             <div className="flex justify-center gap-x-4">
                                 <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
                                 <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
                             </div>
 
-                            {/* Row 3: Belt & Boots */}
                             <div className="flex justify-center gap-x-4">
                                 <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
                                 <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
@@ -216,3 +212,4 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
 }
 
     
+
