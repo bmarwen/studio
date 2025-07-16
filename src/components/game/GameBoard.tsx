@@ -4,7 +4,7 @@
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Home, Mountain, Trees, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
-import type { TileData, PlayerIcon } from '@/types/game';
+import type { TileData, Player, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { VIEWPORT_SIZE } from '@/lib/game-constants';
@@ -83,13 +83,13 @@ Tile.displayName = 'Tile';
 
 interface GameBoardProps {
   viewport: TileData[][];
-  playerIcon: PlayerIcon;
+  player: Player;
   isMoving: boolean;
   moveCooldown: number;
 }
 
-const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardProps) => {
-  const iconPath = getPlayerIconPath(playerIcon);
+const GameBoard = ({ viewport, player, isMoving, moveCooldown }: GameBoardProps) => {
+  const iconPath = getPlayerIconPath(player.icon);
 
   if (!viewport || viewport.length === 0) {
     return <div>Loading map...</div>;
@@ -146,7 +146,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
                     <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10 pointer-events-auto" />
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>You</p>
+                    <p>{player.name}</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

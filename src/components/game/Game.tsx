@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass, DistributableStat } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE, TERRAIN_STAMINA_COST, BASE_XP_TO_LEVEL } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, PLAYER_CLASSES, INVENTORY_SIZE, BASE_XP_TO_LEVEL, TERRAIN_STAMINA_COST } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -121,7 +121,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const calculateStats = useCallback((basePlayer: Player) => {
     const classStats = PLAYER_CLASSES[basePlayer.class];
-    const initialStats = INITIAL_PLAYER_STATE;
 
     let attack = basePlayer.attack;
     let magicAttack = basePlayer.magicAttack;
@@ -132,11 +131,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let criticalChance = classStats.criticalChance + (basePlayer.bonusCritChance || 0);
 
     // Secondary stats
-    let initiative = initialStats.initiative;
-    let scoutRange = initialStats.scoutRange;
-    let doubleHitChance = initialStats.doubleHitChance;
-    let lootLuck = initialStats.lootLuck;
-    let xpGainBonus = initialStats.xpGainBonus + (basePlayer.bonusXpGain || 0);
+    let initiative = 50; // Base value
+    let scoutRange = 0; // Base value
+    let doubleHitChance = 0; // Base value
+    let lootLuck = 0; // Base value
+    let xpGainBonus = (basePlayer.bonusXpGain || 0);
 
     Object.values(basePlayer.equipment).forEach(item => {
         if(item) {
@@ -314,37 +313,40 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
               }
           }
       }
-      if (allLoot.length > 0) {
-        allLoot.forEach(loot => {
-            const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
-            addLog(`You found: ${logMessage}!`);
-        });
-      }
       
       setPlayer(p => {
         let newPlayerState = { ...p };
-        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
         const newInventory = [...p.inventory];
-        
-        allLoot.forEach(loot => {
-            const isBackpack = loot.itemId === 'adventurers_pack';
-            if (isBackpack && !newPlayerState.hasBackpack) {
-                newPlayerState.hasBackpack = true;
-                addLog(`You can carry more! Your inventory has expanded.`);
-            } else if (!isBackpack) {
-                const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
-                if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                    newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
-                } else {
-                    const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                    if (emptySlotIndex !== -1 && emptySlotIndex < inventoryCapacity) {
-                         newInventory[emptySlotIndex] = loot;
+
+        if (allLoot.length > 0) {
+            allLoot.forEach(loot => {
+                addLog(`You found: ${loot.quantity > 1 ? `${loot.quantity}x` : ''} ${loot.name}!`);
+
+                const isBackpack = loot.itemId === 'adventurers_pack';
+                if (isBackpack && !newPlayerState.hasBackpack) {
+                    newPlayerState.hasBackpack = true;
+                    addLog(`You can carry more! Your inventory has expanded.`);
+                } else if (!isBackpack) {
+                    const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
+                    if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                        newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
                     } else {
-                         addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
+                        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
+                        const currentItemCount = newInventory.filter(slot => slot !== null).length;
+                        if (currentItemCount < inventoryCapacity) {
+                            const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                            if (emptySlotIndex !== -1) {
+                                newInventory[emptySlotIndex] = loot;
+                            } else {
+                                newInventory.push(loot); // Should not happen if check is correct
+                            }
+                        } else {
+                            addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // XP and Leveling
         let currentXp = p.xp + xpGained;
@@ -485,20 +487,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             // Special handling for adventurer's pack
             if (foundItem.itemId === 'adventurers_pack' && !newPlayerState.hasBackpack) {
                 newPlayerState.hasBackpack = true;
-                addLog(`You found an Adventurer's Pack and gain more inventory space! +4`);
+                addLog(`You gain more inventory space! +4`);
             } else {
                 const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
                 const newInventory = [...newPlayerState.inventory];
+                const currentItemCount = newInventory.filter(i => i !== null).length;
                 const existingItemIndex = newInventory.findIndex(i => i?.itemId === foundItem.itemId && i.type === 'consumable');
 
                 if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
                     newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (foundItem.quantity || 1);
-                } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
+                } else if (currentItemCount < inventoryCapacity) {
                     const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                     if (emptySlotIndex !== -1) {
                         newInventory[emptySlotIndex] = foundItem;
                     } else {
-                        newInventory.push(foundItem);
+                        newInventory.push(foundItem); // This case should be rare, but handles if filter is wrong
                     }
                 } else {
                     addLog("Your inventory is full! You leave the item on the ground.");
@@ -776,7 +779,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+                        <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} />
                     </motion.div>
                 </div>
                 <div className="w-full max-w-xl mx-auto">
