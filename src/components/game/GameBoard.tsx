@@ -86,9 +86,10 @@ interface GameBoardProps {
   player: Player;
   isMoving: boolean;
   moveCooldown: number;
+  moveCount: number;
 }
 
-const GameBoard = ({ viewport, player, isMoving, moveCooldown }: GameBoardProps) => {
+const GameBoard = ({ viewport, player, isMoving, moveCooldown, moveCount }: GameBoardProps) => {
   const iconPath = getPlayerIconPath(player.icon);
 
   if (!viewport || viewport.length === 0) {
@@ -117,7 +118,7 @@ const GameBoard = ({ viewport, player, isMoving, moveCooldown }: GameBoardProps)
         <AnimatePresence>
           {isMoving && (
             <motion.div
-              key="loader"
+              key={`loader-${moveCount}`}
               className="absolute w-[4.5rem] h-[4.5rem] z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >

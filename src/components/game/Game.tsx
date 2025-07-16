@@ -79,6 +79,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const [isMoving, setIsMoving] = useState(false);
   const [moveCooldown, setMoveCooldown] = useState(MOVE_COOLDOWN);
+  const [moveCount, setMoveCount] = useState(0);
 
   const [isLevelUpDialogOpen, setLevelUpDialogOpen] = useState(false);
   const [pendingStatPoints, setPendingStatPoints] = useState<Partial<Record<DistributableStat, number>>>({});
@@ -320,7 +321,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
         if (allLoot.length > 0) {
             allLoot.forEach(loot => {
-                addLog(`You found: ${loot.quantity > 1 ? `${loot.quantity}x` : ''} ${loot.name}!`);
+                const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
+                addLog(`You found: ${logMessage}!`);
 
                 const isBackpack = loot.itemId === 'adventurers_pack';
                 if (isBackpack && !newPlayerState.hasBackpack) {
@@ -337,8 +339,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                             if (emptySlotIndex !== -1) {
                                 newInventory[emptySlotIndex] = loot;
-                            } else {
-                                newInventory.push(loot); // Should not happen if check is correct
                             }
                         } else {
                             addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
@@ -456,6 +456,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }
     
     setIsMoving(true);
+    setMoveCount(c => c + 1);
     playAudio('/audio/move.wav', { volume: 0.3 });
     
     addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
@@ -500,8 +501,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                     if (emptySlotIndex !== -1) {
                         newInventory[emptySlotIndex] = foundItem;
-                    } else {
-                        newInventory.push(foundItem); // This case should be rare, but handles if filter is wrong
                     }
                 } else {
                     addLog("Your inventory is full! You leave the item on the ground.");
@@ -753,17 +752,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
             </div>
-
-            <main className="flex flex-col items-center gap-4">
-                <div className="relative">
-                    <TooltipProvider>
-                        <Tooltip>
+            <div className="relative">
+                <TooltipProvider>
+                    <div className="absolute top-[10px] left-[-52px] z-10">
+                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
                                     onClick={toggleMute} 
-                                    className="absolute w-8 h-8 bg-background/50 hover:bg-accent top-2.5 -left-12 z-20"
+                                    className="w-10 h-10 bg-background/50 hover:bg-accent"
                                 >
                                     {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                 </Button>
@@ -772,16 +770,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                                 <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
                             </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>
+                    </div>
+                </TooltipProvider>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} />
-                    </motion.div>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} moveCount={moveCount} />
+                </motion.div>
+            </div>
+            <main className="flex flex-col items-center gap-4">
+                
                 <div className="w-full max-w-xl mx-auto">
                     <ControlPanel 
                         player={player} 

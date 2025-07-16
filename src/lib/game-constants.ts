@@ -1,4 +1,5 @@
-import type { Player, PlayerClass, PlayerRace } from '@/types/game';
+
+import type { Player, PlayerClass, PlayerRace, TerrainType } from '@/types/game';
 
 export const MAP_SIZE = 100;
 export const VIEWPORT_SIZE = 9;
@@ -7,14 +8,15 @@ export const MOVE_COOLDOWN = 1200; // ms
 export const INVENTORY_SIZE = 8;
 export const BASE_XP_TO_LEVEL = 100;
 
-export const TERRAIN_STAMINA_COST: Record<string, number> = {
-    grass: 8,
-    tree: 12,
-    river: 16,
-    snow: 20,
+const BASE_STAMINA_COST = 6;
+export const TERRAIN_STAMINA_COST: Record<TerrainType, number> = {
+    grass: BASE_STAMINA_COST, // 6
+    tree: Math.ceil(BASE_STAMINA_COST * 1.1), // +10% => 6.6 => 7
+    river: Math.ceil(BASE_STAMINA_COST * 1.2), // +20% => 7.2 => 8
+    snow: Math.ceil(BASE_STAMINA_COST * 1.3), // +30% => 7.8 => 8
+    mountain: Math.ceil(BASE_STAMINA_COST * 1.3), // +30% => 7.8 => 8
     town: 1,
     camp: 1,
-    mountain: 30,
 };
 
 export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'race'> = {
