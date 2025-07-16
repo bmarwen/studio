@@ -84,16 +84,17 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         armor: <Shirt className="w-8 h-8 text-muted-foreground opacity-75" />,
         belt: (
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <rect x="3" y="8" width="18" height="8" rx="2"></rect>
-                <rect x="10" y="10" width="4" height="4" rx="1"></rect>
+                <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />
+                <path d="M18 14h-4.5a2 2 0 0 1 0-4H18" />
+                <path d="M22 10h-2" />
+                <path d="M14 2v4" />
+                <path d="M10 6h4" />
+                <path d="M6 6h.01" />
             </svg>
         ),
         boots: (
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-               <path d="M16 16l-4-4-4 4"/>
-               <path d="M12 2v10"/>
-               <path d="M7.2 14.8A10 10 0 0 0 12 22a10 10 0 0 0 4.8-7.2"/>
-               <path d="M2 12h20"/>
+             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
+                <path d="M20 17h-2.26a1 1 0 0 0-.95.69L14 22H9.86a1 1 0 0 1-.95-.69L6.64 17H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" />
             </svg>
         )
     }
@@ -182,22 +183,21 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
                     <div className="flex items-center gap-2"><Package />Equipment</div>
                 </AccordionTrigger>
                 <AccordionContent>
-                    <div className="grid grid-cols-3 gap-y-2 justify-items-center">
-                        <div className="col-start-2">
+                    <div className="flex flex-col items-center gap-y-2">
+                        {/* Row 1: Helmet */}
+                        <div>
                             <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
                         </div>
-
-                        <div className="col-start-1">
+                        
+                        {/* Row 2: Weapon & Armor */}
+                        <div className="flex gap-x-4">
                             <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
-                        </div>
-                        <div className="col-start-3">
-                             <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                            <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
                         </div>
 
-                        <div className="col-start-1">
+                        {/* Row 3: Belt & Boots */}
+                        <div className="flex gap-x-4">
                             <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
-                        </div>
-                        <div className="col-start-3">
                             <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
                         </div>
                     </div>
