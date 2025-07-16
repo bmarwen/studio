@@ -641,10 +641,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex flex-col min-h-screen w-screen bg-background font-body text-foreground p-4 items-center justify-center">
-       <div className="flex flex-row justify-center items-start gap-2 w-full">
+    <div className="min-h-screen w-screen bg-background font-body text-foreground flex items-center justify-center">
+       <div className="flex flex-row items-start justify-center gap-2 w-full">
             
-            <div className="flex items-center h-full">
+            <div className="flex items-center" style={{height: '744px'}}>
               <MovementControls onMove={handleMove} />
             </div>
 
@@ -758,3 +758,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 }
  
+
+    
