@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff, Gem, Radar, Star } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -45,13 +45,13 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
   </div>
 );
 
-const CombatStatDisplay = ({ label, value, icon, tooltipText }: { label: string, value: number, icon: React.ReactNode, tooltipText: string }) => (
+const CombatStatDisplay = ({ label, value, icon, tooltipText, isPercent = false }: { label: string, value: number, icon: React.ReactNode, tooltipText: string, isPercent?: boolean }) => (
     <TooltipProvider>
         <Tooltip>
             <TooltipTrigger asChild>
                 <div className="flex justify-between items-center text-sm py-1 border-b border-border/50">
                     <span className="font-bold uppercase text-muted-foreground flex items-center gap-1">{icon}{label}</span>
-                    <span className="font-mono text-primary">{value}</span>
+                    <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
                 </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -117,6 +117,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const calculateStats = useCallback((basePlayer: Player) => {
     const baseStats = PLAYER_CLASSES[basePlayer.class];
+    const initialStats = INITIAL_PLAYER_STATE;
+
     let attack = baseStats.attack;
     let magicAttack = baseStats.magicAttack;
     let defense = baseStats.defense;
@@ -124,6 +126,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let magicResist = baseStats.magicResist;
     let evasion = baseStats.evasion;
     let criticalChance = baseStats.criticalChance + (basePlayer.bonusCritChance || 0);
+
+    // Secondary stats
+    let initiative = initialStats.initiative;
+    let scoutRange = initialStats.scoutRange;
+    let doubleHitChance = initialStats.doubleHitChance;
+    let lootLuck = initialStats.lootLuck;
+    let xpGainBonus = initialStats.xpGainBonus + (basePlayer.bonusXpGain || 0);
 
     Object.values(basePlayer.equipment).forEach(item => {
         if(item) {
@@ -134,10 +143,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             magicResist += item.magicResist || 0;
             evasion += item.evasion || 0;
             criticalChance += item.criticalChance || 0;
+            
+            initiative += item.initiative || 0;
+            scoutRange += item.scoutRange || 0;
+            doubleHitChance += item.doubleHitChance || 0;
+            lootLuck += item.lootLuck || 0;
+            xpGainBonus += item.xpGainBonus || 0;
         }
     });
 
-    return {...basePlayer, attack, magicAttack, defense, armor, magicResist, evasion, criticalChance};
+    return {...basePlayer, attack, magicAttack, defense, armor, magicResist, evasion, criticalChance, initiative, scoutRange, doubleHitChance, lootLuck, xpGainBonus};
   }, []);
 
   useEffect(() => {
@@ -497,7 +512,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
     }
 
-    playAudio('/audio/use-potion.wav');
     let logMessage = `You used ${itemToUse.name}.`;
     if (itemToUse.itemId?.includes('elixir_of_power')) {
         logMessage = `You feel a surge of power from the ${itemToUse.name}!`;
@@ -505,8 +519,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         logMessage = `You feel energized by the ${itemToUse.name}!`;
     } else if (itemToUse.inventorySlots) {
         logMessage = `You equip the ${itemToUse.name}, gaining more inventory space!`;
+    } else if (itemToUse.xpGainBonus) {
+        logMessage = `You read the ${itemToUse.name} and feel more knowledgeable!`;
     }
+
     addLog(logMessage);
+    playAudio('/audio/use-potion.wav');
 
     setPlayer(p => {
         let itemUsed = false;
@@ -568,6 +586,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
     }
 
+    playAudio('/audio/equip-item.wav');
+    addLog(`You equipped ${itemToEquip.name}.`);
+
     setPlayer(p => {
         const newInventory = [...p.inventory];
         const newEquipment = { ...p.equipment };
@@ -591,9 +612,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         }
 
         // Equip new item
-        playAudio('/audio/equip-item.wav');
         newEquipment[slot] = itemToEquip;
-        addLog(`You equipped ${itemToEquip.name}.`);
         
         const newPlayer = {...p, inventory: newInventory, equipment: newEquipment};
         return calculateStats(newPlayer);
@@ -601,34 +620,35 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleUnequipItem = (slot: EquipmentSlot) => {
-    setPlayer(p => {
-        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
-        const emptySlotIndex = p.inventory.findIndex(i => !i);
-        if (emptySlotIndex === -1 && p.inventory.filter(i => i).length >= inventoryCapacity) {
-            addLog("Cannot unequip, inventory is full!");
-            toast({
-                title: (
-                    <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-destructive" />
-                        <span className="font-headline">Inventory Full</span>
-                    </div>
-                ),
-                description: "You cannot unequip this item because your inventory is full.",
-                variant: "destructive",
-            });
-            return p;
-        }
+    const itemToUnequip = player.equipment[slot];
+    if (!itemToUnequip) return;
+    
+    const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
+    const emptySlotIndex = player.inventory.findIndex(i => !i);
+    if (emptySlotIndex === -1 && player.inventory.filter(i => i).length >= inventoryCapacity) {
+        addLog("Cannot unequip, inventory is full!");
+        toast({
+            title: (
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    <span className="font-headline">Inventory Full</span>
+                </div>
+            ),
+            description: "You cannot unequip this item because your inventory is full.",
+            variant: "destructive",
+        });
+        return;
+    }
+    
+    addLog(`You unequipped ${itemToUnequip.name}.`);
+    playAudio('/audio/equip-item.wav', { volume: 0.5 });
 
+    setPlayer(p => {
         const newInventory = [...p.inventory];
         const newEquipment = { ...p.equipment };
-        const itemToUnequip = newEquipment[slot];
-
-        if (itemToUnequip) {
-            playAudio('/audio/equip-item.wav', { volume: 0.5 });
-            newEquipment[slot] = null;
-            newInventory[emptySlotIndex] = itemToUnequip;
-            addLog(`You unequipped ${itemToUnequip.name}.`);
-        }
+        
+        newEquipment[slot] = null;
+        newInventory[emptySlotIndex] = itemToUnequip;
 
         const newPlayer = {...p, inventory: newInventory, equipment: newEquipment};
         return calculateStats(newPlayer);
@@ -705,6 +725,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </div>
                     </CardContent>
                 </Card>
+                <Card className="bg-card/50">
+                    <CardHeader className="p-4">
+                        <CardTitle className="font-headline text-lg">Secondary Stats</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-1">
+                        <div className="grid grid-cols-2 gap-x-4">
+                             <CombatStatDisplay label="INIT" value={player.initiative} icon={<Swords size={16}/>} tooltipText="Initiative: Chance to strike first in combat." isPercent />
+                             <CombatStatDisplay label="SCOUT" value={player.scoutRange} icon={<Radar size={16}/>} tooltipText="Scout Range: Reveals threats in a wider area." />
+                             <CombatStatDisplay label="D.HIT" value={player.doubleHitChance} icon={<Swords size={16}/>} tooltipText="Double Hit: Chance to strike twice in one attack." isPercent/>
+                             <CombatStatDisplay label="LUCK" value={player.lootLuck} icon={<Gem size={16}/>} tooltipText="Loot Luck: Increases the chance of finding rare items." isPercent/>
+                             <CombatStatDisplay label="XP" value={player.xpGainBonus} icon={<Star size={16}/>} tooltipText="Experience Bonus: Increases XP gained from all sources." isPercent/>
+                        </div>
+                    </CardContent>
+                </Card>
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="dev">
                         <AccordionTrigger className="text-lg font-headline bg-card/50 px-4 rounded-t-lg">
@@ -768,15 +802,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
- 
-
-    
-
-
-    
-
-    
-
-    
-
-    

@@ -50,9 +50,16 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   rareEquipmentFindChance: 0,
   bonusXpGain: 0,
   utilityItemFindChance: 0,
+  
+  // Secondary stats
+  initiative: 50,
+  scoutRange: 0,
+  doubleHitChance: 0,
+  lootLuck: 0,
+  xpGainBonus: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects' | 'hasBackpack'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects' | 'hasBackpack' | 'initiative' | 'scoutRange' | 'doubleHitChance' | 'lootLuck' | 'xpGainBonus'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,

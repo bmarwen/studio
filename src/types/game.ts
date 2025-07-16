@@ -39,6 +39,13 @@ export type Item = {
   quantity: number;
   allowedClasses?: PlayerClass[];
   inventorySlots?: number;
+
+  // Secondary Stats
+  initiative?: number;
+  scoutRange?: number;
+  doubleHitChance?: number;
+  lootLuck?: number;
+  xpGainBonus?: number;
 };
 
 export type MonsterLoot = {
@@ -107,6 +114,13 @@ export type Player = {
   rareEquipmentFindChance?: number;
   bonusXpGain?: number;
   utilityItemFindChance?: number;
+
+  // Secondary Stats
+  initiative: number;
+  scoutRange: number;
+  doubleHitChance: number;
+  lootLuck: number;
+  xpGainBonus: number;
 };
 
 export type CombatLogEntry = {
