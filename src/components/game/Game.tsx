@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX, LocateOff } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -683,7 +683,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             </div>
 
             <main className="flex flex-col items-center gap-4">
-                <div className="flex items-center" style={{ marginRight: '40px' }}>
+                <div className="flex items-start">
                      <div style={{ marginRight: '5px' }}>
                         <TooltipProvider>
                             <Tooltip>
@@ -740,7 +740,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
                             <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<Rabbit size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<LocateOff size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
@@ -827,6 +827,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
