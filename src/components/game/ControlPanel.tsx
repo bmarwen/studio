@@ -88,6 +88,14 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
                 <rect x="10" y="10" width="4" height="4" rx="1"></rect>
             </svg>
         ),
+        boots: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
+               <path d="M16 16l-4-4-4 4"/>
+               <path d="M12 2v10"/>
+               <path d="M7.2 14.8A10 10 0 0 0 12 22a10 10 0 0 0 4.8-7.2"/>
+               <path d="M2 12h20"/>
+            </svg>
+        )
     }
 
     const buttonContent = (
@@ -174,11 +182,24 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
                     <div className="flex items-center gap-2"><Package />Equipment</div>
                 </AccordionTrigger>
                 <AccordionContent>
-                    <div className="grid grid-cols-4 gap-2">
-                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
-                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
-                        <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
-                        <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
+                    <div className="grid grid-cols-3 gap-y-2 justify-items-center">
+                        <div className="col-start-2">
+                            <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
+                        </div>
+
+                        <div className="col-start-1">
+                            <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
+                        </div>
+                        <div className="col-start-3">
+                             <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                        </div>
+
+                        <div className="col-start-1">
+                            <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
+                        </div>
+                        <div className="col-start-3">
+                            <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
+                        </div>
                     </div>
                 </AccordionContent>
             </AccordionItem>

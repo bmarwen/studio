@@ -280,6 +280,34 @@ export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity' | 'itemId'>> = {
     'assassin_belt_legendary_balanced': { name: 'Night-God\'s Cord', type: 'belt', rarity: 'Legendary', defense: 5, evasion: 10, criticalChance: 10, attack: 6, description: 'A gift from a deity of darkness.', icon: '/icons/item-bandolier.svg', allowedClasses: ['assassin']},
     'assassin_belt_legendary_offensive': { name: 'Sash of Certain Death', type: 'belt', rarity: 'Legendary', defense: 3, evasion: 8, criticalChance: 15, attack: 8, description: 'One strike is all you need.', icon: '/icons/item-bandolier.svg', allowedClasses: ['assassin']},
     'assassin_belt_legendary_defensive': { name: 'Belt of the Phantom', type: 'belt', rarity: 'Legendary', defense: 8, evasion: 12, criticalChance: 8, description: 'You were never there.', icon: '/icons/item-bandolier.svg', allowedClasses: ['assassin']},
+
+    // ================================================
+    // BOOTS
+    // ================================================
+
+    // --- Warrior Boots ---
+    'warrior_boots_common': { name: 'Iron Greaves', type: 'boots', rarity: 'Common', defense: 1, armor: 2, description: 'Sturdy iron boots.', icon: '/icons/item-boots.svg', allowedClasses: ['warrior']},
+    'warrior_boots_rare': { name: 'Steel Sabatons', type: 'boots', rarity: 'Rare', defense: 2, armor: 4, description: 'Articulated steel boots for protection.', icon: '/icons/item-boots.svg', allowedClasses: ['warrior']},
+    'warrior_boots_epic': { name: 'Earthshaker Greaves', type: 'boots', rarity: 'Epic', defense: 4, armor: 7, attack: 2, description: 'Every step shakes the ground.', icon: '/icons/item-boots.svg', allowedClasses: ['warrior']},
+    'warrior_boots_legendary': { name: 'Greaves of the Unmovable', type: 'boots', rarity: 'Legendary', defense: 7, armor: 10, magicResist: 5, description: 'Roots you to the very earth.', icon: '/icons/item-boots.svg', allowedClasses: ['warrior']},
+
+    // --- Mage Boots ---
+    'mage_boots_common': { name: 'Apprentice\'s Shoes', type: 'boots', rarity: 'Common', magicResist: 2, evasion: 1, description: 'Simple shoes for a spellcaster.', icon: '/icons/item-shoes.svg', allowedClasses: ['mage']},
+    'mage_boots_rare': { name: 'Boots of Spell-Weaving', type: 'boots', rarity: 'Rare', magicResist: 4, evasion: 2, staminaBoost: 5, description: 'Helps you move through complex spells.', icon: '/icons/item-shoes.svg', allowedClasses: ['mage']},
+    'mage_boots_epic': { name: 'Mana-Walker Boots', type: 'boots', rarity: 'Epic', magicResist: 7, evasion: 4, staminaBoost: 10, description: 'Draws stamina from the ground.', icon: '/icons/item-shoes.svg', allowedClasses: ['mage']},
+    'mage_boots_legendary': { name: 'Boots of the Ethereal', type: 'boots', rarity: 'Legendary', magicResist: 10, evasion: 8, staminaBoost: 15, description: 'Allows you to walk between worlds.', icon: '/icons/item-shoes.svg', allowedClasses: ['mage']},
+
+    // --- Ranger Boots ---
+    'ranger_boots_common': { name: 'Leather Boots', type: 'boots', rarity: 'Common', defense: 1, evasion: 2, description: 'Standard boots for a ranger.', icon: '/icons/item-boots-leather.svg', allowedClasses: ['ranger']},
+    'ranger_boots_rare': { name: 'Silent-Tread Boots', type: 'boots', rarity: 'Rare', defense: 2, evasion: 5, description: 'Makes no sound on any surface.', icon: '/icons/item-boots-leather.svg', allowedClasses: ['ranger']},
+    'ranger_boots_epic': { name: 'Wind-Strider Boots', type: 'boots', rarity: 'Epic', defense: 4, evasion: 8, criticalChance: 3, description: 'You move with the speed of the wind.', icon: '/icons/item-boots-leather.svg', allowedClasses: ['ranger']},
+    'ranger_boots_legendary': { name: 'Pathfinder\'s Greaves', type: 'boots', rarity: 'Legendary', defense: 7, evasion: 12, criticalChance: 5, description: 'No path is hidden from you.', icon: '/icons/item-boots-leather.svg', allowedClasses: ['ranger']},
+
+    // --- Assassin Boots ---
+    'assassin_boots_common': { name: 'Soft-Soled Shoes', type: 'boots', rarity: 'Common', evasion: 3, criticalChance: 1, description: 'Designed for stealth.', icon: '/icons/item-shoes-soft.svg', allowedClasses: ['assassin']},
+    'assassin_boots_rare': { name: 'Boots of the Cat', type: 'boots', rarity: 'Rare', evasion: 6, criticalChance: 2, description: 'Land silently from any height.', icon: '/icons/item-shoes-soft.svg', allowedClasses: ['assassin']},
+    'assassin_boots_epic': { name: 'Fleet-Footed Slippers', type: 'boots', rarity: 'Epic', evasion: 10, criticalChance: 4, attack: 2, description: 'A blur of motion.', icon: '/icons/item-shoes-soft.svg', allowedClasses: ['assassin']},
+    'assassin_boots_legendary': { name: 'Boots of the Ghostly Step', type: 'boots', rarity: 'Legendary', evasion: 15, criticalChance: 7, attack: 4, description: 'You were never here.', icon: '/icons/item-shoes-soft.svg', allowedClasses: ['assassin']},
 };
 
 // Helper function to create a full item object with an ID
@@ -304,6 +332,8 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'assassin_weapon_common_balanced', chance: 0.05, quantity: 1 },
             { itemId: 'ranger_belt_common_balanced', chance: 0.02, quantity: 1 },
             { itemId: 'mage_helmet_common_balanced', chance: 0.02, quantity: 1 },
+            { itemId: 'warrior_boots_common', chance: 0.03, quantity: 1 },
+            { itemId: 'assassin_boots_common', chance: 0.03, quantity: 1 },
             { itemId: 'adventurers_pack', chance: 0.01, quantity: 1 },
         ] 
     },
@@ -316,6 +346,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
              { itemId: 'health_potion', chance: 0.1, quantity: 1 },
              { itemId: 'mage_belt_common_offensive', chance: 0.03, quantity: 1 },
              { itemId: 'potion_of_magic_barrier', chance: 0.05, quantity: 1 },
+             { itemId: 'mage_boots_common', chance: 0.04, quantity: 1 },
         ]
     },
     'orc_grunt': { 
@@ -331,6 +362,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'ranger_weapon_common_heavy', chance: 0.05, quantity: 1 },
             { itemId: 'warrior_sword_rare_defensive', chance: 0.02, quantity: 1 },
             { itemId: 'ranger_armor_rare_defensive', chance: 0.01, quantity: 1 },
+            { itemId: 'warrior_boots_rare', chance: 0.03, quantity: 1 },
             { itemId: 'adventurers_pack', chance: 0.02, quantity: 1 },
         ]
     },
@@ -347,6 +379,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'mage_weapon_rare_crit', chance: 0.03, quantity: 1 },
             { itemId: 'mage_armor_rare_defensive', chance: 0.02, quantity: 1 },
             { itemId: 'mage_helmet_rare_defensive', chance: 0.02, quantity: 1 },
+            { itemId: 'mage_boots_rare', chance: 0.04, quantity: 1 },
         ] 
     },
     'ancient_dragon': { 
@@ -369,6 +402,10 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
             { itemId: 'mage_belt_legendary_balanced', chance: 0.1, quantity: 1 },
             { itemId: 'ranger_belt_legendary_balanced', chance: 0.1, quantity: 1 },
             { itemId: 'assassin_belt_legendary_balanced', chance: 0.1, quantity: 1 },
+            { itemId: 'warrior_boots_legendary', chance: 0.1, quantity: 1 },
+            { itemId: 'mage_boots_legendary', chance: 0.1, quantity: 1 },
+            { itemId: 'ranger_boots_legendary', chance: 0.1, quantity: 1 },
+            { itemId: 'assassin_boots_legendary', chance: 0.1, quantity: 1 },
             { itemId: 'elixir_of_power', chance: 0.5, quantity: 2 },
             { itemId: 'adventurers_pack', chance: 0.1, quantity: 1 },
         ]

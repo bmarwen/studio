@@ -601,29 +601,30 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       <div className="flex w-full items-start justify-center p-4 gap-4">
         
         <div className="flex-1 flex justify-center items-center gap-8">
-            <main className="flex flex-col items-center justify-start pt-8 gap-4">
-            <h1 className="w-full text-left text-4xl font-headline text-primary pl-12 mb-4">Square Clash</h1>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-            >
-                <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-            </motion.div>
-            <Card className="w-full max-w-4xl lg:max-w-5xl mt-4 mx-auto">
-                <CardHeader className="p-4">
-                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <div className="text-xs font-mono space-y-2 p-4 h-32 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
-                        {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
-                    </div>
-                </CardContent>
-            </Card>
-            </main>
-
-            <div className="flex-shrink-0 h-full flex items-center">
-                 <MovementControls onMove={handleMove} />
+            <div className="flex justify-center items-center gap-4">
+                <main className="flex flex-col items-center justify-start gap-4">
+                    <h1 className="w-full text-left text-4xl font-headline text-primary mb-4">Square Clash</h1>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+                    </motion.div>
+                    <Card className="w-full max-w-4xl lg:max-w-5xl mt-4 mx-auto">
+                        <CardHeader className="p-4">
+                            <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="text-xs font-mono space-y-2 p-4 h-32 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
+                                {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </main>
+                <div className="h-full flex items-center">
+                    <MovementControls onMove={handleMove} />
+                </div>
             </div>
         </div>
         
@@ -669,5 +670,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
-
-    

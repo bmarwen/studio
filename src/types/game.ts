@@ -5,8 +5,8 @@ export type PlayerClass = 'warrior' | 'mage' | 'ranger' | 'assassin';
 export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4' | 'hero5' | 'hero6';
 export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Troll' | 'Male Human' | 'Female Human';
 
-export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt';
-export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'consumable' | 'legendary' | 'utility';
+export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt' | 'boots';
+export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'boots' | 'consumable' | 'legendary' | 'utility';
 export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 export type PlayerEffectType = 'stamina_regen_boost' | 'attack_boost';
 
