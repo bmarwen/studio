@@ -4,7 +4,7 @@
 import type { Player, Item, EquipmentSlot, ItemRarity, PlayerClass } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Gavel, Crown, Shirt, Footprints } from 'lucide-react';
+import { Settings, Gavel, Crown, Shirt, Footprints, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -118,8 +118,20 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
             </TabsContent>
             <TabsContent value="inventory">
                 <Card className="bg-card/50">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-lg">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="font-headline text-lg">Inventory</CardTitle>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" onClick={toggleMute}>
+                                        {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-5 gap-2">

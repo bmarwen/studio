@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff, Gem, Star, MapPin, UtensilsCrossed, Rabbit } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -307,14 +307,18 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
               }
           }
       }
+      if (allLoot.length > 0) {
+        allLoot.forEach(loot => {
+            const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
+            addLog(`You found: ${logMessage}!`);
+        });
+      }
       
       setPlayer(p => {
         const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
         const newInventory = [...p.inventory];
         if (allLoot.length > 0) {
             allLoot.forEach(loot => {
-                const logMessage = loot.quantity > 1 ? `${loot.quantity}x ${loot.name}` : loot.name;
-                addLog(`You found: ${logMessage}!`);
                 const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
 
                 if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
@@ -719,7 +723,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
                             <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<LocateOff size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<Rabbit size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
@@ -731,7 +735,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     <CardContent className="space-y-1">
                         <div className="grid grid-cols-2 gap-x-4">
                              <CombatStatDisplay label="INIT" value={player.initiative} icon={<Rabbit size={16}/>} tooltipText="Initiative: Chance to strike first in combat." isPercent />
-                             <CombatStatDisplay label="SCOUT" value={player.scoutRange} icon={<Rabbit size={16}/>} tooltipText="Scout Range: Reveals threats in a wider area." />
+                             <CombatStatDisplay label="SCOUT" value={player.scoutRange} icon={<Antenna size={16}/>} tooltipText="Scout Range: Reveals threats in a wider area." />
                              <CombatStatDisplay label="D.HIT" value={player.doubleHitChance} icon={<UtensilsCrossed size={16}/>} tooltipText="Double Hit: Chance to strike twice in one attack." isPercent/>
                              <CombatStatDisplay label="LUCK" value={player.lootLuck} icon={<Gem size={16}/>} tooltipText="Loot Luck: Increases the chance of finding rare items." isPercent/>
                              <CombatStatDisplay label="XP" value={player.xpGainBonus} icon={<Star size={16}/>} tooltipText="Experience Bonus: Increases XP gained from all sources." isPercent/>
@@ -765,7 +769,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     </CardHeader>
                     <CardContent className="p-0 h-[calc(100%-4rem)]">
                         <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar">
-                            {gameLog.slice().reverse().map((msg, i) => <p key={i} className={i === 0 ? 'text-muted-foreground' : 'text-foreground'}>{`> ${msg}`}</p>)}
+                            {gameLog.map((msg, i) => <p key={i} className={i === gameLog.length -1 ? 'text-muted-foreground' : 'text-foreground'}>{`> ${msg}`}</p>)}
                         </div>
                     </CardContent>
                 </Card>
@@ -806,3 +810,4 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
