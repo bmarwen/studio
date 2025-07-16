@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -23,7 +23,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
-import { INITIAL_PLAYER_STATE, INVENTORY_SIZE, PLAYER_CLASSES } from '@/lib/game-constants';
 
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
@@ -692,7 +691,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                                     variant="ghost" 
                                     size="icon" 
                                     onClick={toggleMute} 
-                                    className="w-8 h-8 bg-background/50 hover:bg-background/80 absolute -left-12 top-2.5 z-20"
+                                    className="w-8 h-8 bg-background/50 hover:bg-accent absolute -left-12 top-2.5 z-20"
                                 >
                                     {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                 </Button>
@@ -831,6 +830,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
