@@ -113,17 +113,17 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
       </div>
       <div 
         className={cn(
-            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center"
         )}
       >
         <AnimatePresence>
           {isMoving && (
             <motion.div
               key="loader"
-              className="absolute w-full h-full z-20 flex items-center justify-center"
+              className="absolute w-[60px] h-[60px] lg:w-[72px] lg:h-[72px] z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >
-              <svg className="w-[52px] h-[52px] lg:w-[60px] lg:h-[60px] -rotate-90" viewBox="0 0 100 100">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
                   cx="50"
                   cy="50"
