@@ -95,27 +95,11 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
 export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
-  const { isMuted, toggleMute } = useAudio();
   const inventoryItemCount = player.inventory.filter(Boolean).length;
 
 
   return (
       <div className="w-full relative">
-        <TooltipProvider>
-            <div className="absolute top-0 right-0 z-10">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={toggleMute}>
-                            {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                    </TooltipContent>
-                </Tooltip>
-            </div>
-        </TooltipProvider>
-
         <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
@@ -134,7 +118,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="inventory">
-                <Card className="bg-card/50 h-[180px]">
+                <Card className="bg-card/50 h-[180px] flex items-center justify-center">
                     <CardContent className="pt-4 h-full flex items-center justify-center overflow-y-auto custom-scrollbar">
                         <div className="grid grid-cols-4 gap-2">
                             {inventorySlots.map((_, index) => {
@@ -187,9 +171,9 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
             </TabsContent>
             <TabsContent value="quests">
                  <Card className="bg-card/50 h-[180px] flex flex-col justify-center">
-                    <CardContent className="flex-grow p-4 overflow-y-auto custom-scrollbar">
+                    <CardContent className="flex-grow p-4 overflow-y-auto custom-scrollbar flex items-center justify-center">
                       {player.quests.length > 0 ? (
-                        <ul className="space-y-4">
+                        <ul className="space-y-4 w-full">
                           {player.quests.map((quest) => (
                             <li key={quest.id} className="border-b border-border/50 pb-2">
                                 <p className="font-bold">{quest.title}</p>
