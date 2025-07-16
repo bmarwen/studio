@@ -4,25 +4,19 @@
 import type { Player, Item, EquipmentSlot, ItemRarity, PlayerClass } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Settings, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import { INVENTORY_SIZE } from '@/lib/game-constants';
 import { useAudio } from '@/context/AudioContext';
-import { Slider } from '../ui/slider';
-import { Label } from '../ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ControlPanelProps {
   player: Player;
-  onReset: () => void;
   onUseItem: (item: Item, index: number) => void;
   onEquipItem: (item: Item, index: number) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
-  onMoveSpeedChange: (speed: number) => void;
-  moveCooldown: number;
 }
 
 const RARITY_COLORS: Record<ItemRarity, string> = {
@@ -102,7 +96,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange, moveCooldown }: ControlPanelProps) {
+export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
@@ -216,40 +210,6 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
                  </Card>
             </TabsContent>
         </Tabs>
-        
-        <Accordion type="single" collapsible className="w-full mt-4">
-          <AccordionItem value="dev">
-            <AccordionTrigger className="text-lg font-headline">
-                <div className="flex items-center gap-2"><Settings />Dev Mode</div>
-            </AccordionTrigger>
-            <AccordionContent className="p-4 space-y-4 bg-card/50 rounded-b-lg">
-               <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
-               <div className='space-y-2'>
-                <Label>Move Cooldown: {(moveCooldown / 1000).toFixed(1)}s</Label>
-                <Slider 
-                    value={[moveCooldown]}
-                    onValueChange={([v]) => onMoveSpeedChange(v)} 
-                    min={500} 
-                    max={3000} 
-                    step={100} 
-                />
-               </div>
-               <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
-               <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" onClick={toggleMute} className="w-full">
-                            {isMuted ? <VolumeX /> : <Volume2 />}
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                    </TooltipContent>
-                </Tooltip>
-               </TooltipProvider>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
         
       </div>
   );

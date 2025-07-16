@@ -13,12 +13,16 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Footprints, Dices } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Footprints, Dices, Settings } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Label } from '../ui/label';
+import { Slider } from '../ui/slider';
+import { Button } from '../ui/button';
 
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
@@ -639,14 +643,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   return (
     <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 gap-4">
       {/* Top Section */}
-       <div className="flex flex-row flex-grow gap-2 items-center">
+       <div className="flex flex-row flex-grow gap-4 justify-center">
             {/* Left Column - Movement Controls */}
             <aside className="flex flex-col justify-center items-center">
                 <MovementControls onMove={handleMove} />
             </aside>
             
             {/* Center Column - Game Board */}
-            <main className="flex-1 flex flex-col items-center justify-center">
+            <main className="flex flex-col items-center justify-start">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -685,6 +689,27 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </div>
                     </CardContent>
                 </Card>
+                 <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="dev">
+                        <AccordionTrigger className="text-lg font-headline bg-card/50 px-4 rounded-t-lg">
+                            <div className="flex items-center gap-2"><Settings />Dev Mode</div>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4 space-y-4 bg-card/50 rounded-b-lg">
+                        <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
+                        <div className='space-y-2'>
+                            <Label>Move Cooldown: {(moveCooldown / 1000).toFixed(1)}s</Label>
+                            <Slider 
+                                value={[moveCooldown]}
+                                onValueChange={([v]) => setMoveCooldown(v)} 
+                                min={500} 
+                                max={3000} 
+                                step={100} 
+                            />
+                        </div>
+                        <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                  <Card className="flex-grow">
                     <CardHeader className="p-4">
                         <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
@@ -702,12 +727,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
        <div className="w-[592px] mx-auto">
             <ControlPanel 
                 player={player} 
-                onReset={onReset} 
                 onUseItem={handleUseItem} 
                 onEquipItem={handleEquipItem} 
                 onUnequipItem={handleUnequipItem}
-                moveCooldown={moveCooldown}
-                onMoveSpeedChange={setMoveCooldown}
             />
        </div>
 
