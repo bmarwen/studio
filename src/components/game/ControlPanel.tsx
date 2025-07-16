@@ -100,11 +100,25 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
   return (
       <div className="w-full">
         <Tabs defaultValue="equipment" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="equipment">Equipment</TabsTrigger>
-                <TabsTrigger value="inventory">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</TabsTrigger>
-                <TabsTrigger value="quests">Quests</TabsTrigger>
-            </TabsList>
+            <div className="flex justify-between items-center mb-1">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="equipment">Equipment</TabsTrigger>
+                    <TabsTrigger value="inventory">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</TabsTrigger>
+                    <TabsTrigger value="quests">Quests</TabsTrigger>
+                </TabsList>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={toggleMute} className="ml-2">
+                                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
             <TabsContent value="equipment">
                 <Card className="bg-card/50 h-[180px]">
                     <CardContent className="p-4 flex items-center justify-center gap-x-4 h-full">
@@ -117,8 +131,8 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="inventory">
-                <Card className="bg-card/50 h-[180px] flex flex-col justify-center">
-                    <CardContent className="pt-4 flex-grow overflow-y-auto custom-scrollbar flex items-center justify-center">
+                <Card className="bg-card/50 h-[180px]">
+                    <CardContent className="pt-4 h-full flex items-center justify-center overflow-y-auto custom-scrollbar">
                         <div className="grid grid-cols-4 gap-2">
                             {inventorySlots.map((_, index) => {
                                 const item = player.inventory[index];
