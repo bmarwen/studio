@@ -99,15 +99,15 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
 
   return (
       <div className="w-full">
-        <Tabs defaultValue="equipment" className="w-full grid">
+        <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
                 <TabsTrigger value="inventory">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</TabsTrigger>
                 <TabsTrigger value="quests">Quests</TabsTrigger>
             </TabsList>
-            <TabsContent value="equipment" className="col-start-1 row-start-2">
-                <Card className="bg-card/50 h-full">
-                    <CardContent className="p-4 flex items-center justify-center gap-x-4">
+            <TabsContent value="equipment">
+                <Card className="bg-card/50 h-[140px]">
+                    <CardContent className="p-4 flex items-center justify-center gap-x-4 h-full">
                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
                        <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
@@ -116,12 +116,9 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                     </CardContent>
                 </Card>
             </TabsContent>
-            <TabsContent value="inventory" className="col-start-1 row-start-2">
-                <Card className="bg-card/50 h-full flex flex-col">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="font-headline text-lg">Inventory</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-2 flex-grow">
+            <TabsContent value="inventory">
+                <Card className="bg-card/50 h-[140px] flex flex-col">
+                    <CardContent className="pt-4 flex-grow overflow-y-auto custom-scrollbar">
                         <div className="grid grid-cols-5 gap-2">
                             {inventorySlots.map((_, index) => {
                                 const item = player.inventory[index];
@@ -171,12 +168,9 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                     </CardContent>
                 </Card>
             </TabsContent>
-            <TabsContent value="quests" className="col-start-1 row-start-2">
-                 <Card className="bg-card/50 h-full flex flex-col">
-                     <CardHeader>
-                        <CardTitle className="font-headline text-lg">Active Quests</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
+            <TabsContent value="quests">
+                 <Card className="bg-card/50 h-[140px] flex flex-col">
+                    <CardContent className="flex-grow p-4 overflow-y-auto custom-scrollbar">
                       {player.quests.length > 0 ? (
                         <ul className="space-y-4">
                           {player.quests.map((quest) => (
