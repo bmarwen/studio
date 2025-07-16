@@ -765,7 +765,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     </CardHeader>
                     <CardContent className="p-0 h-[calc(100%-4rem)]">
                         <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar">
-                            {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
+                            {gameLog.slice().reverse().map((msg, i) => <p key={i} className={i === 0 ? 'text-muted-foreground' : 'text-foreground'}>{`> ${msg}`}</p>)}
                         </div>
                     </CardContent>
                 </Card>
@@ -800,5 +800,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       )}
     </div>
   );
+
+    
 
     
