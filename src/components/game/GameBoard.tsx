@@ -3,14 +3,12 @@
 
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Mountain, Trees, Waves, Snowflake, Tent, Sprout, Volume2, VolumeX } from 'lucide-react';
+import { Home, Mountain, Trees, Waves, Snowflake, Tent, Sprout } from 'lucide-react';
 import type { TileData, PlayerIcon } from '@/types/game';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { VIEWPORT_SIZE } from '@/lib/game-constants';
 import Image from 'next/image';
-import { useAudio } from '@/context/AudioContext';
-import { Button } from '../ui/button';
 
 interface TileProps {
   tile: TileData;
@@ -92,7 +90,6 @@ interface GameBoardProps {
 
 const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardProps) => {
   const iconPath = getPlayerIconPath(playerIcon);
-  const { isMuted, toggleMute } = useAudio();
 
   if (!viewport || viewport.length === 0) {
     return <div>Loading map...</div>;
@@ -100,20 +97,6 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
 
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
-        <TooltipProvider>
-            <div className="absolute top-1 left-1 z-20">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={toggleMute} className="w-8 h-8 bg-background/50 hover:bg-background/80">
-                            {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                    </TooltipContent>
-                </Tooltip>
-            </div>
-        </TooltipProvider>
       <div className={`grid grid-cols-9 gap-1`}>
         {viewport.map((row, y) =>
           row.map((tile, x) => (

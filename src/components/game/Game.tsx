@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -81,7 +81,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   const [combatInfo, setCombatInfo] = useState<CombatInfo | null>(null);
   const { toast } = useToast();
-  const { playAudio } = useAudio();
+  const { playAudio, isMuted, toggleMute } = useAudio();
 
   const combatTimerRef = useRef<NodeJS.Timeout>();
   const worldGeneratedRef = useRef(false);
@@ -678,7 +678,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
        <div className="flex flex-row items-start justify-center gap-2 w-full">
             
-            <div className="flex items-center" style={{height: '744px'}}>
+            <div className="flex flex-col items-center justify-start h-[744px] w-[240px]">
+              <TooltipProvider>
+                  <Tooltip>
+                      <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={toggleMute} className="w-8 h-8 bg-background/50 hover:bg-background/80 mb-4">
+                              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                          </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                          <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                      </TooltipContent>
+                  </Tooltip>
+              </TooltipProvider>
               <MovementControls onMove={handleMove} />
             </div>
 
@@ -810,4 +822,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
