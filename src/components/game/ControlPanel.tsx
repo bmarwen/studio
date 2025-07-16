@@ -118,7 +118,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
             </TabsContent>
             <TabsContent value="inventory">
                 <Card className="bg-card/50">
-                    <CardHeader className="flex flex-row items-center justify-between">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="font-headline text-lg">Inventory</CardTitle>
                         <TooltipProvider>
                             <Tooltip>
@@ -133,7 +133,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                             </Tooltip>
                         </TooltipProvider>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-2">
                         <div className="grid grid-cols-5 gap-2">
                             {inventorySlots.map((_, index) => {
                                 const item = player.inventory[index];
@@ -209,3 +209,5 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
+
+    
