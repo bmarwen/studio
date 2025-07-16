@@ -295,22 +295,21 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, 1000); // One action per second
   }, []); // Eslint ignore: we need stable function
 
-  const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item): { newInventory: (Item | null)[], success: boolean } => {
+  const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
     const newInventory = [...inventory];
     const capacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
 
     // 1. Attempt to stack consumables
-    if (itemToAdd.type === 'consumable') {
+    if (itemToAdd.type === 'consumable' && itemToAdd.quantity) {
         let quantityToAdd = itemToAdd.quantity;
         
         // Find existing stacks that are not full
         for (let i = 0; i < newInventory.length; i++) {
             const existingItem = newInventory[i];
-            if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity < 9) {
+            if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity && existingItem.quantity < 9) {
                 const canAdd = 9 - existingItem.quantity;
                 const amountToStack = Math.min(quantityToAdd, canAdd);
                 
-                // Create a new item object to avoid direct mutation
                 newInventory[i] = { ...existingItem, quantity: existingItem.quantity + amountToStack };
                 quantityToAdd -= amountToStack;
 
@@ -320,12 +319,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             }
         }
         
-        // If there are leftovers, update itemToAdd to add the remainder to a new slot
-        if (quantityToAdd > 0) {
-            itemToAdd = { ...itemToAdd, quantity: quantityToAdd };
-        } else {
-             return { newInventory, success: true };
-        }
+        itemToAdd = { ...itemToAdd, quantity: quantityToAdd };
     }
 
     // 2. Add to a new slot if there is space
@@ -345,16 +339,15 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let newStatus: 'victory' | 'defeat';
     const allLoot: Item[] = [];
-    let xpGained = 0;
     const logsToAdd: string[] = [];
-
+    
     // Get the most current player state
     const playerState = gameStateRef.current.player;
     let newPlayerState = { ...playerState };
 
     if (finalPlayerHp > 0) {
         newStatus = 'victory';
-        xpGained = monster.xp;
+        const xpGained = monster.xp;
         playAudio('/audio/combat-victory.wav');
 
         if (monster.lootTable) {
@@ -368,7 +361,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         let tempInventory = [...newPlayerState.inventory];
         if (allLoot.length > 0) {
             for (const lootItem of allLoot) {
-                const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem);
+                const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem, newPlayerState);
                 tempInventory = newInventory;
                 const logMessage = lootItem.quantity > 1 ? `${lootItem.quantity}x ${lootItem.name}` : lootItem.name;
                 if (success) {
@@ -406,17 +399,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             xpToNextLevel: xpToNext,
             statPoints: newStatPoints,
         };
+        
+        setPlayer(newPlayerState);
+        setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
+        setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot, xpGained }));
 
     } else {
         newStatus = 'defeat';
-        logsToAdd.push(`You were defeated by the ${monster.name}... You limp away.`);
+        addLog(`You were defeated by the ${monster.name}... You limp away.`);
         playAudio('/audio/combat-defeat.wav');
-        newPlayerState = { ...newPlayerState, hp: 1, stamina: Math.floor(newPlayerState.stamina/2) };
+        
+        setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) }));
+        setCombatInfo(info => ({...info!, status: newStatus, loot: [], xpGained: 0 }));
     }
-    
-    setPlayer(newPlayerState);
-    setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
-    setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot, xpGained }));
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
@@ -518,10 +513,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         
         if (targetTile.item) {
             const foundItem = targetTile.item;
-            const { newInventory, success } = attemptToAddToInventory(p.inventory, foundItem);
+            const { newInventory, success } = attemptToAddToInventory(p.inventory, foundItem, p);
             
             if(success) {
                 newPlayerState.inventory = newInventory;
+                 addLog(`You found: ${foundItem.name}!`);
 
                 setWorldMap(prevMap => {
                     const newMap = prevMap.map(row => [...row]);
@@ -916,14 +912,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 </AlertDialogHeader>
                 <div className="space-y-4 py-4">
                     <div className="text-center font-bold">
-                        Points remaining: <span className="text-accent text-lg">{player.statPoints - Object.values(pendingStatPoints).reduce((a,b) => a+b, 0)}</span>
+                        Points remaining: <span className="text-accent text-lg">{player.statPoints - Object.values(pendingStatPoints).reduce((a,b) => (a || 0) + (b || 0), 0)}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
                         <Label htmlFor="maxHp" className="flex items-center gap-2"><Heart className="text-red-500" /> Max Health</Label>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxHp', -1)}><Minus/></Button>
-                            <span className="font-mono w-10 text-center text-lg">{player.maxHp} <span className="text-green-500">{pendingStatPoints.maxHp > 0 && `+${pendingStatPoints.maxHp * 10}`}</span></span>
+                            <span className="font-mono w-10 text-center text-lg">{player.maxHp} <span className="text-green-500">{(pendingStatPoints.maxHp || 0) > 0 && `+${(pendingStatPoints.maxHp || 0) * 10}`}</span></span>
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxHp', 1)}><Plus/></Button>
                         </div>
                     </div>
@@ -931,7 +927,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <Label htmlFor="maxStamina" className="flex items-center gap-2"><Activity className="text-yellow-400"/> Max Stamina</Label>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxStamina', -1)}><Minus/></Button>
-                            <span className="font-mono w-10 text-center text-lg">{player.maxStamina} <span className="text-green-500">{pendingStatPoints.maxStamina > 0 && `+${pendingStatPoints.maxStamina * 5}`}</span></span>
+                            <span className="font-mono w-10 text-center text-lg">{player.maxStamina} <span className="text-green-500">{(pendingStatPoints.maxStamina || 0) > 0 && `+${(pendingStatPoints.maxStamina || 0) * 5}`}</span></span>
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxStamina', 1)}><Plus/></Button>
                         </div>
                     </div>
@@ -940,7 +936,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <Label htmlFor="magicAttack" className="flex items-center gap-2"><Wand/> Magic Attack</Label>
                             <div className="flex items-center gap-2">
                                 <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('magicAttack', -1)}><Minus/></Button>
-                                <span className="font-mono w-10 text-center text-lg">{player.magicAttack} <span className="text-green-500">{pendingStatPoints.magicAttack > 0 && `+${pendingStatPoints.magicAttack}`}</span></span>
+                                <span className="font-mono w-10 text-center text-lg">{player.magicAttack} <span className="text-green-500">{(pendingStatPoints.magicAttack || 0) > 0 && `+${pendingStatPoints.magicAttack}`}</span></span>
                                 <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('magicAttack', 1)}><Plus/></Button>
                             </div>
                         </div>
@@ -949,7 +945,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <Label htmlFor="attack" className="flex items-center gap-2"><Swords/> Physical Attack</Label>
                             <div className="flex items-center gap-2">
                                 <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('attack', -1)}><Minus/></Button>
-                                <span className="font-mono w-10 text-center text-lg">{player.attack} <span className="text-green-500">{pendingStatPoints.attack > 0 && `+${pendingStatPoints.attack}`}</span></span>
+                                <span className="font-mono w-10 text-center text-lg">{player.attack} <span className="text-green-500">{(pendingStatPoints.attack || 0) > 0 && `+${pendingStatPoints.attack}`}</span></span>
                                 <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('attack', 1)}><Plus/></Button>
                             </div>
                         </div>
@@ -958,7 +954,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <Label htmlFor="defense" className="flex items-center gap-2"><Shield/> Defense</Label>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('defense', -1)}><Minus/></Button>
-                            <span className="font-mono w-10 text-center text-lg">{player.defense} <span className="text-green-500">{pendingStatPoints.defense > 0 && `+${pendingStatPoints.defense}`}</span></span>
+                            <span className="font-mono w-10 text-center text-lg">{player.defense} <span className="text-green-500">{(pendingStatPoints.defense || 0) > 0 && `+${pendingStatPoints.defense}`}</span></span>
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('defense', 1)}><Plus/></Button>
                         </div>
                     </div>
@@ -967,7 +963,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 <AlertDialogFooter>
                     <AlertDialogAction 
                         onClick={handleConfirmStats} 
-                        disabled={Object.values(pendingStatPoints).reduce((a,b) => a+b, 0) <= 0}
+                        disabled={Object.values(pendingStatPoints).reduce((a,b) => (a || 0) + (b || 0), 0) <= 0}
                         className="w-full"
                     >
                         Confirm
@@ -990,7 +986,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 
 }
-
-    
-
-    
