@@ -67,12 +67,13 @@ export function generateWorld(): TileData[][] {
   world[townY][townX] = { terrain: 'town' };
 
   // Clear area around town
-  for(let i = -1; i <= 1; i++) {
-    for(let j = -1; j <= 1; j++) {
+  for(let i = -2; i <= 2; i++) {
+    for(let j = -2; j <= 2; j++) {
         if(i === 0 && j === 0) continue;
         if (world[townY+j] && world[townY+j][townX+i]) {
             world[townY+j][townX+i].monster = undefined;
             world[townY+j][townX+i].item = undefined;
+            world[townY+j][townX+i].terrain = 'grass';
         }
     }
   }

@@ -16,6 +16,8 @@ import { Separator } from '../ui/separator';
 import LootAttemptClient from './LootAttemptClient';
 import Image from 'next/image';
 import { Progress } from '../ui/progress';
+import { Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const getPlayerIconPath = (icon: PlayerIcon) => {
     switch (icon) {
@@ -35,6 +37,7 @@ export interface CombatInfo {
     log: CombatLogEntry[];
     status: 'fighting' | 'victory' | 'defeat';
     loot?: Item[];
+    xpGained?: number;
     playerHp: number;
     playerMaxHp: number;
     monsterHp: number;
@@ -47,7 +50,7 @@ interface CombatDialogProps {
 }
 
 export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps) {
-  const { open, monster, log, status, loot, playerHp, playerMaxHp, monsterHp, playerIcon } = combatInfo;
+  const { open, monster, log, status, loot, xpGained, playerHp, playerMaxHp, monsterHp, playerIcon } = combatInfo;
   const isFighting = status === 'fighting';
   
   const getTitle = () => {
@@ -105,23 +108,39 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
                 <h3 className="font-bold pt-2">Aftermath</h3>
                 <ScrollArea className="h-48 w-full rounded-md border p-4">
                   {status === 'victory' ? (
-                    (loot && loot.length > 0) ? (
-                      <div className="text-center space-y-2">
-                        <p className="font-bold">Loot Found!</p>
-                        <div className="flex flex-col items-center gap-2 p-2 rounded-md bg-secondary">
-                          {loot.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                                <Image src={item.icon} alt={item.name} width={40} height={40} />
-                                <p className="text-sm font-medium">{item.name}{item.quantity && item.quantity > 1 ? ` x${item.quantity}` : ''}</p>
-                            </div>
-                          ))}
+                    <div className="text-center space-y-4">
+                      {(loot && loot.length > 0) ? (
+                        <div>
+                          <p className="font-bold">Loot Found!</p>
+                          <div className="flex flex-col items-center gap-2 p-2 rounded-md bg-secondary mt-2">
+                            {loot.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2">
+                                  <Image src={item.icon} alt={item.name} width={40} height={40} />
+                                  <p className="text-sm font-medium">{item.name}{item.quantity && item.quantity > 1 ? ` x${item.quantity}` : ''}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="flex justify-center items-center h-full">
-                        <p className="text-sm text-muted-foreground">The {monster.name} had nothing of value.</p>
-                      </div>
-                    )
+                      ) : (
+                        <div className="flex justify-center items-center h-full">
+                          <p className="text-sm text-muted-foreground">The {monster.name} had nothing of value.</p>
+                        </div>
+                      )}
+                      {(xpGained && xpGained > 0) && (
+                        <div>
+                            <p className="font-bold">Experience Gained</p>
+                            <motion.div 
+                              className="flex items-center justify-center gap-2 mt-2 text-lg text-yellow-400"
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.5, duration: 0.5 }}
+                            >
+                                <Star className="w-5 h-5" />
+                                <span className="font-bold">+{xpGained} XP</span>
+                            </motion.div>
+                        </div>
+                      )}
+                    </div>
                   ) : status === 'defeat' ? (
                     <div className="flex justify-center items-center h-full">
                         <p className="text-sm text-muted-foreground text-center">You gather your senses and prepare to continue your journey.</p>
@@ -144,5 +163,3 @@ export default function CombatDialog({ combatInfo, onClose }: CombatDialogProps)
     </AlertDialog>
   );
 }
-
-    

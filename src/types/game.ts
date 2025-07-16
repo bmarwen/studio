@@ -6,9 +6,11 @@ export type PlayerIcon = 'hero1' | 'hero2' | 'hero3' | 'hero4' | 'hero5' | 'hero
 export type PlayerRace = 'Male Elf' | 'Female Elf' | 'Male Troll' | 'Female Troll' | 'Male Human' | 'Female Human';
 
 export type EquipmentSlot = 'weapon' | 'helmet' | 'armor' | 'belt' | 'boots';
-export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'boots' | 'consumable' | 'legendary' | 'utility';
+export type ItemType = 'weapon' | 'armor' | 'helmet' | 'belt' | 'boots' | 'consumable' | 'legendary' | 'utility' | 'quest';
 export type ItemRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 export type PlayerEffectType = 'stamina_regen_boost' | 'attack_boost';
+export type DistributableStat = 'maxHp' | 'maxStamina' | 'attack' | 'magicAttack' | 'defense';
+
 
 export type PlayerEffect = {
   id: string;
@@ -65,6 +67,7 @@ export type Monster = {
   lootTable: MonsterLoot[];
   greed: number;
   power: number;
+  xp: number;
 };
 
 export type Quest = {
@@ -107,6 +110,12 @@ export type Player = {
   quests: Quest[];
   equipment: Equipment;
   activeEffects: PlayerEffect[];
+
+  // XP and Leveling
+  level: number;
+  xp: number;
+  xpToNextLevel: number;
+  statPoints: number;
 
   // Racial Bonuses
   bonusCritChance?: number;

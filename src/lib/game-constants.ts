@@ -5,6 +5,7 @@ export const VIEWPORT_SIZE = 9;
 export const STAMINA_REGEN_RATE = 1000; // ms, faster regen
 export const MOVE_COOLDOWN = 1200; // ms
 export const INVENTORY_SIZE = 8;
+export const BASE_XP_TO_LEVEL = 100;
 
 export const TERRAIN_STAMINA_COST: Record<string, number> = {
     grass: 8,
@@ -45,6 +46,12 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
     boots: null,
   },
   activeEffects: [],
+  
+  level: 1,
+  xp: 0,
+  xpToNextLevel: BASE_XP_TO_LEVEL,
+  statPoints: 0,
+
   bonusCritChance: 0,
   consumableFindChance: 0,
   rareEquipmentFindChance: 0,
@@ -59,7 +66,7 @@ export const INITIAL_PLAYER_STATE: Omit<Player, 'name' | 'class' | 'icon' | 'rac
   xpGainBonus: 0,
 };
 
-export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects' | 'hasBackpack' | 'initiative' | 'scoutRange' | 'doubleHitChance' | 'lootLuck' | 'xpGainBonus'>> = {
+export const PLAYER_CLASSES: Record<PlayerClass, Omit<Player, 'position' | 'inventory' | 'quests' | 'name' | 'icon' | 'equipment' | 'race' | 'bonusCritChance' | 'consumableFindChance' | 'rareEquipmentFindChance' | 'bonusXpGain' | 'utilityItemFindChance' | 'activeEffects' | 'hasBackpack' | 'initiative' | 'scoutRange' | 'doubleHitChance' | 'lootLuck' | 'xpGainBonus' | 'level' | 'xp' | 'xpToNextLevel' | 'statPoints'>> = {
     warrior: {
         class: 'warrior',
         hp: 120,

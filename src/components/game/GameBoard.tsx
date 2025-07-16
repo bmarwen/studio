@@ -140,7 +140,16 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
             </motion.div>
           )}
         </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10" />
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10" />
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>You</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

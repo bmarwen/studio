@@ -12,12 +12,12 @@ export const ITEMS: Record<string, Omit<Item, 'id' | 'quantity' | 'itemId'>> = {
     'potion_of_iron_skin': { name: 'Potion of Iron Skin', type: 'consumable', rarity: 'Rare', armor: 20, effectDuration: 30, description: 'Increases Armor by 20 for 30 seconds.', icon: '/icons/item-potion-grey.svg'},
     'potion_of_magic_barrier': { name: 'Potion of Magic Barrier', type: 'consumable', rarity: 'Rare', magicResist: 20, effectDuration: 30, description: 'Increases Magic Resist by 20 for 30 seconds.', icon: '/icons/item-potion-blue.svg'},
     'potion_of_swiftness': { name: 'Potion of Swiftness', type: 'consumable', rarity: 'Rare', evasion: 15, effectDuration: 30, description: 'Increases Evasion by 15% for 30 seconds.', icon: '/icons/item-potion-green.svg'},
-    'tome_of_knowledge': { name: 'Tome of Knowledge', type: 'consumable', rarity: 'Rare', xpGainBonus: 10, description: 'Permanently increases all experience gain by 10%.', icon: '/icons/item-book.svg'},
+    'tome_of_knowledge': { name: 'Tome of Knowledge', type: 'utility', rarity: 'Rare', xpGainBonus: 10, description: 'Permanently increases all experience gain by 10%.', icon: '/icons/item-book.svg'},
 
 
     // --- Utility ---
     'scrying_orb': { name: 'Scrying Orb', type: 'utility', rarity: 'Rare', description: 'Reveals monsters in a small radius around you.', icon: '/icons/item-orb.svg', scoutRange: 2},
-    'adventurers_pack': { name: 'Adventurer\'s Pack', type: 'utility', rarity: 'Rare', description: 'Permanently increases your inventory size by 4 slots.', icon: '/icons/item-pack.svg', inventorySlots: 4},
+    'adventurers_pack': { name: 'Adventurer\'s Pack', type: 'quest', rarity: 'Rare', description: 'Permanently increases your inventory size by 4 slots.', icon: '/icons/item-pack.svg', inventorySlots: 4},
     
     // ================================================
     // WARRIOR WEAPONS (SWORDS)
@@ -326,7 +326,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         name: 'Goblin', 
         icon: '/icons/monster-goblin.svg',
         hp: 35, maxHp: 35, attack: 12, defense: 4, 
-        greed: 70, power: -20, 
+        greed: 70, power: -20, xp: 15,
         lootTable: [
             { itemId: 'health_potion', chance: 0.25, quantity: 1 },
             { itemId: 'warrior_sword_common_balanced', chance: 0.05, quantity: 1 },
@@ -342,7 +342,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         name: 'Slime', 
         icon: '/icons/monster-slime.svg',
         hp: 25, maxHp: 25, attack: 8, defense: 8, 
-        greed: 20, power: -50, 
+        greed: 20, power: -50, xp: 10,
         lootTable: [
              { itemId: 'health_potion', chance: 0.1, quantity: 1 },
              { itemId: 'mage_belt_common_offensive', chance: 0.03, quantity: 1 },
@@ -354,7 +354,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         name: 'Orc Grunt', 
         icon: '/icons/monster-orc.svg',
         hp: 60, maxHp: 60, attack: 18, defense: 8, 
-        greed: 85, power: 10,
+        greed: 85, power: 10, xp: 25,
         lootTable: [
             { itemId: 'health_potion', chance: 0.2, quantity: 2 },
             { itemId: 'potion_of_iron_skin', chance: 0.1, quantity: 1 },
@@ -371,7 +371,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         name: 'Ice Elemental', 
         icon: '/icons/monster-elemental.svg',
         hp: 50, maxHp: 50, attack: 15, defense: 12, 
-        greed: 50, power: 5, 
+        greed: 50, power: 5, xp: 40,
         lootTable: [
             { itemId: 'elixir_of_haste', chance: 0.2, quantity: 1 },
             { itemId: 'potion_of_swiftness', chance: 0.1, quantity: 1 },
@@ -387,7 +387,7 @@ export const MONSTERS: Record<string, Omit<Monster, 'id'>> = {
         name: 'Ancient Dragon', 
         icon: '/icons/monster-dragon.svg',
         hp: 250, maxHp: 250, attack: 40, defense: 25, 
-        greed: 95, power: 80, 
+        greed: 95, power: 80, xp: 500,
         lootTable: [
             { itemId: 'blade_of_the_ancients', chance: 0.3, quantity: 1 },
             { itemId: 'greater_health_potion', chance: 1, quantity: 3 },

@@ -2,18 +2,18 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
+import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass, DistributableStat } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE, TERRAIN_STAMINA_COST } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE, TERRAIN_STAMINA_COST, BASE_XP_TO_LEVEL } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
 import CombatDialog, { type CombatInfo } from './CombatDialog';
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogAction } from '@/components/ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX, LocateOff } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX, LocateOff, Plus, Minus, BrainCircuit } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -23,6 +23,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
@@ -79,6 +80,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const [isMoving, setIsMoving] = useState(false);
   const [moveCooldown, setMoveCooldown] = useState(MOVE_COOLDOWN);
 
+  const [isLevelUpDialogOpen, setLevelUpDialogOpen] = useState(false);
+  const [pendingStatPoints, setPendingStatPoints] = useState<Partial<Record<DistributableStat, number>>>({});
+  
   const [combatInfo, setCombatInfo] = useState<CombatInfo | null>(null);
   const { toast } = useToast();
   const { playAudio, isMuted, toggleMute } = useAudio();
@@ -116,16 +120,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   }, []); // Run only once per game instance
 
   const calculateStats = useCallback((basePlayer: Player) => {
-    const baseStats = PLAYER_CLASSES[basePlayer.class];
+    const classStats = PLAYER_CLASSES[basePlayer.class];
     const initialStats = INITIAL_PLAYER_STATE;
 
-    let attack = baseStats.attack;
-    let magicAttack = baseStats.magicAttack;
-    let defense = baseStats.defense;
-    let armor = baseStats.armor;
-    let magicResist = baseStats.magicResist;
-    let evasion = baseStats.evasion;
-    let criticalChance = baseStats.criticalChance + (basePlayer.bonusCritChance || 0);
+    let attack = basePlayer.attack;
+    let magicAttack = basePlayer.magicAttack;
+    let defense = basePlayer.defense;
+    let armor = classStats.armor;
+    let magicResist = classStats.magicResist;
+    let evasion = classStats.evasion;
+    let criticalChance = classStats.criticalChance + (basePlayer.bonusCritChance || 0);
 
     // Secondary stats
     let initiative = initialStats.initiative;
@@ -294,9 +298,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let newStatus: 'victory' | 'defeat';
     const allLoot: Item[] = [];
+    let xpGained = 0;
+
     if (finalPlayerHp > 0) {
       newStatus = 'victory';
-      addLog(`You defeated the ${monster.name}! You have ${Math.round(finalPlayerHp)} HP left.`);
+      xpGained = monster.xp;
+      addLog(`You defeated the ${monster.name}! You gain ${xpGained} XP. You have ${Math.round(finalPlayerHp)} HP left.`);
       playAudio('/audio/combat-victory.wav');
 
       // Process loot table
@@ -315,31 +322,54 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       }
       
       setPlayer(p => {
+        let newPlayerState = { ...p };
         const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
         const newInventory = [...p.inventory];
-        if (allLoot.length > 0) {
-            allLoot.forEach(loot => {
+        
+        allLoot.forEach(loot => {
+            const isBackpack = loot.itemId === 'adventurers_pack';
+            if (isBackpack && !newPlayerState.hasBackpack) {
+                newPlayerState.hasBackpack = true;
+                addLog(`You can carry more! Your inventory has expanded.`);
+            } else if (!isBackpack) {
                 const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
-
                 if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
                     newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
                 } else {
                     const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                     if (emptySlotIndex !== -1 && emptySlotIndex < inventoryCapacity) {
                          newInventory[emptySlotIndex] = loot;
-                    } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
-                         newInventory.push(loot);
                     } else {
                          addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
                     }
                 }
-            })
+            }
+        });
+
+        // XP and Leveling
+        let currentXp = p.xp + xpGained;
+        let currentLevel = p.level;
+        let xpToNext = p.xpToNextLevel;
+        let newStatPoints = p.statPoints;
+
+        if (currentXp >= xpToNext) {
+            playAudio('/audio/level-up.wav');
+            currentLevel++;
+            currentXp -= xpToNext;
+            xpToNext = Math.floor(BASE_XP_TO_LEVEL * Math.pow(currentLevel, 1.5));
+            newStatPoints += 2;
+            addLog(`Level Up! You are now level ${currentLevel}!`);
+            setLevelUpDialogOpen(true);
         }
 
         return {
           ...p,
           hp: finalPlayerHp,
-          inventory: newInventory
+          inventory: newInventory,
+          level: currentLevel,
+          xp: currentXp,
+          xpToNextLevel: xpToNext,
+          statPoints: newStatPoints,
         }
       });
     } else {
@@ -349,7 +379,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) })); // Penalty on losing
     }
     
-    setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot}));
+    setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot, xpGained }));
   };
   
   const initiateCombat = useCallback((monster: Monster) => {
@@ -435,7 +465,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }
 
     setPlayer(p => {
-        const newPlayerState = {
+        let newPlayerState = {
             ...p,
             stamina: p.stamina - moveCost,
             position: {x: newX, y: newY}
@@ -450,25 +480,31 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             });
         }
         
-        const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
-
         if (targetTile.item) {
-            const newInventory = [...newPlayerState.inventory];
-            const existingItemIndex = newInventory.findIndex(i => i?.itemId === targetTile.item!.itemId && i.type === 'consumable');
-
-            if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (targetTile.item.quantity || 1);
-            } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
-                const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                if (emptySlotIndex !== -1) {
-                    newInventory[emptySlotIndex] = targetTile.item;
-                } else {
-                    newInventory.push(targetTile.item);
-                }
+            const foundItem = targetTile.item;
+            // Special handling for adventurer's pack
+            if (foundItem.itemId === 'adventurers_pack' && !newPlayerState.hasBackpack) {
+                newPlayerState.hasBackpack = true;
+                addLog(`You found an Adventurer's Pack and gain more inventory space! +4`);
             } else {
-                addLog("Your inventory is full! You leave the item on the ground.");
+                const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
+                const newInventory = [...newPlayerState.inventory];
+                const existingItemIndex = newInventory.findIndex(i => i?.itemId === foundItem.itemId && i.type === 'consumable');
+
+                if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                    newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (foundItem.quantity || 1);
+                } else if (newInventory.filter(i => i !== null).length < inventoryCapacity) {
+                    const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                    if (emptySlotIndex !== -1) {
+                        newInventory[emptySlotIndex] = foundItem;
+                    } else {
+                        newInventory.push(foundItem);
+                    }
+                } else {
+                    addLog("Your inventory is full! You leave the item on the ground.");
+                }
+                newPlayerState.inventory = newInventory;
             }
-            newPlayerState.inventory = newInventory;
             
             setWorldMap(prevMap => {
                 const newMap = prevMap.map(row => [...row]);
@@ -502,20 +538,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
     }
     
-    if (itemToUse.inventorySlots && player.hasBackpack) {
-        toast({
-            title: (
-                <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-400" />
-                    <span className="font-headline">Backpack Already Equipped</span>
-                </div>
-            ),
-            description: "You can only benefit from one backpack.",
-            variant: "destructive",
-        });
-        return;
-    }
-
     let logMessage = `You used ${itemToUse.name}.`;
     if (itemToUse.itemId?.includes('elixir_of_power')) {
         logMessage = `You feel a surge of power from the ${itemToUse.name}!`;
@@ -563,8 +585,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 expiresAt: Date.now() + itemToUse.effectDuration * 1000,
             };
             newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
-        } else if (itemToUse.inventorySlots) {
-            newPlayerState.hasBackpack = true;
+        } 
+        
+        if (itemToUse.xpGainBonus) {
+            newPlayerState.xpGainBonus += itemToUse.xpGainBonus;
         }
 
         newPlayerState.inventory = newInventory;
@@ -573,7 +597,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   };
 
   const handleEquipItem = (itemToEquip: Item, index: number) => {
-    if (itemToEquip.type === 'consumable' || itemToEquip.type === 'utility') return;
+    if (itemToEquip.type === 'consumable' || itemToEquip.type === 'utility' || itemToEquip.type === 'quest') return;
 
     if (itemToEquip.allowedClasses && !itemToEquip.allowedClasses.includes(player.class)) {
         toast({
@@ -657,10 +681,55 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return calculateStats(newPlayer);
     });
   }
+
+  const handleStatPointChange = (stat: DistributableStat, amount: number) => {
+      const currentSpent = Object.values(pendingStatPoints).reduce((acc, val) => acc + (val || 0), 0);
+      const pointsAvailable = player.statPoints - currentSpent;
+
+      if (amount > 0 && pointsAvailable <= 0) return; // No points left to spend
+
+      const currentChange = pendingStatPoints[stat] || 0;
+      if (amount < 0 && currentChange <= 0) return; // Cannot go below zero
+
+      setPendingStatPoints(prev => ({
+          ...prev,
+          [stat]: (prev[stat] || 0) + amount
+      }));
+  };
+
+  const handleConfirmStats = () => {
+    setPlayer(p => {
+        const spentPoints = Object.values(pendingStatPoints).reduce((acc, val) => acc + (val || 0), 0);
+        if (spentPoints > p.statPoints) return p; // Should not happen with UI guards
+
+        let newPlayerState = { 
+            ...p,
+            statPoints: p.statPoints - spentPoints,
+        };
+
+        (Object.keys(pendingStatPoints) as DistributableStat[]).forEach(stat => {
+            const points = pendingStatPoints[stat] || 0;
+            if (stat === 'maxHp') {
+                newPlayerState.maxHp += points * 10; // +10 HP per point
+                newPlayerState.hp = newPlayerState.maxHp; // Heal to full on level up
+            } else if (stat === 'maxStamina') {
+                newPlayerState.maxStamina += points * 5; // +5 Stamina per point
+                newPlayerState.stamina = newPlayerState.maxStamina;
+            } else {
+                 // @ts-ignore
+                newPlayerState[stat] += points;
+            }
+        });
+        
+        return calculateStats(newPlayerState);
+    });
+    setPendingStatPoints({});
+    setLevelUpDialogOpen(false);
+  };
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-          if (document.activeElement?.tagName === 'INPUT') return;
+          if (document.activeElement?.tagName === 'INPUT' || isLevelUpDialogOpen) return;
           if (e.key === 'ArrowUp' || e.key === 'w') handleMove(0, -1);
           if (e.key === 'ArrowDown' || e.key === 's') handleMove(0, 1);
           if (e.key === 'ArrowLeft' || e.key === 'a') handleMove(-1, 0);
@@ -672,11 +741,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return () => {
           window.removeEventListener('keydown', handleKeyDown);
         }
-    }, []);
+    }, [isLevelUpDialogOpen]);
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
-       <div className="flex flex-row items-start justify-center gap-4 w-full">
+       <div className="flex flex-row items-center justify-center gap-4 w-full">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
@@ -727,9 +796,19 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-14 h-14 rounded-full bg-secondary p-1" />
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <CardDescription className="flex items-center gap-2">
-                            Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
-                        </CardDescription>
+                        <div className="flex justify-between items-center">
+                            <CardDescription>
+                                Level {player.level} {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
+                            </CardDescription>
+                            {player.statPoints > 0 && <div className="text-sm font-bold text-accent animate-pulse">Points to spend!</div>}
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
+                                <span>XP</span>
+                                <span>{player.xp} / {player.xpToNextLevel}</span>
+                            </div>
+                             <Progress value={(player.xp / player.xpToNextLevel) * 100} className="h-2" indicatorClassName="bg-yellow-400" />
+                        </div>
                          <Separator />
                         <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
                         <StatItem icon={<Activity className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
@@ -813,6 +892,80 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         </AlertDialog>
       )}
 
+      {isLevelUpDialogOpen && (
+        <AlertDialog open={isLevelUpDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle className="font-headline text-3xl flex items-center gap-2 text-yellow-400">
+                        <Star /> Level Up!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Congratulations! You've reached level {player.level}. Distribute your 2 stat points to grow stronger.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="text-center font-bold">
+                        Points remaining: <span className="text-accent text-lg">{player.statPoints - Object.values(pendingStatPoints).reduce((a,b) => a+b, 0)}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="maxHp" className="flex items-center gap-2"><Heart className="text-red-500" /> Max Health</Label>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxHp', -1)}><Minus/></Button>
+                            <span className="font-mono w-10 text-center text-lg">{player.maxHp} <span className="text-green-500">{pendingStatPoints.maxHp > 0 && `+${pendingStatPoints.maxHp * 10}`}</span></span>
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxHp', 1)}><Plus/></Button>
+                        </div>
+                    </div>
+                     <div className="flex items-center justify-between">
+                        <Label htmlFor="maxStamina" className="flex items-center gap-2"><Activity className="text-yellow-400"/> Max Stamina</Label>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxStamina', -1)}><Minus/></Button>
+                            <span className="font-mono w-10 text-center text-lg">{player.maxStamina} <span className="text-green-500">{pendingStatPoints.maxStamina > 0 && `+${pendingStatPoints.maxStamina * 5}`}</span></span>
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('maxStamina', 1)}><Plus/></Button>
+                        </div>
+                    </div>
+                    {player.class === 'mage' ? (
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="magicAttack" className="flex items-center gap-2"><Wand/> Magic Attack</Label>
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('magicAttack', -1)}><Minus/></Button>
+                                <span className="font-mono w-10 text-center text-lg">{player.magicAttack} <span className="text-green-500">{pendingStatPoints.magicAttack > 0 && `+${pendingStatPoints.magicAttack}`}</span></span>
+                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('magicAttack', 1)}><Plus/></Button>
+                            </div>
+                        </div>
+                    ) : (
+                         <div className="flex items-center justify-between">
+                            <Label htmlFor="attack" className="flex items-center gap-2"><Swords/> Physical Attack</Label>
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('attack', -1)}><Minus/></Button>
+                                <span className="font-mono w-10 text-center text-lg">{player.attack} <span className="text-green-500">{pendingStatPoints.attack > 0 && `+${pendingStatPoints.attack}`}</span></span>
+                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('attack', 1)}><Plus/></Button>
+                            </div>
+                        </div>
+                    )}
+                     <div className="flex items-center justify-between">
+                        <Label htmlFor="defense" className="flex items-center gap-2"><Shield/> Defense</Label>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('defense', -1)}><Minus/></Button>
+                            <span className="font-mono w-10 text-center text-lg">{player.defense} <span className="text-green-500">{pendingStatPoints.defense > 0 && `+${pendingStatPoints.defense}`}</span></span>
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleStatPointChange('defense', 1)}><Plus/></Button>
+                        </div>
+                    </div>
+
+                </div>
+                <AlertDialogFooter>
+                    <AlertDialogAction 
+                        onClick={handleConfirmStats} 
+                        disabled={Object.values(pendingStatPoints).reduce((a,b) => a+b, 0) <= 0}
+                        className="w-full"
+                    >
+                        Confirm
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      )}
+
       {combatInfo && combatInfo.open && (
         <CombatDialog
           combatInfo={combatInfo}
@@ -825,4 +978,4 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 
-    
+}
