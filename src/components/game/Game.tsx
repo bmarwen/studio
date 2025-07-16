@@ -644,7 +644,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4">
        <div className="flex flex-row justify-center items-start gap-2 w-full pt-4">
             
-            <div className="flex items-start h-full pt-20">
+            <div className="flex items-center h-full">
               <MovementControls onMove={handleMove} />
             </div>
 
