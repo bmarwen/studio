@@ -96,6 +96,10 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
     return <div>Loading map...</div>;
   }
 
+  const baseTileSize = 4; // in rem for w-16
+  const lgTileSize = 5; // in rem for lg:w-20
+  const gap = 0.25; // in rem for gap-1
+
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
       <div className={`grid grid-cols-9 gap-1`}>
@@ -115,14 +119,18 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
       <motion.div 
         className="absolute flex items-center justify-center pointer-events-none w-16 h-16 lg:w-20 lg:h-20"
         initial={false}
-        animate={{
-            top: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`, // 4rem tile + 0.25rem gap, plus padding
-            left: `calc(${playerPosition} * (4rem + 0.25rem) + 0.5rem)`,
-        }}
-        // Responsive animation for larger screens
+        // Calculation for centering the icon on the grid
         style={{
-            top: `calc(${playerPosition} * (var(--tile-size, 4rem) + 0.25rem) + 0.5rem)`,
-            left: `calc(${playerPosition} * (var(--tile-size, 4rem) + 0.25rem) + 0.5rem)`,
+          top: `calc(${playerPosition} * (${baseTileSize}rem + ${gap}rem) + 0.5rem)`, 
+          left: `calc(${playerPosition} * (${baseTileSize}rem + ${gap}rem) + 0.5rem)`,
+        }}
+        // Use a media query within the style for large screens
+        // This is a bit of a hack, but necessary for dynamic centering with framer-motion
+        // A cleaner way would be CSS variables, but this is more direct for this case.
+        // @ts-ignore
+        lg={{
+            top: `calc(${playerPosition} * (${lgTileSize}rem + ${gap}rem) + 0.5rem)`,
+            left: `calc(${playerPosition} * (${lgTileSize}rem + ${gap}rem) + 0.5rem)`,
         }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
@@ -130,7 +138,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           {isMoving && (
             <motion.div
               key="loader"
-              className="absolute w-14 h-14 lg:w-18 lg:h-18"
+              className="absolute w-14 h-14 lg:w-18 lg:h-18 z-20"
               exit={{ opacity: 0 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -152,7 +160,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
             </motion.div>
           )}
         </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-12 h-12 lg:w-16 lg:h-16 rounded-full drop-shadow-lg" />
+          <img src={iconPath} alt="player icon" className="w-12 h-12 lg:w-16 lg:h-16 rounded-full drop-shadow-lg z-10" />
       </motion.div>
     </div>
   );
