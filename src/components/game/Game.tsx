@@ -641,13 +641,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 pt-4">
+    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4">
        <div className="flex flex-row justify-center items-start gap-4 w-full">
             
-            <main className="flex-1 flex flex-col items-center gap-4 relative">
-                <div className="absolute top-1/2 -translate-y-1/2 -left-8 transform">
-                    <MovementControls onMove={handleMove} />
-                </div>
+            <div className="flex items-center h-full pt-20">
+              <MovementControls onMove={handleMove} />
+            </div>
+
+            <main className="flex flex-col items-center gap-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -693,7 +694,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </div>
                     </CardContent>
                 </Card>
-                 <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="dev">
                         <AccordionTrigger className="text-lg font-headline bg-card/50 px-4 rounded-t-lg">
                             <div className="flex items-center gap-2"><Settings />Dev Mode</div>
