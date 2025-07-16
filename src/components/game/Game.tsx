@@ -642,12 +642,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 pt-4">
-       <div className="flex flex-row justify-center items-start gap-2 w-full">
-            <aside className="flex flex-col justify-center items-center h-full pt-20">
-                <MovementControls onMove={handleMove} />
-            </aside>
+       <div className="flex flex-row justify-center items-start gap-4 w-full">
             
-            <main className="flex flex-col items-center gap-4">
+            <main className="flex-1 flex flex-col items-center gap-4 relative">
+                <div className="absolute top-1/2 -translate-y-1/2 -left-8 transform">
+                    <MovementControls onMove={handleMove} />
+                </div>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
