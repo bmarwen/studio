@@ -11,10 +11,10 @@ interface MovementControlsProps {
 export default function MovementControls({ onMove }: MovementControlsProps) {
   return (
     <>
-      <Button variant="outline" size="lg" className="absolute top-1/2 -left-24 -translate-y-1/2" onClick={() => onMove(-1, 0)} aria-label="Move left">
+      <Button variant="outline" size="lg" className="absolute top-1/2 -left-28 -translate-y-1/2" onClick={() => onMove(-1, 0)} aria-label="Move left">
         <ArrowLeft />
       </Button>
-      <Button variant="outline" size="lg" className="absolute top-1/2 -right-24 -translate-y-1/2" onClick={() => onMove(1, 0)} aria-label="Move right">
+      <Button variant="outline" size="lg" className="absolute top-1/2 -right-28 -translate-y-1/2" onClick={() => onMove(1, 0)} aria-label="Move right">
         <ArrowRight />
       </Button>
       <Button variant="outline" size="lg" className="absolute left-1/2 -top-16 -translate-x-1/2" onClick={() => onMove(0, -1)} aria-label="Move up">
