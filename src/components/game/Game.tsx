@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, PersonStanding, ShieldOff } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -497,59 +497,58 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
     }
 
-
-    let itemUsed = false;
-    const newInventory = [...player.inventory];
-    const itemInInventory = newInventory[index];
-
-    if (itemInInventory && itemInInventory.id === itemToUse.id) {
-        if(itemInInventory.quantity && itemInInventory.quantity > 1) {
-            itemInInventory.quantity -= 1;
-        } else {
-            newInventory[index] = null;
-        }
-        itemUsed = true;
+    playAudio('/audio/use-potion.wav');
+    let logMessage = `You used ${itemToUse.name}.`;
+    if (itemToUse.itemId?.includes('elixir_of_power')) {
+        logMessage = `You feel a surge of power from the ${itemToUse.name}!`;
+    } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
+        logMessage = `You feel energized by the ${itemToUse.name}!`;
+    } else if (itemToUse.inventorySlots) {
+        logMessage = `You equip the ${itemToUse.name}, gaining more inventory space!`;
     }
+    addLog(logMessage);
 
-    if(itemUsed) {
-        playAudio('/audio/use-potion.wav');
-        let logMessage = `You used ${itemToUse.name}.`;
-        if (itemToUse.itemId?.includes('elixir_of_power')) {
-            logMessage = `You feel a surge of power from the ${itemToUse.name}!`;
-        } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
-            logMessage = `You feel energized by the ${itemToUse.name}!`;
-        } else if (itemToUse.inventorySlots) {
-            logMessage = `You equip the ${itemToUse.name}, gaining more inventory space!`;
-        }
-        addLog(logMessage);
+    setPlayer(p => {
+        let itemUsed = false;
+        const newInventory = [...p.inventory];
+        const itemInInventory = newInventory[index];
 
-        setPlayer(p => {
-            let newPlayerState = {...p};
-            const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
-            newPlayerState.hp = newHp;
-            
-            if (itemToUse.itemId?.includes('elixir_of_power')) {
-                 if (p.magicAttack > p.attack) {
-                    newPlayerState.magicAttack += itemToUse.magicAttack || 0;
-                 } else {
-                    newPlayerState.attack += itemToUse.attack || 0;
-                 }
-            } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
-                const newEffect: PlayerEffect = {
-                    id: `effect_${itemToUse.id}_${Date.now()}`,
-                    type: 'stamina_regen_boost',
-                    value: itemToUse.staminaRegenBonus,
-                    expiresAt: Date.now() + itemToUse.effectDuration * 1000,
-                };
-                newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
-            } else if (itemToUse.inventorySlots) {
-                newPlayerState.hasBackpack = true;
+        if (itemInInventory && itemInInventory.id === itemToUse.id) {
+            if(itemInInventory.quantity && itemInInventory.quantity > 1) {
+                itemInInventory.quantity -= 1;
+            } else {
+                newInventory[index] = null;
             }
+            itemUsed = true;
+        }
 
-            newPlayerState.inventory = newInventory;
-            return calculateStats(newPlayerState);
-        })
-    }
+        if(!itemUsed) return p;
+
+        let newPlayerState = {...p};
+        const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
+        newPlayerState.hp = newHp;
+        
+        if (itemToUse.itemId?.includes('elixir_of_power')) {
+              if (p.magicAttack > p.attack) {
+                newPlayerState.magicAttack += itemToUse.magicAttack || 0;
+              } else {
+                newPlayerState.attack += itemToUse.attack || 0;
+              }
+        } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
+            const newEffect: PlayerEffect = {
+                id: `effect_${itemToUse.id}_${Date.now()}`,
+                type: 'stamina_regen_boost',
+                value: itemToUse.staminaRegenBonus,
+                expiresAt: Date.now() + itemToUse.effectDuration * 1000,
+            };
+            newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
+        } else if (itemToUse.inventorySlots) {
+            newPlayerState.hasBackpack = true;
+        }
+
+        newPlayerState.inventory = newInventory;
+        return calculateStats(newPlayerState);
+    })
   };
 
   const handleEquipItem = (itemToEquip: Item, index: number) => {
@@ -701,7 +700,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
                             <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<ShieldOff size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<LocateOff size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
