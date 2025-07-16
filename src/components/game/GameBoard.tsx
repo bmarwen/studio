@@ -143,7 +143,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
             </motion.div>
           )}
         </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-12 h-12 lg:w-14 lg:h-14 rounded-full drop-shadow-lg z-10" />
+          <img src={iconPath} alt="player icon" className="w-11 h-11 lg:w-14 lg:h-14 rounded-full drop-shadow-lg z-10" />
       </motion.div>
     </div>
   );
