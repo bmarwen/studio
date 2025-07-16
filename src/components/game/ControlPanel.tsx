@@ -69,7 +69,7 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
             {item.defense ? <p>Defense: <span className="font-mono text-primary">+{item.defense}</span></p> : null}
             {item.armor ? <p>Armor: <span className="font-mono text-primary">+{item.armor}</span></p> : null}
             {item.magicResist ? <p>M.Resist: <span className="font-mono text-primary">+{item.magicResist}</span></p> : null}
-            {item.evasion ? <p>Evasion: <span className="font-mono text-primary">+{item.evasion}</span></p> : null}
+            {item.evasion ? <p>Evasion: <span className="font-mono text-primary">+{item.evasion}%</span></p> : null}
             {item.criticalChance ? <p>Crit: <span className="font-mono text-primary">+{item.criticalChance}%</span></p> : null}
             {item.hp ? <p>Restores Health: <span className="font-mono text-green-500">{item.hp}</span></p> : null}
             {item.staminaBoost ? <p>Stamina Regen: <span className="font-mono text-yellow-500">+{item.staminaBoost}</span></p> : null}
@@ -110,14 +110,23 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-const SmallStatDisplay = ({ label, value, isPercent = false, icon }: {label: string, value: number, isPercent?: boolean, icon: React.ReactNode}) => (
-    <div className="flex items-center justify-between text-sm py-1.5 px-3 bg-secondary/50 rounded-md">
-        <div className="flex items-center gap-2 text-muted-foreground">
-            {icon}
-            <span className="font-bold uppercase">{label}</span>
-        </div>
-        <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
-    </div>
+const SmallStatDisplay = ({ label, value, isPercent = false, icon, tooltip }: {label: string, value: number, isPercent?: boolean, icon: React.ReactNode, tooltip: string}) => (
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className="flex items-center justify-between text-sm py-1.5 px-3 bg-secondary/50 rounded-md">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        {icon}
+                        <span className="font-bold uppercase">{label}</span>
+                    </div>
+                    <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
+                </div>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{tooltip}</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
 )
 
 export default function ControlPanel({ player, log, moveCooldown, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange }: ControlPanelProps) {
@@ -126,8 +135,8 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
   const { isMuted, toggleMute } = useAudio();
 
   const primaryAttackStat = player.class === 'mage' 
-    ? { label: "M.ATT", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" /> }
-    : { label: "P.ATT", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" /> };
+    ? { label: "M.ATT", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" />, tooltip: "Magic Attack: Increases damage dealt by spells." }
+    : { label: "P.ATT", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" />, tooltip: "Physical Attack: Increases damage dealt by physical attacks." };
 
   return (
     <ScrollArea className="h-full">
@@ -145,12 +154,12 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
             <StatItem icon={<Zap className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
             <div className="grid grid-cols-2 gap-2">
-                <SmallStatDisplay label={primaryAttackStat.label} value={primaryAttackStat.value} icon={primaryAttackStat.icon} />
-                <SmallStatDisplay label="DEF" value={player.defense} icon={<Shield className="w-4 h-4 text-gray-400" />} />
-                <SmallStatDisplay label="ARM" value={player.armor} icon={<Shield className="w-4 h-4 text-blue-400" />} />
-                <SmallStatDisplay label="M.RES" value={player.magicResist} icon={<Shield className="w-4 h-4 text-purple-400" />} />
-                <SmallStatDisplay label="CRIT" value={player.criticalChance} isPercent icon={<Star className="w-4 h-4 text-gray-400" />} />
-                <SmallStatDisplay label="EVA" value={player.evasion} isPercent icon={<Shield className="w-4 h-4 text-green-400" />} />
+                <SmallStatDisplay label={primaryAttackStat.label} value={primaryAttackStat.value} icon={primaryAttackStat.icon} tooltip={primaryAttackStat.tooltip} />
+                <SmallStatDisplay label="DEF" value={player.defense} icon={<Shield className="w-4 h-4 text-gray-400" />} tooltip="Defense: Reduces incoming physical and magic damage by a flat amount."/>
+                <SmallStatDisplay label="ARM" value={player.armor} icon={<Shield className="w-4 h-4 text-blue-400" />} tooltip="Armor: Reduces incoming physical damage."/>
+                <SmallStatDisplay label="M.RES" value={player.magicResist} icon={<Shield className="w-4 h-4 text-purple-400" />} tooltip="Magic Resist: Reduces incoming magic damage."/>
+                <SmallStatDisplay label="CRIT" value={player.criticalChance} isPercent icon={<Star className="w-4 h-4 text-gray-400" />} tooltip="Critical Chance: The probability of landing a critical hit for extra damage."/>
+                <SmallStatDisplay label="EVA" value={player.evasion} isPercent icon={<Shield className="w-4 h-4 text-green-400" />} tooltip="Evasion: The chance to completely dodge an incoming attack."/>
             </div>
           </CardContent>
         </Card>
@@ -288,3 +297,5 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
     </ScrollArea>
   );
 }
+
+    
