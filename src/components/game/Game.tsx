@@ -678,30 +678,32 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
        <div className="flex flex-row items-start justify-center gap-2 w-full">
             
-            <div className="flex flex-col items-center justify-start h-[744px] w-[240px]">
-              <TooltipProvider>
-                  <Tooltip>
-                      <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={toggleMute} className="w-8 h-8 bg-background/50 hover:bg-background/80 mb-4">
-                              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                          </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                          <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                      </TooltipContent>
-                  </Tooltip>
-              </TooltipProvider>
+            <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
             </div>
 
             <main className="flex flex-col items-center gap-4">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-                </motion.div>
+                <div className="relative">
+                     <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={toggleMute} className="absolute -top-12 left-0 w-8 h-8 bg-background/50 hover:bg-background/80 z-10">
+                                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">
+                                <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+                    </motion.div>
+                </div>
                 <div className="w-full max-w-xl mx-auto">
                     <ControlPanel 
                         player={player} 
@@ -822,6 +824,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
