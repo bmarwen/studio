@@ -10,51 +10,27 @@ interface MovementControlsProps {
 }
 
 export default function MovementControls({ onMove }: MovementControlsProps) {
-  const buttonBaseClasses = "w-16 h-16 rounded-lg bg-secondary hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background transition-colors flex items-center justify-center absolute";
-  const iconClasses = "w-8 h-8";
+  const buttonBaseClasses = "w-16 h-16 lg:w-20 lg:h-20 rounded-lg bg-secondary hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background transition-colors flex items-center justify-center absolute";
+  const iconClasses = "w-8 h-8 lg:w-10 lg:h-10";
 
   return (
-    <div className="relative w-52 h-52">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-secondary/50 rounded-md" />
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn(buttonBaseClasses, "top-0 left-1/2 -translate-x-1/2")}
-        onClick={() => onMove(0, -1)}
-        aria-label="Move up"
-      >
-        <ArrowUp className={iconClasses} />
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn(buttonBaseClasses, "bottom-0 left-1/2 -translate-x-1/2")}
-        onClick={() => onMove(0, 1)}
-        aria-label="Move down"
-      >
-        <ArrowDown className={iconClasses} />
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn(buttonBaseClasses, "left-0 top-1/2 -translate-y-1/2")}
-        onClick={() => onMove(-1, 0)}
-        aria-label="Move left"
-      >
-        <ArrowLeft className={iconClasses} />
-      </Button>
+    <div className="relative w-52 h-52 lg:w-64 lg:h-64">
+        {/* Central decorative element */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[3.9rem] h-[3.9rem] lg:w-[4.9rem] lg:h-[4.9rem] bg-secondary/50 rounded-lg" />
 
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn(buttonBaseClasses, "right-0 top-1/2 -translate-y-1/2")}
-        onClick={() => onMove(1, 0)}
-        aria-label="Move right"
-      >
-        <ArrowRight className={iconClasses} />
-      </Button>
+        {/* Arrow Buttons */}
+        <Button variant="outline" size="icon" className={cn(buttonBaseClasses, "top-0 left-1/2 -translate-x-1/2")} onClick={() => onMove(0, -1)} aria-label="Move up">
+            <ArrowUp className={iconClasses} />
+        </Button>
+        <Button variant="outline" size="icon" className={cn(buttonBaseClasses, "bottom-0 left-1/2 -translate-x-1/2")} onClick={() => onMove(0, 1)} aria-label="Move down">
+            <ArrowDown className={iconClasses} />
+        </Button>
+        <Button variant="outline" size="icon" className={cn(buttonBaseClasses, "left-0 top-1/2 -translate-y-1/2")} onClick={() => onMove(-1, 0)} aria-label="Move left">
+            <ArrowLeft className={iconClasses} />
+        </Button>
+        <Button variant="outline" size="icon" className={cn(buttonBaseClasses, "right-0 top-1/2 -translate-y-1/2")} onClick={() => onMove(1, 0)} aria-label="Move right">
+            <ArrowRight className={iconClasses} />
+        </Button>
     </div>
   );
 }

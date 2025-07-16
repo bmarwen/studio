@@ -597,41 +597,43 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
-      <main className="flex-1 flex flex-col items-center justify-start p-4 pt-16 gap-4">
-        <h1 className="w-full text-left text-4xl font-headline text-primary pl-12">Square Clash</h1>
-         <div className="flex items-center justify-center gap-8 mt-4">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-            >
-              <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-            </motion.div>
-            <MovementControls onMove={handleMove} />
-        </div>
-         <Card className="w-full max-w-4xl mt-4">
-            <CardHeader className="p-4">
-                <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="text-xs font-mono space-y-2 p-4 h-32 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
-                    {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
-                </div>
-            </CardContent>
-        </Card>
-      </main>
-      <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
-        <ControlPanel 
-            player={player} 
-            onReset={onReset} 
-            onUseItem={handleUseItem} 
-            onEquipItem={handleEquipItem} 
-            onUnequipItem={handleUnequipItem}
-            moveCooldown={moveCooldown}
-            onMoveSpeedChange={setMoveCooldown}
-        />
-      </aside>
+    <div className="flex justify-center h-screen w-screen bg-background font-body text-foreground overflow-hidden">
+      <div className="flex w-full max-w-7xl">
+        <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+          <h1 className="w-full text-left text-4xl font-headline text-primary pl-12">Square Clash</h1>
+          <div className="flex items-center justify-center gap-8">
+              <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+              </motion.div>
+              <MovementControls onMove={handleMove} />
+          </div>
+          <Card className="w-full max-w-4xl mt-4">
+              <CardHeader className="p-4">
+                  <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                  <div className="text-xs font-mono space-y-2 p-4 h-32 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
+                      {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
+                  </div>
+              </CardContent>
+          </Card>
+        </main>
+        <aside className="w-1/3 max-w-sm bg-card border-l-2 border-border p-4 overflow-y-auto">
+          <ControlPanel 
+              player={player} 
+              onReset={onReset} 
+              onUseItem={handleUseItem} 
+              onEquipItem={handleEquipItem} 
+              onUnequipItem={handleUnequipItem}
+              moveCooldown={moveCooldown}
+              onMoveSpeedChange={setMoveCooldown}
+          />
+        </aside>
+      </div>
       
       {pendingCombat && combatCountdown > 0 && (
         <AlertDialog open={true}>
