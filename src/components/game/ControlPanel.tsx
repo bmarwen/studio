@@ -102,7 +102,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
         <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
-                <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                <TabsTrigger value="inventory">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</TabsTrigger>
                 <TabsTrigger value="quests">Quests</TabsTrigger>
             </TabsList>
             <TabsContent value="equipment">
