@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -23,6 +23,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
+import { INITIAL_PLAYER_STATE, INVENTORY_SIZE, PLAYER_CLASSES } from '@/lib/game-constants';
 
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
@@ -676,7 +677,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
-       <div className="flex flex-row items-center justify-center gap-2 w-full">
+       <div className="flex flex-row items-start justify-center gap-2 w-full">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
@@ -691,7 +692,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                                     variant="ghost" 
                                     size="icon" 
                                     onClick={toggleMute} 
-                                    className="w-8 h-8 bg-background/50 hover:bg-background/80 absolute -left-10 top-2 z-20"
+                                    className="w-8 h-8 bg-background/50 hover:bg-background/80 absolute -left-12 top-2.5 z-20"
                                 >
                                     {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                 </Button>
@@ -830,6 +831,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
