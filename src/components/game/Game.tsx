@@ -641,16 +641,13 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 pt-8 gap-4">
-      {/* Top Section */}
-       <div className="flex flex-row justify-center items-center gap-2">
-            {/* Left Column - Movement Controls */}
-            <aside className="flex flex-col justify-center items-center">
+    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 pt-4">
+       <div className="flex flex-row justify-center items-start gap-2 w-full">
+            <aside className="flex flex-col justify-center items-center h-full pt-20">
                 <MovementControls onMove={handleMove} />
             </aside>
             
-            {/* Center Column - Game Board & Control Panel */}
-            <main className="flex flex-col items-center justify-start gap-4">
+            <main className="flex flex-col items-center gap-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -658,7 +655,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 >
                     <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
                 </motion.div>
-                <div className="w-full">
+                <div className="w-full max-w-xl mx-auto">
                     <ControlPanel 
                         player={player} 
                         onUseItem={handleUseItem} 
@@ -668,7 +665,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 </div>
             </main>
 
-            {/* Right Column - Player Info & Log */}
             <aside className="w-72 flex flex-col gap-4">
                  <Card className="bg-card/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
