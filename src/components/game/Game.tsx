@@ -346,10 +346,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let newStatus: 'victory' | 'defeat';
     const allLoot: Item[] = [];
     let xpGained = 0;
+    const logsToAdd: string[] = [];
+
+    // Get the most current player state
+    const playerState = gameStateRef.current.player;
+    let newPlayerState = { ...playerState };
 
     if (finalPlayerHp > 0) {
         newStatus = 'victory';
         xpGained = monster.xp;
+        playAudio('/audio/combat-victory.wav');
 
         if (monster.lootTable) {
             for (const loot of monster.lootTable) {
@@ -359,59 +365,57 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             }
         }
       
-        setPlayer(p => {
-            const logsToAdd: string[] = [];
-            let tempInventory = [...p.inventory];
-            
-            if (allLoot.length > 0) {
-                for (const lootItem of allLoot) {
-                    const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem);
-                    tempInventory = newInventory;
-                    const logMessage = lootItem.quantity > 1 ? `${lootItem.quantity}x ${lootItem.name}` : lootItem.name;
-                    if (success) {
-                        logsToAdd.push(`You found: ${logMessage}!`);
-                    } else {
-                        logsToAdd.push(`Your inventory is full! Couldn't pick up ${logMessage}.`);
-                    }
+        let tempInventory = [...newPlayerState.inventory];
+        if (allLoot.length > 0) {
+            for (const lootItem of allLoot) {
+                const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem);
+                tempInventory = newInventory;
+                const logMessage = lootItem.quantity > 1 ? `${lootItem.quantity}x ${lootItem.name}` : lootItem.name;
+                if (success) {
+                    logsToAdd.push(`You found: ${logMessage}!`);
+                } else {
+                    logsToAdd.push(`Your inventory is full! Couldn't pick up ${logMessage}.`);
                 }
             }
-            
-            logsToAdd.push(`You defeated the ${monster.name}! You gain ${xpGained} XP. You have ${Math.round(finalPlayerHp)} HP left.`);
-            setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
-            playAudio('/audio/combat-victory.wav');
+        }
 
-            let currentXp = p.xp + xpGained;
-            let currentLevel = p.level;
-            let xpToNext = p.xpToNextLevel;
-            let newStatPoints = p.statPoints;
+        newPlayerState.inventory = tempInventory;
+        
+        logsToAdd.push(`You defeated the ${monster.name}! You gain ${xpGained} XP. You have ${Math.round(finalPlayerHp)} HP left.`);
+        
+        let currentXp = newPlayerState.xp + xpGained;
+        let currentLevel = newPlayerState.level;
+        let xpToNext = newPlayerState.xpToNextLevel;
+        let newStatPoints = newPlayerState.statPoints;
 
-            if (currentXp >= xpToNext) {
-                playAudio('/audio/level-up.wav');
-                currentLevel++;
-                currentXp -= xpToNext;
-                xpToNext = Math.floor(BASE_XP_TO_LEVEL * Math.pow(currentLevel, 1.5));
-                newStatPoints += 2;
-                addLog(`Level Up! You are now level ${currentLevel}!`);
-                setLevelUpDialogOpen(true);
-            }
+        if (currentXp >= xpToNext) {
+            playAudio('/audio/level-up.wav');
+            currentLevel++;
+            currentXp -= xpToNext;
+            xpToNext = Math.floor(BASE_XP_TO_LEVEL * Math.pow(currentLevel, 1.5));
+            newStatPoints += 2;
+            logsToAdd.push(`Level Up! You are now level ${currentLevel}!`);
+            setLevelUpDialogOpen(true);
+        }
 
-            return {
-                ...p,
-                hp: finalPlayerHp,
-                inventory: tempInventory,
-                level: currentLevel,
-                xp: currentXp,
-                xpToNextLevel: xpToNext,
-                statPoints: newStatPoints,
-            };
-        });
+        newPlayerState = {
+            ...newPlayerState,
+            hp: finalPlayerHp,
+            level: currentLevel,
+            xp: currentXp,
+            xpToNextLevel: xpToNext,
+            statPoints: newStatPoints,
+        };
+
     } else {
         newStatus = 'defeat';
-        addLog(`You were defeated by the ${monster.name}... You limp away.`);
+        logsToAdd.push(`You were defeated by the ${monster.name}... You limp away.`);
         playAudio('/audio/combat-defeat.wav');
-        setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) }));
+        newPlayerState = { ...newPlayerState, hp: 1, stamina: Math.floor(newPlayerState.stamina/2) };
     }
     
+    setPlayer(newPlayerState);
+    setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
     setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot, xpGained }));
   };
   
@@ -770,7 +774,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             <div className="flex flex-col gap-4">
                 <div className="relative">
                     <TooltipProvider>
-                        <div className="absolute top-0 left-0 -translate-x-full p-2 z-10">
+                        <div className="absolute top-2 left-2 -translate-x-full z-10">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button variant="ghost" size="icon" onClick={toggleMute}>
@@ -986,5 +990,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 
 }
+
+    
 
     
