@@ -93,7 +93,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   // --- Music Effect ---
   useEffect(() => {
-    // playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
+    playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
   }, [playAudio]);
 
   // --- State Ref for Callbacks ---
@@ -747,15 +747,15 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center items-start pt-12">
-       <div className="flex flex-row items-center justify-center gap-4 w-full max-w-[1400px]">
+       <div className="flex flex-row items-start justify-center gap-4 w-full max-w-[1400px]">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
             </div>
 
             <div className="flex flex-col gap-4">
-                 <div className="relative">
-                     <TooltipProvider>
+                <div className="relative">
+                    <TooltipProvider>
                         <div className="absolute top-[10px] left-[-52px] z-10">
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -776,6 +776,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     </TooltipProvider>
 
                     <motion.div
+                        key={moveCount}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}

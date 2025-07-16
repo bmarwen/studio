@@ -30,7 +30,8 @@ export const useAudio = (): AudioContextType => {
 
 export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const [isMuted, setIsMuted] = useState(true); // Default to muted until client-side check
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+    const sfxAudioRefs = useRef<HTMLAudioElement[]>([]);
     const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -46,19 +47,21 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         try {
             localStorage.setItem('isMuted', JSON.stringify(isMuted));
-            if (audioRef.current) {
-                audioRef.current.muted = isMuted;
-                audioRef.current.volume = isMuted ? 0 : (audioRef.current.dataset.volume ? parseFloat(audioRef.current.dataset.volume) : AUDIO_VOLUME);
+            if (musicAudioRef.current) {
+                musicAudioRef.current.muted = isMuted;
             }
+            sfxAudioRefs.current.forEach(audio => {
+                audio.muted = isMuted;
+            });
         } catch (error) {
             console.error("Could not save mute state to localStorage", error);
         }
     }, [isMuted]);
 
-    const cleanup = () => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
+    const cleanupMusic = () => {
+        if (musicAudioRef.current) {
+            musicAudioRef.current.pause();
+            musicAudioRef.current = null;
         }
         if (fadeIntervalRef.current) {
             clearInterval(fadeIntervalRef.current);
@@ -66,14 +69,14 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     };
     
     const fadeOut = useCallback((onComplete: () => void) => {
-        if (!audioRef.current || audioRef.current.volume === 0) {
+        if (!musicAudioRef.current || musicAudioRef.current.volume === 0) {
             onComplete();
             return;
         }
     
         if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
     
-        const audio = audioRef.current;
+        const audio = musicAudioRef.current;
         fadeIntervalRef.current = setInterval(() => {
             if (audio.volume > 0.1) {
                 audio.volume -= 0.1;
@@ -89,37 +92,44 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const playAudio = useCallback((src: string, options: AudioOptions = {}) => {
         const { loop = false, fade = false, volume = AUDIO_VOLUME } = options;
 
-        const startPlayback = () => {
-            cleanup();
-            const audio = new Audio(src);
-            audio.loop = loop;
-            audio.muted = isMuted;
-            audio.volume = isMuted ? 0 : volume;
-            audio.dataset.volume = String(volume); // Store original volume
-            audio.play().catch(error => console.error("Audio play failed:", error));
-            audioRef.current = audio;
-        };
+        if (loop) { // Handle looping music
+            const startPlayback = () => {
+                cleanupMusic();
+                const audio = new Audio(src);
+                audio.loop = true;
+                audio.muted = isMuted;
+                audio.volume = isMuted ? 0 : volume;
+                audio.play().catch(error => console.error("Music play failed:", error));
+                musicAudioRef.current = audio;
+            };
 
-        if (fade && audioRef.current && audioRef.current.src !== new URL(src, window.location.origin).href) {
-            fadeOut(startPlayback);
-        } else if (!audioRef.current || audioRef.current.src !== new URL(src, window.location.origin).href) {
-            startPlayback();
-        } else if (audioRef.current) {
-             // If the same audio is playing, but it's not a looping track, replay it.
-            if (!loop) {
-                audioRef.current.currentTime = 0;
-                audioRef.current.play().catch(error => console.error("Audio play failed:", error));
-            } else if (audioRef.current.paused) {
-                 audioRef.current.play().catch(error => console.error("Audio play failed:", error));
+            const currentMusicSrc = musicAudioRef.current ? new URL(musicAudioRef.current.src).pathname : null;
+            const newMusicSrc = new URL(src, window.location.origin).pathname;
+
+            if (fade && musicAudioRef.current && currentMusicSrc !== newMusicSrc) {
+                fadeOut(startPlayback);
+            } else if (!musicAudioRef.current || currentMusicSrc !== newMusicSrc) {
+                startPlayback();
+            } else if (musicAudioRef.current.paused) {
+                musicAudioRef.current.play().catch(error => console.error("Music resume failed:", error));
             }
-            audioRef.current.muted = isMuted;
-            audioRef.current.volume = isMuted ? 0 : volume;
+        } else { // Handle one-shot sound effects
+            const sfx = new Audio(src);
+            sfx.loop = false;
+            sfx.muted = isMuted;
+            sfx.volume = isMuted ? 0 : volume;
+            sfx.play().catch(error => console.error("SFX play failed:", error));
+            
+            sfxAudioRefs.current.push(sfx);
+            sfx.onended = () => {
+                sfxAudioRefs.current = sfxAudioRefs.current.filter(a => a !== sfx);
+            };
         }
     }, [isMuted, fadeOut]);
 
     const stopAudio = useCallback(() => {
         fadeOut(() => {
-            cleanup();
+            cleanupMusic();
         });
     }, [fadeOut]);
 
