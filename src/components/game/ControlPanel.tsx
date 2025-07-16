@@ -120,18 +120,6 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 <Card className="bg-card/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="font-headline text-lg">Inventory</CardTitle>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={toggleMute}>
-                                        {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
                     </CardHeader>
                     <CardContent className="pt-2">
                         <div className="grid grid-cols-5 gap-2">
