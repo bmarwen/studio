@@ -746,44 +746,44 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, [isLevelUpDialogOpen]);
 
   return (
-    <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
-       <div className="flex flex-row items-center justify-center gap-4 w-full">
+    <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center items-start pt-12">
+       <div className="flex flex-row items-center justify-center gap-4 w-full max-w-[1400px]">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
             </div>
-            <div className="relative">
-                <TooltipProvider>
-                    <div className="absolute top-[10px] left-[-52px] z-10">
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    onClick={toggleMute} 
-                                    className="w-10 h-10 bg-background/50 hover:bg-accent"
-                                >
-                                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">
-                                <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
-                </TooltipProvider>
 
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} moveCount={moveCount} />
-                </motion.div>
-            </div>
-            <main className="flex flex-col items-center gap-4">
-                
-                <div className="w-full max-w-xl mx-auto">
+            <div className="flex flex-col gap-4">
+                 <div className="relative">
+                     <TooltipProvider>
+                        <div className="absolute top-[10px] left-[-52px] z-10">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={toggleMute} 
+                                        className="w-10 h-10 bg-background/50 hover:bg-accent"
+                                    >
+                                        {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                    <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                    </TooltipProvider>
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} moveCount={moveCount} />
+                    </motion.div>
+                </div>
+                <div className="w-full mx-auto">
                     <ControlPanel 
                         player={player} 
                         onUseItem={handleUseItem} 
@@ -791,7 +791,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         onUnequipItem={handleUnequipItem}
                     />
                 </div>
-            </main>
+            </div>
 
             <aside className="w-72 flex flex-col gap-4">
                  <Card className="bg-card/50">
