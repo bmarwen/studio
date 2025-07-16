@@ -159,4 +159,3 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
 };
 
 export default GameBoard;
-
