@@ -9,14 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { INITIAL_PLAYER_STATE, PLAYER_CLASSES } from '@/lib/game-constants';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, ChevronLeft, ChevronRight, Dices, Volume2, VolumeX } from 'lucide-react';
+import { AlertTriangle, Dices, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { AnimatePresence, motion } from 'framer-motion';
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 import { useAudio } from '@/context/AudioContext';
-import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 
 
@@ -58,14 +57,36 @@ const STAT_LABELS: Record<string, string> = {
     criticalChance: "CRIT"
 }
 
+const STAT_DESCRIPTIONS: Record<string, string> = {
+    maxHp: "Health Points: Determines how much damage you can take before being defeated.",
+    maxStamina: "Stamina: Used for moving and special actions. Regenerates over time.",
+    attack: "Physical Attack: Increases damage dealt by physical attacks.",
+    magicAttack: "Magic Attack: Increases damage dealt by spells.",
+    defense: "Defense: Reduces incoming physical and magic damage by a flat amount.",
+    armor: "Armor: Reduces incoming physical damage.",
+    magicResist: "Magic Resist: Reduces incoming magic damage.",
+    evasion: "Evasion: The chance to completely dodge an incoming attack.",
+    criticalChance: "Critical Chance: The probability of landing a critical hit for extra damage."
+};
+
+
 const NAME_PREFIXES = ["Ael", "Thorn", "Glim", "Shadow", "Bael", "Crys", "Drak", "Fen", "Grim", "Iron"];
 const NAME_SUFFIXES = ["dric", "wyn", "fire", "fall", "wood", "shield", "more", "fang", "lore", "gard"];
 
-const StatDisplay = ({ label, value, isPercent = false }: { label: string, value: number, isPercent?: boolean }) => (
-    <div className="flex justify-between items-center text-sm py-1 border-b border-border/50">
-        <span className="font-bold uppercase text-muted-foreground">{label}</span>
-        <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
-    </div>
+const StatDisplay = ({ labelKey, value, isPercent = false }: { labelKey: string, value: number, isPercent?: boolean }) => (
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className="flex justify-between items-center text-sm py-1 border-b border-border/50">
+                    <span className="font-bold uppercase text-muted-foreground">{STAT_LABELS[labelKey]}</span>
+                    <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
+                </div>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{STAT_DESCRIPTIONS[labelKey]}</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
 );
 
 const AnimatedStatCard = ({ classId }: { classId: PlayerClass }) => {
@@ -80,21 +101,22 @@ const AnimatedStatCard = ({ classId }: { classId: PlayerClass }) => {
             className="w-full"
         >
             <Card className="bg-secondary/50">
-                <CardContent className="p-3">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                        <StatDisplay label={STAT_LABELS.maxHp} value={stats.maxHp} />
-                        <StatDisplay label={STAT_LABELS.maxStamina} value={stats.maxStamina} />
+                <CardContent className="p-4">
+                    <p className="text-center text-muted-foreground mb-4 min-h-[40px] px-2">{CLASSES.find(c => c.id === classId)?.description}</p>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                        <StatDisplay labelKey="maxHp" value={stats.maxHp} />
+                        <StatDisplay labelKey="maxStamina" value={stats.maxStamina} />
                         {classId === 'mage' ? (
-                            <StatDisplay label={STAT_LABELS.magicAttack} value={stats.magicAttack} />
+                            <StatDisplay labelKey="magicAttack" value={stats.magicAttack} />
                         ) : (
-                            <StatDisplay label={STAT_LABELS.attack} value={stats.attack} />
+                            <StatDisplay labelKey="attack" value={stats.attack} />
                         )}
-                        <StatDisplay label={STAT_LABELS.defense} value={stats.defense} />
-                        <StatDisplay label={STAT_LABELS.armor} value={stats.armor} />
-                        <StatDisplay label={STAT_LABELS.magicResist} value={stats.magicResist} />
-                        <StatDisplay label={STAT_LABELS.evasion} value={stats.evasion} isPercent />
-                        <StatDisplay label={STAT_LABELS.criticalChance} value={stats.criticalChance} isPercent />
-                        </div>
+                        <StatDisplay labelKey="defense" value={stats.defense} />
+                        <StatDisplay labelKey="armor" value={stats.armor} />
+                        <StatDisplay labelKey="magicResist" value={stats.magicResist} />
+                        <StatDisplay labelKey="evasion" value={stats.evasion} isPercent />
+                        <StatDisplay labelKey="criticalChance" value={stats.criticalChance} isPercent />
+                    </div>
                 </CardContent>
             </Card>
         </motion.div>
@@ -113,9 +135,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [isShaking, setIsShaking] = useState(false);
   const { isMuted, toggleMute, playAudio } = useAudio();
   
-  const currentClassDescription = CLASSES.find(c => c.id === selectedClass)?.description;
-
-
   useEffect(() => {
     playAudio('/audio/menu-music.wav', { loop: true });
   }, [playAudio]);
@@ -271,20 +290,6 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
                         <CarouselPrevious type="button" variant="ghost" className="left-0 -translate-x-1/2" />
                         <CarouselNext type="button" variant="ghost" className="right-0 translate-x-1/2" />
                     </Carousel>
-                    
-                    <div className="mt-4 text-center text-muted-foreground min-h-[40px] px-8">
-                        <AnimatePresence mode="wait">
-                        <motion.p
-                            key={selectedClass}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            {currentClassDescription}
-                        </motion.p>
-                        </AnimatePresence>
-                    </div>
 
                     <div className="mt-4 flex justify-center">
                         <AnimatePresence mode="wait">
@@ -305,3 +310,5 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
+
+    
