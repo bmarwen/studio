@@ -31,7 +31,7 @@ export const useAudio = (): AudioContextType => {
 export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const [isMuted, setIsMuted] = useState(true); // Default to muted until client-side check
     const musicAudioRef = useRef<HTMLAudioElement | null>(null);
-    const sfxAudioRefs = useRef<HTMLAudioElement[]>([]);
+    const sfxAudioRefs = useRef<Set<HTMLAudioElement>>(new Set());
     const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -58,7 +58,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [isMuted]);
 
-    const cleanupMusic = () => {
+    const cleanupMusic = useCallback(() => {
         if (musicAudioRef.current) {
             musicAudioRef.current.pause();
             musicAudioRef.current = null;
@@ -66,7 +66,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
         if (fadeIntervalRef.current) {
             clearInterval(fadeIntervalRef.current);
         }
-    };
+    }, []);
     
     const fadeOut = useCallback((onComplete: () => void) => {
         if (!musicAudioRef.current || musicAudioRef.current.volume === 0) {
@@ -120,18 +120,18 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             sfx.volume = isMuted ? 0 : volume;
             sfx.play().catch(error => console.error("SFX play failed:", error));
             
-            sfxAudioRefs.current.push(sfx);
+            sfxAudioRefs.current.add(sfx);
             sfx.onended = () => {
-                sfxAudioRefs.current = sfxAudioRefs.current.filter(a => a !== sfx);
+                sfxAudioRefs.current.delete(sfx);
             };
         }
-    }, [isMuted, fadeOut]);
+    }, [isMuted, fadeOut, cleanupMusic]);
 
     const stopAudio = useCallback(() => {
         fadeOut(() => {
             cleanupMusic();
         });
-    }, [fadeOut]);
+    }, [fadeOut, cleanupMusic]);
 
     const toggleMute = () => {
         setIsMuted(prevMuted => !prevMuted);

@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFoo
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX, LocateOff, Plus, Minus, BrainCircuit } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Gem, Star, MapPin, UtensilsCrossed, Rabbit, Antenna, Volume2, VolumeX, LocateOff, Plus, Minus, BrainCircuit, Omega } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -775,14 +775,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </div>
                     </TooltipProvider>
 
-                    <motion.div
-                        key={moveCount}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} moveCount={moveCount} />
-                    </motion.div>
+                    <GameBoard viewport={viewport} player={player} isMoving={isMoving} moveCooldown={moveCooldown} moveCount={moveCount} />
                 </div>
                 <div className="w-full mx-auto">
                     <ControlPanel 
@@ -826,7 +819,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             )}
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
-                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
+                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Omega size={16}/>} tooltipText="Magic Resist" />
                             <CombatStatDisplay label="EVA" value={player.evasion} icon={<LocateOff size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
