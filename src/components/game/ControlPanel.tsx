@@ -55,26 +55,25 @@ const ItemTooltipContent = ({ item }: { item: Item }) => (
 
 const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, item: Item | null, onUnequip: (slot: EquipmentSlot) => void }) => {
     const ICONS: Record<EquipmentSlot, React.ReactNode> = {
-        weapon: <Gavel className="w-8 h-8 text-muted-foreground opacity-75" />,
-        helmet: <Crown className="w-8 h-8 text-muted-foreground opacity-75" />,
-        armor: <Shirt className="w-8 h-8 text-muted-foreground opacity-75" />,
+        weapon: <Gavel className="w-10 h-10 text-muted-foreground opacity-75" />,
+        helmet: <Crown className="w-10 h-10 text-muted-foreground opacity-75" />,
+        armor: <Shirt className="w-10 h-10 text-muted-foreground opacity-75" />,
         belt: (
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <rect x="3" y="8" width="18" height="8" rx="2"></rect>
-                <circle cx="12" cy="12" r="2"></circle>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-muted-foreground opacity-75">
+               <rect x="3" y="8" width="18" height="8" rx="2"></rect><circle cx="12" cy="12" r="2"></circle>
             </svg>
         ),
         boots: (
-            <Footprints className="w-8 h-8 text-muted-foreground opacity-75" />
+            <Footprints className="w-10 h-10 text-muted-foreground opacity-75" />
         )
     }
 
     const buttonContent = (
          <div 
-            className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary cursor-pointer"
+            className="w-20 h-20 bg-secondary rounded-lg flex items-center justify-center border-2 border-dashed border-border hover:border-primary cursor-pointer"
             onClick={() => item && onUnequip(slot)}
         >
-            {item ? <img src={item.icon} alt={item.name} className="w-10 h-10" /> : ICONS[slot]}
+            {item ? <img src={item.icon} alt={item.name} className="w-14 h-14" /> : ICONS[slot]}
         </div>
     );
 
@@ -99,7 +98,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
   const { isMuted, toggleMute } = useAudio();
 
   return (
-      <div className="w-full max-w-xl mx-auto">
+      <div className="w-full">
         <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
@@ -108,20 +107,12 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
             </TabsList>
             <TabsContent value="equipment">
                 <Card className="bg-card/50">
-                    <CardContent className="p-4 flex flex-col items-center gap-y-2">
-                       <div className="flex justify-center">
-                           <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
-                       </div>
-                       
-                       <div className="flex justify-center gap-x-4">
-                           <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
-                           <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
-                       </div>
-
-                       <div className="flex justify-center gap-x-4">
-                           <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
-                           <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
-                       </div>
+                    <CardContent className="p-4 flex items-center justify-center gap-x-4">
+                       <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
+                       <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
+                       <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                       <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
+                       <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
                     </CardContent>
                 </Card>
             </TabsContent>
