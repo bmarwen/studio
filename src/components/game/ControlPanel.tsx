@@ -11,12 +11,18 @@ import { cn } from '@/lib/utils';
 import { INVENTORY_SIZE } from '@/lib/game-constants';
 import { useAudio } from '@/context/AudioContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Label } from '../ui/label';
+import { Slider } from '../ui/slider';
 
 interface ControlPanelProps {
   player: Player;
   onUseItem: (item: Item, index: number) => void;
   onEquipItem: (item: Item, index: number) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
+  moveCooldown: number;
+  onMoveCooldownChange: (value: number) => void;
+  onReset: () => void;
 }
 
 const RARITY_COLORS: Record<ItemRarity, string> = {
@@ -94,13 +100,13 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
+export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem, moveCooldown, onMoveCooldownChange, onReset }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
 
   return (
-      <div className="w-full">
+      <div className="w-full max-w-xl mx-auto">
         <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
@@ -207,3 +213,5 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
+
+    
