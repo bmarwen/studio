@@ -295,39 +295,37 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, 1000); // One action per second
   }, []); // Eslint ignore: we need stable function
 
-  const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
+const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
     const newInventory = [...inventory];
     const capacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
-    let itemAdded = false;
-
-    // 1. Attempt to stack consumables
+    
+    // --- 1. Attempt to STACK ---
     if (itemToAdd.type === 'consumable' && itemToAdd.quantity) {
-        let quantityLeft = itemToAdd.quantity;
-        
         for (let i = 0; i < newInventory.length; i++) {
             const existingItem = newInventory[i];
+            // Find a stack of the same item that isn't full
             if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity && existingItem.quantity < 9) {
                 const canAdd = 9 - existingItem.quantity;
-                const amountToStack = Math.min(quantityLeft, canAdd);
+                const amountToAdd = Math.min(itemToAdd.quantity, canAdd);
                 
-                newInventory[i] = { ...existingItem, quantity: existingItem.quantity + amountToStack };
-                quantityLeft -= amountToStack;
+                // Update the existing item's quantity
+                newInventory[i] = { ...existingItem, quantity: existingItem.quantity + amountToAdd };
+                
+                const quantityRemaining = itemToAdd.quantity - amountToAdd;
 
-                if (quantityLeft <= 0) {
-                    itemAdded = true;
-                    break;
+                if (quantityRemaining <= 0) {
+                    // All of the new item was stacked successfully
+                    return { newInventory, success: true };
                 }
+                
+                // Update itemToAdd with the remaining quantity and continue to find a new slot
+                itemToAdd = { ...itemToAdd, quantity: quantityRemaining };
+                break; // Stop searching for stacks and proceed to find an empty slot
             }
         }
-        
-        if (itemAdded) {
-            return { newInventory, success: true };
-        }
-        
-        itemToAdd = { ...itemToAdd, quantity: quantityLeft };
     }
-    
-    // 2. Add to a new slot if there is space
+
+    // --- 2. Attempt to add to an EMPTY SLOT ---
     const currentItemCount = newInventory.filter(slot => slot !== null).length;
     if (currentItemCount < capacity) {
         const emptySlotIndex = newInventory.findIndex(slot => slot === null);
@@ -336,16 +334,18 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             return { newInventory, success: true };
         }
     }
-    
-    // 3. No space found
+
+    // --- 3. No space found ---
     return { newInventory: inventory, success: false };
-  };
+};
+
 
   const endCombat = (finalPlayerHp: number, monster: Monster) => {
     let newStatus: 'victory' | 'defeat';
     const allLoot: Item[] = [];
     const logsToAdd: string[] = [];
     
+    // Get the most up-to-date player state
     const playerState = gameStateRef.current.player;
     let newPlayerState = { ...playerState };
 
@@ -410,10 +410,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     } else {
         newStatus = 'defeat';
-        addLog(`You were defeated by the ${monster.name}... You limp away.`);
+        logsToAdd.push(`You were defeated by the ${monster.name}... You limp away.`);
         playAudio('/audio/combat-defeat.wav');
         
-        setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) }));
+        newPlayerState = { ...newPlayerState, hp: 1, stamina: Math.floor(playerState.stamina/2) };
+        setPlayer(newPlayerState);
+        setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
         setCombatInfo(info => ({...info!, status: newStatus, loot: [], xpGained: 0 }));
     }
   };
@@ -990,5 +992,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 
 }
-
-    
