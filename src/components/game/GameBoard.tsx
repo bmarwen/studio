@@ -28,13 +28,13 @@ const getPlayerIconPath = (icon: PlayerIcon) => {
 
 const getTileIcon = (tile: TileData) => {
   switch (tile.terrain) {
-    case 'tree': return <Trees className="w-8 h-8 text-green-700 dark:text-green-500" />;
-    case 'mountain': return <Mountain className="w-8 h-8 text-gray-600 dark:text-gray-400" />;
-    case 'river': return <Waves className="w-8 h-8 text-blue-600 dark:text-blue-400" />;
-    case 'snow': return <Snowflake className="w-8 h-8 text-blue-300 dark:text-blue-200" />;
-    case 'town': return <Home className="w-8 h-8 text-amber-800 dark:text-amber-300" />;
-    case 'camp': return <Tent className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-    case 'grass': return <Sprout className="w-8 h-8 text-green-700 dark:text-green-500" />;
+    case 'tree': return <Trees className="w-10 h-10 text-green-700 dark:text-green-500" />;
+    case 'mountain': return <Mountain className="w-10 h-10 text-gray-600 dark:text-gray-400" />;
+    case 'river': return <Waves className="w-10 h-10 text-blue-600 dark:text-blue-400" />;
+    case 'snow': return <Snowflake className="w-10 h-10 text-blue-300 dark:text-blue-200" />;
+    case 'town': return <Home className="w-10 h-10 text-amber-800 dark:text-amber-300" />;
+    case 'camp': return <Tent className="w-10 h-10 text-orange-600 dark:text-orange-400" />;
+    case 'grass': return <Sprout className="w-10 h-10 text-green-700 dark:text-green-500" />;
     default: return null;
   }
 };
@@ -60,7 +60,7 @@ const Tile = memo(({ tile }: TileProps) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <div className={cn(
-            "w-16 h-16 border border-border/20 flex items-center justify-center transition-colors aspect-square",
+            "w-20 h-20 border border-border/20 flex items-center justify-center transition-colors aspect-square",
             tile.terrain === 'mountain' ? 'bg-secondary' : 'bg-background hover:bg-accent/20',
             tile.terrain === 'river' && 'bg-blue-900/50',
             tile.terrain === 'snow' && 'bg-white/10',
@@ -118,7 +118,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           {isMoving && (
             <motion.div
               key="loader"
-              className="absolute w-[68px] h-[68px] z-20 flex items-center justify-center"
+              className="absolute w-[82px] h-[82px] z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -140,7 +140,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
             </motion.div>
           )}
         </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-14 h-14 rounded-full drop-shadow-lg z-10" />
+          <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10" />
       </div>
     </div>
   );

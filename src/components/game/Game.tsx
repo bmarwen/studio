@@ -641,16 +641,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 gap-4">
+    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 pt-8 gap-4">
       {/* Top Section */}
-       <div className="flex flex-row flex-grow gap-4 justify-center">
+       <div className="flex flex-row justify-center items-center gap-2">
             {/* Left Column - Movement Controls */}
             <aside className="flex flex-col justify-center items-center">
                 <MovementControls onMove={handleMove} />
             </aside>
             
-            {/* Center Column - Game Board */}
-            <main className="flex flex-col items-center justify-start">
+            {/* Center Column - Game Board & Control Panel */}
+            <main className="flex flex-col items-center justify-start gap-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -658,6 +658,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 >
                     <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
                 </motion.div>
+                <div className="w-full">
+                    <ControlPanel 
+                        player={player} 
+                        onUseItem={handleUseItem} 
+                        onEquipItem={handleEquipItem} 
+                        onUnequipItem={handleUnequipItem}
+                    />
+                </div>
             </main>
 
             {/* Right Column - Player Info & Log */}
@@ -723,16 +731,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             </aside>
        </div>
        
-       {/* Bottom Section - Control Panel */}
-       <div className="w-[592px] mx-auto">
-            <ControlPanel 
-                player={player} 
-                onUseItem={handleUseItem} 
-                onEquipItem={handleEquipItem} 
-                onUnequipItem={handleUnequipItem}
-            />
-       </div>
-
       {pendingCombat && combatCountdown > 0 && (
         <AlertDialog open={true}>
             <AlertDialogContent>
@@ -762,5 +760,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
-
-    
