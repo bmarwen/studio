@@ -348,66 +348,68 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     let xpGained = 0;
 
     if (finalPlayerHp > 0) {
-      newStatus = 'victory';
-      xpGained = monster.xp;
-      addLog(`You defeated the ${monster.name}! You gain ${xpGained} XP. You have ${Math.round(finalPlayerHp)} HP left.`);
-      playAudio('/audio/combat-victory.wav');
+        newStatus = 'victory';
+        xpGained = monster.xp;
 
-      if(monster.lootTable) {
-          for(const loot of monster.lootTable) {
-              if (Math.random() < loot.chance) {
-                  allLoot.push(createItem(loot.itemId, loot.quantity));
-              }
-          }
-      }
-      
-      setPlayer(p => {
-        let newPlayerState = { ...p };
-        let tempInventory = [...p.inventory];
-        
-        if (allLoot.length > 0) {
-            for (const lootItem of allLoot) {
-                const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem);
-                tempInventory = newInventory;
-                const logMessage = lootItem.quantity > 1 ? `${lootItem.quantity}x ${lootItem.name}` : lootItem.name;
-                if (success) {
-                    addLog(`You found: ${logMessage}!`);
-                } else {
-                    addLog(`Your inventory is full! Couldn't pick up ${logMessage}.`);
+        if (monster.lootTable) {
+            for (const loot of monster.lootTable) {
+                if (Math.random() < loot.chance) {
+                    allLoot.push(createItem(loot.itemId, loot.quantity));
                 }
             }
         }
+      
+        setPlayer(p => {
+            const logsToAdd: string[] = [];
+            let tempInventory = [...p.inventory];
+            
+            if (allLoot.length > 0) {
+                for (const lootItem of allLoot) {
+                    const { newInventory, success } = attemptToAddToInventory(tempInventory, lootItem);
+                    tempInventory = newInventory;
+                    const logMessage = lootItem.quantity > 1 ? `${lootItem.quantity}x ${lootItem.name}` : lootItem.name;
+                    if (success) {
+                        logsToAdd.push(`You found: ${logMessage}!`);
+                    } else {
+                        logsToAdd.push(`Your inventory is full! Couldn't pick up ${logMessage}.`);
+                    }
+                }
+            }
+            
+            logsToAdd.push(`You defeated the ${monster.name}! You gain ${xpGained} XP. You have ${Math.round(finalPlayerHp)} HP left.`);
+            setGameLog(prev => [...logsToAdd.reverse(), ...prev.slice(0, 20 - logsToAdd.length)]);
+            playAudio('/audio/combat-victory.wav');
 
-        let currentXp = p.xp + xpGained;
-        let currentLevel = p.level;
-        let xpToNext = p.xpToNextLevel;
-        let newStatPoints = p.statPoints;
+            let currentXp = p.xp + xpGained;
+            let currentLevel = p.level;
+            let xpToNext = p.xpToNextLevel;
+            let newStatPoints = p.statPoints;
 
-        if (currentXp >= xpToNext) {
-            playAudio('/audio/level-up.wav');
-            currentLevel++;
-            currentXp -= xpToNext;
-            xpToNext = Math.floor(BASE_XP_TO_LEVEL * Math.pow(currentLevel, 1.5));
-            newStatPoints += 2;
-            addLog(`Level Up! You are now level ${currentLevel}!`);
-            setLevelUpDialogOpen(true);
-        }
+            if (currentXp >= xpToNext) {
+                playAudio('/audio/level-up.wav');
+                currentLevel++;
+                currentXp -= xpToNext;
+                xpToNext = Math.floor(BASE_XP_TO_LEVEL * Math.pow(currentLevel, 1.5));
+                newStatPoints += 2;
+                addLog(`Level Up! You are now level ${currentLevel}!`);
+                setLevelUpDialogOpen(true);
+            }
 
-        return {
-          ...p,
-          hp: finalPlayerHp,
-          inventory: tempInventory,
-          level: currentLevel,
-          xp: currentXp,
-          xpToNextLevel: xpToNext,
-          statPoints: newStatPoints,
-        }
-      });
+            return {
+                ...p,
+                hp: finalPlayerHp,
+                inventory: tempInventory,
+                level: currentLevel,
+                xp: currentXp,
+                xpToNextLevel: xpToNext,
+                statPoints: newStatPoints,
+            };
+        });
     } else {
-      newStatus = 'defeat';
-      addLog(`You were defeated by the ${monster.name}... You limp away.`);
-      playAudio('/audio/combat-defeat.wav');
-      setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) }));
+        newStatus = 'defeat';
+        addLog(`You were defeated by the ${monster.name}... You limp away.`);
+        playAudio('/audio/combat-defeat.wav');
+        setPlayer(p => ({ ...p, hp: 1, stamina: Math.floor(p.stamina/2) }));
     }
     
     setCombatInfo(info => ({...info!, status: newStatus, loot: allLoot, xpGained }));
@@ -515,8 +517,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             const { newInventory, success } = attemptToAddToInventory(p.inventory, foundItem);
             
             if(success) {
-                const logMessage = foundItem.quantity > 1 ? `${foundItem.quantity}x ${foundItem.name}` : foundItem.name;
-                addLog(`You found: ${logMessage}!`);
                 newPlayerState.inventory = newInventory;
 
                 setWorldMap(prevMap => {
@@ -773,7 +773,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <div className="absolute top-0 left-0 -translate-x-full p-2 z-10">
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button variant="outline" size="icon" onClick={toggleMute}>
+                                    <Button variant="ghost" size="icon" onClick={toggleMute}>
                                         {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                     </Button>
                                 </TooltipTrigger>
@@ -862,6 +862,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                                 min={500} 
                                 max={3000} 
                                 step={100} 
+                                className="w-full"
                             />
                         </div>
                         <Button variant="outline" onClick={onReset} className="w-full">Reset World</Button>
@@ -985,3 +986,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 
 }
+
+    
