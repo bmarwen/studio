@@ -597,9 +597,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex justify-center h-screen w-screen bg-background font-body text-foreground overflow-hidden">
-      <div className="flex w-full items-center justify-center">
-        <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+    <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
+      <div className="flex w-full items-start justify-center p-4">
+        <main className="flex-1 flex flex-col items-center justify-start pt-8 gap-4">
           <h1 className="w-full text-left text-4xl font-headline text-primary pl-12 mb-4">Square Clash</h1>
           <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -619,7 +619,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
               </CardContent>
           </Card>
         </main>
-         <div className="flex-shrink-0 px-8">
+        <div className="flex-shrink-0 px-8 h-full flex items-center">
             <MovementControls onMove={handleMove} />
         </div>
         <aside className="w-1/3 max-w-sm lg:max-w-md bg-card border-l-2 border-border p-4 overflow-y-auto h-full">
