@@ -121,8 +121,8 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
         className={cn(
             "absolute flex items-center justify-center pointer-events-none w-14 h-14 lg:w-16 lg:h-16",
             // Use Tailwind's arbitrary values to set the correct position responsively
-            "top-[calc(4_*_4.25rem_+_0.5rem_+_0.125rem)] left-[calc(4_*_4.25rem_+_0.5rem_+_0.125rem)]",
-            "lg:top-[calc(4_*_5.25rem_+_0.5rem_+_0.25rem)] lg:left-[calc(4_*_5.25rem_+_0.5rem_+_0.25rem)]"
+            "top-[calc(4_*_4.25rem_+_0.5rem)] left-[calc(4_*_4.25rem_+_0.5rem)]",
+            "lg:top-[calc(4_*_5.25rem_+_0.5rem)] lg:left-[calc(4_*_5.25rem_+_0.5rem)]"
         )}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
@@ -133,7 +133,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
               className="absolute w-full h-full z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >
-              <svg className="w-[40px] h-[40px] lg:w-[54px] lg:h-[54px] -rotate-90" viewBox="0 0 100 100">
+              <svg className="w-[50px] h-[50px] lg:w-[58px] lg:h-[58px] -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
                   cx="50"
                   cy="50"
