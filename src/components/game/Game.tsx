@@ -724,7 +724,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 h-[calc(100%-4rem)]">
-                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar">
+                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar flex flex-col-reverse flex-grow">
                             {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
                         </div>
                     </CardContent>
@@ -765,6 +765,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     
 
+
+    
 
     
 
