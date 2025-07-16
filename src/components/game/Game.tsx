@@ -610,7 +610,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             </motion.div>
             <MovementControls onMove={handleMove} />
         </div>
-         <Card className="w-full max-w-2xl mt-36">
+         <Card className="w-full max-w-2xl mt-24">
             <CardHeader className="p-4">
                 <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
             </CardHeader>
@@ -662,5 +662,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
+
+    
 
     
