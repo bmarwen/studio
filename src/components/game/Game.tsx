@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -522,7 +522,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     } else if (itemToUse.xpGainBonus) {
         logMessage = `You read the ${itemToUse.name} and feel more knowledgeable!`;
     }
-
     addLog(logMessage);
     playAudio('/audio/use-potion.wav');
 
@@ -586,8 +585,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return;
     }
 
-    playAudio('/audio/equip-item.wav');
     addLog(`You equipped ${itemToEquip.name}.`);
+    playAudio('/audio/equip-item.wav');
 
     setPlayer(p => {
         const newInventory = [...p.inventory];
@@ -801,4 +800,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       )}
     </div>
   );
-}
+
+    
