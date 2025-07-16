@@ -298,30 +298,35 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
     const newInventory = [...inventory];
     const capacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
+    let itemAdded = false;
 
     // 1. Attempt to stack consumables
     if (itemToAdd.type === 'consumable' && itemToAdd.quantity) {
-        let quantityToAdd = itemToAdd.quantity;
+        let quantityLeft = itemToAdd.quantity;
         
-        // Find existing stacks that are not full
         for (let i = 0; i < newInventory.length; i++) {
             const existingItem = newInventory[i];
             if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity && existingItem.quantity < 9) {
                 const canAdd = 9 - existingItem.quantity;
-                const amountToStack = Math.min(quantityToAdd, canAdd);
+                const amountToStack = Math.min(quantityLeft, canAdd);
                 
                 newInventory[i] = { ...existingItem, quantity: existingItem.quantity + amountToStack };
-                quantityToAdd -= amountToStack;
+                quantityLeft -= amountToStack;
 
-                if (quantityToAdd <= 0) {
-                    return { newInventory, success: true };
+                if (quantityLeft <= 0) {
+                    itemAdded = true;
+                    break;
                 }
             }
         }
         
-        itemToAdd = { ...itemToAdd, quantity: quantityToAdd };
+        if (itemAdded) {
+            return { newInventory, success: true };
+        }
+        
+        itemToAdd = { ...itemToAdd, quantity: quantityLeft };
     }
-
+    
     // 2. Add to a new slot if there is space
     const currentItemCount = newInventory.filter(slot => slot !== null).length;
     if (currentItemCount < capacity) {
@@ -341,7 +346,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     const allLoot: Item[] = [];
     const logsToAdd: string[] = [];
     
-    // Get the most current player state
     const playerState = gameStateRef.current.player;
     let newPlayerState = { ...playerState };
 
@@ -986,3 +990,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 
 }
+
+    
