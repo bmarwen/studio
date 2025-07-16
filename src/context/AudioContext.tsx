@@ -13,6 +13,7 @@ type AudioOptions = {
 
 interface AudioContextType {
     isMuted: boolean;
+    isAudioReady: boolean;
     toggleMute: () => void;
     playAudio: (src: string, options?: AudioOptions) => void;
     stopAudio: () => void;
@@ -30,6 +31,7 @@ export const useAudio = (): AudioContextType => {
 
 export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const [isMuted, setIsMuted] = useState(true);
+    const [isAudioReady, setIsAudioReady] = useState(false);
     const musicAudioRef = useRef<HTMLAudioElement | null>(null);
     const sfxAudioRefs = useRef<Set<HTMLAudioElement>>(new Set());
 
@@ -41,28 +43,26 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             console.error("Could not parse mute state from localStorage", error);
             setIsMuted(false);
         }
+        setIsAudioReady(true);
     }, []);
 
     const toggleMute = () => {
-        setIsMuted(currentMuteState => {
-            const newMuteState = !currentMuteState;
-             try {
-                localStorage.setItem('isMuted', JSON.stringify(newMuteState));
-            } catch (error) {
-                console.error("Could not save mute state to localStorage", error);
-            }
+        const newMuteState = !isMuted;
+        setIsMuted(newMuteState);
+        try {
+            localStorage.setItem('isMuted', JSON.stringify(newMuteState));
+        } catch (error) {
+            console.error("Could not save mute state to localStorage", error);
+        }
 
-            if (musicAudioRef.current) {
-                musicAudioRef.current.muted = newMuteState;
-                if (!newMuteState && musicAudioRef.current.paused) {
-                    musicAudioRef.current.play().catch(e => console.error("Error resuming music:", e));
-                }
+        if (musicAudioRef.current) {
+            musicAudioRef.current.muted = newMuteState;
+            if (!newMuteState && musicAudioRef.current.paused) {
+                 musicAudioRef.current.play().catch(e => console.error("Error resuming music:", e));
             }
-            sfxAudioRefs.current.forEach(sfx => {
-                sfx.muted = newMuteState;
-            });
-
-            return newMuteState;
+        }
+        sfxAudioRefs.current.forEach(sfx => {
+            sfx.muted = newMuteState;
         });
     };
     
@@ -70,10 +70,8 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
         const { loop = false, volume = AUDIO_VOLUME } = options;
 
         if (loop) { // Music
-            if (musicAudioRef.current && musicAudioRef.current.src.endsWith(src)) {
-                if(musicAudioRef.current.paused && !isMuted) {
-                    musicAudioRef.current.play().catch(e => console.error("Audio play failed:", e));
-                }
+            if (musicAudioRef.current && musicAudioRef.current.src.endsWith(src) && !musicAudioRef.current.paused) {
+                // Music is already playing
                 return;
             }
             
@@ -115,7 +113,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <AudioContext.Provider value={{ isMuted, toggleMute, playAudio, stopAudio }}>
+        <AudioContext.Provider value={{ isMuted, isAudioReady, toggleMute, playAudio, stopAudio }}>
             {children}
         </AudioContext.Provider>
     );

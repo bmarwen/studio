@@ -133,11 +133,13 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const [classApi, setClassApi] = useState<CarouselApi>();
   const tooltipPortalRef = useRef<HTMLDivElement>(null);
   const [isShaking, setIsShaking] = useState(false);
-  const { isMuted, toggleMute, playAudio } = useAudio();
+  const { isMuted, toggleMute, playAudio, isAudioReady } = useAudio();
   
   useEffect(() => {
-    playAudio('/audio/game-music.wav', { loop: true });
-  }, [playAudio, isMuted]);
+    if (isAudioReady) {
+        playAudio('/audio/game-music.wav', { loop: true });
+    }
+  }, [playAudio, isAudioReady]);
 
   useEffect(() => {
     if (!iconApi) return;
