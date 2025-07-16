@@ -61,10 +61,12 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const cleanupMusic = useCallback(() => {
         if (musicAudioRef.current) {
             musicAudioRef.current.pause();
+            musicAudioRef.current.src = ""; // Detach the source
             musicAudioRef.current = null;
         }
         if (fadeIntervalRef.current) {
             clearInterval(fadeIntervalRef.current);
+            fadeIntervalRef.current = null;
         }
     }, []);
     
@@ -78,15 +80,15 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     
         const audio = musicAudioRef.current;
         fadeIntervalRef.current = setInterval(() => {
-            if (audio.volume > 0.1) {
-                audio.volume -= 0.1;
+            if (audio.volume > 0.05) {
+                audio.volume = Math.max(0, audio.volume - 0.05);
             } else {
                 audio.volume = 0;
                 audio.pause();
                 if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
                 onComplete();
             }
-        }, 100);
+        }, 50);
     }, []);
 
     const playAudio = useCallback((src: string, options: AudioOptions = {}) => {
@@ -99,26 +101,28 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
                 audio.loop = true;
                 audio.muted = isMuted;
                 audio.volume = isMuted ? 0 : volume;
-                audio.play().catch(error => console.error("Music play failed:", error));
+                audio.play().catch(error => console.error(`Music play failed for ${src}:`, error));
                 musicAudioRef.current = audio;
             };
 
             const currentMusicSrc = musicAudioRef.current ? new URL(musicAudioRef.current.src).pathname : null;
             const newMusicSrc = new URL(src, window.location.origin).pathname;
+            
+            if (currentMusicSrc === newMusicSrc && !musicAudioRef.current?.paused) {
+              return; // Already playing this track
+            }
 
-            if (fade && musicAudioRef.current && currentMusicSrc !== newMusicSrc) {
+            if (fade && musicAudioRef.current) {
                 fadeOut(startPlayback);
-            } else if (!musicAudioRef.current || currentMusicSrc !== newMusicSrc) {
+            } else {
                 startPlayback();
-            } else if (musicAudioRef.current.paused) {
-                musicAudioRef.current.play().catch(error => console.error("Music resume failed:", error));
             }
         } else { // Handle one-shot sound effects
             const sfx = new Audio(src);
             sfx.loop = false;
             sfx.muted = isMuted;
             sfx.volume = isMuted ? 0 : volume;
-            sfx.play().catch(error => console.error("SFX play failed:", error));
+            sfx.play().catch(error => console.error(`SFX play failed for ${src}:`, error));
             
             sfxAudioRefs.current.add(sfx);
             sfx.onended = () => {
@@ -128,9 +132,11 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }, [isMuted, fadeOut, cleanupMusic]);
 
     const stopAudio = useCallback(() => {
-        fadeOut(() => {
-            cleanupMusic();
-        });
+        if (musicAudioRef.current) {
+            fadeOut(() => {
+                cleanupMusic();
+            });
+        }
     }, [fadeOut, cleanupMusic]);
 
     const toggleMute = () => {
