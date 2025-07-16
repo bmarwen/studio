@@ -21,9 +21,9 @@ export function generateWorld(): TileData[][] {
       const snowNoise = simpleNoise(y, x, 0.08, seed + 300);
       const campNoise = simpleNoise(x, y, 0.3, seed + 400);
 
-      if (mountainNoise > 0.85) { // Stricter condition
+      if (mountainNoise > 0.9) { // Stricter condition for smaller zones
         terrain = 'mountain';
-      } else if (snowNoise > 0.75) { // Stricter condition
+      } else if (snowNoise > 0.8) { // Stricter condition for smaller zones
         terrain = 'snow';
       } else if (riverNoise > 0.9) {
         terrain = 'river';
