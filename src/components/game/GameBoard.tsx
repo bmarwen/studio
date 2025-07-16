@@ -89,16 +89,17 @@ interface GameBoardProps {
 }
 
 const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardProps) => {
-  const playerPosition = Math.floor(VIEWPORT_SIZE / 2);
   const iconPath = getPlayerIconPath(playerIcon);
 
   if (!viewport || viewport.length === 0) {
     return <div>Loading map...</div>;
   }
 
-  const baseTileSize = 4; // in rem for w-16
-  const lgTileSize = 5; // in rem for lg:w-20
-  const gap = 0.25; // in rem for gap-1
+  // base: tile = w-16 (4rem), gap = gap-1 (0.25rem), board padding = p-2 (0.5rem)
+  // lg: tile = w-20 (5rem), gap = gap-1 (0.25rem), board padding = p-2 (0.5rem)
+  const playerPositionInGrid = Math.floor(VIEWPORT_SIZE / 2);
+  const baseOffset = `calc(${playerPositionInGrid} * (4rem + 0.25rem) + 0.5rem)`;
+  const lgOffset = `calc(${playerPositionInGrid} * (5rem + 0.25rem) + 0.5rem)`;
 
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
@@ -117,28 +118,23 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
         )}
       </div>
       <motion.div 
-        className="absolute flex items-center justify-center pointer-events-none w-16 h-16 lg:w-20 lg:h-20"
-        initial={false}
-        // Calculation for centering the icon on the grid
+        className={cn(
+            "absolute flex items-center justify-center pointer-events-none w-16 h-16 lg:w-20 lg:h-20",
+            // Use Tailwind's arbitrary values to set the correct position responsively
+            "top-[--base-offset] left-[--base-offset]",
+            "lg:top-[--lg-offset] lg:left-[--lg-offset]"
+        )}
         style={{
-          top: `calc(${playerPosition} * (${baseTileSize}rem + ${gap}rem) + 0.5rem)`, 
-          left: `calc(${playerPosition} * (${baseTileSize}rem + ${gap}rem) + 0.5rem)`,
-        }}
-        // Use a media query within the style for large screens
-        // This is a bit of a hack, but necessary for dynamic centering with framer-motion
-        // A cleaner way would be CSS variables, but this is more direct for this case.
-        // @ts-ignore
-        lg={{
-            top: `calc(${playerPosition} * (${lgTileSize}rem + ${gap}rem) + 0.5rem)`,
-            left: `calc(${playerPosition} * (${lgTileSize}rem + ${gap}rem) + 0.5rem)`,
-        }}
+            '--base-offset': baseOffset,
+            '--lg-offset': lgOffset,
+        } as React.CSSProperties}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
         <AnimatePresence>
           {isMoving && (
             <motion.div
               key="loader"
-              className="absolute w-14 h-14 lg:w-18 lg:h-18 z-20"
+              className="absolute w-full h-full z-20"
               exit={{ opacity: 0 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
