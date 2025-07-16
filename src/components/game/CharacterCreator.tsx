@@ -137,7 +137,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   
   useEffect(() => {
     playAudio('/audio/menu-music.wav', { loop: true });
-  }, [playAudio]);
+  }, [playAudio, isMuted]);
 
   useEffect(() => {
     if (!iconApi) return;
@@ -310,7 +310,3 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
-
-    
-
-    

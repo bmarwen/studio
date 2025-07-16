@@ -94,7 +94,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   // --- Music Effect ---
   useEffect(() => {
     playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
-  }, [playAudio]);
+  }, [playAudio, isMuted]);
 
   // --- State Ref for Callbacks ---
   const gameStateRef = useRef({
@@ -118,7 +118,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     const map = generateWorld();
     setWorldMap(map);
     addLog(`A new world has been generated for ${player.name} the ${player.class}. Your quest begins!`);
-  }, []); // Run only once per game instance
+  }, [player.name, player.class]); // Run only once per game instance
 
   const calculateStats = useCallback((basePlayer: Player) => {
     const classStats = PLAYER_CLASSES[basePlayer.class];
@@ -743,7 +743,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return () => {
           window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [isLevelUpDialogOpen]);
+    }, [isLevelUpDialogOpen, handleMove]);
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center items-start pt-12">

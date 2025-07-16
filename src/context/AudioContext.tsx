@@ -29,7 +29,7 @@ export const useAudio = (): AudioContextType => {
 };
 
 export const AudioProvider = ({ children }: { children: ReactNode }) => {
-    const [isMuted, setIsMuted] = useState(true); // Default to muted until client-side check
+    const [isMuted, setIsMuted] = useState(true);
     const musicAudioRef = useRef<HTMLAudioElement | null>(null);
     const sfxAudioRefs = useRef<Set<HTMLAudioElement>>(new Set());
     const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -39,7 +39,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             const savedMuteState = localStorage.getItem('isMuted');
             setIsMuted(savedMuteState ? JSON.parse(savedMuteState) : false);
         } catch (error) {
-            console.error("Could not parse mute state from localStorage", error)
+            console.error("Could not parse mute state from localStorage", error);
             setIsMuted(false);
         }
     }, []);
@@ -47,101 +47,65 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         try {
             localStorage.setItem('isMuted', JSON.stringify(isMuted));
-            if (musicAudioRef.current) {
-                musicAudioRef.current.muted = isMuted;
-            }
-            sfxAudioRefs.current.forEach(audio => {
-                audio.muted = isMuted;
-            });
         } catch (error) {
             console.error("Could not save mute state to localStorage", error);
         }
     }, [isMuted]);
 
-    const cleanupMusic = useCallback(() => {
+    const stopAllAudio = useCallback(() => {
         if (musicAudioRef.current) {
             musicAudioRef.current.pause();
-            musicAudioRef.current.src = ""; // Detach the source
             musicAudioRef.current = null;
         }
+        sfxAudioRefs.current.forEach(audio => audio.pause());
+        sfxAudioRefs.current.clear();
         if (fadeIntervalRef.current) {
             clearInterval(fadeIntervalRef.current);
-            fadeIntervalRef.current = null;
         }
-    }, []);
-    
-    const fadeOut = useCallback((onComplete: () => void) => {
-        if (!musicAudioRef.current || musicAudioRef.current.volume === 0) {
-            onComplete();
-            return;
-        }
-    
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-    
-        const audio = musicAudioRef.current;
-        fadeIntervalRef.current = setInterval(() => {
-            if (audio.volume > 0.05) {
-                audio.volume = Math.max(0, audio.volume - 0.05);
-            } else {
-                audio.volume = 0;
-                audio.pause();
-                if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-                onComplete();
-            }
-        }, 50);
     }, []);
 
     const playAudio = useCallback((src: string, options: AudioOptions = {}) => {
-        const { loop = false, fade = false, volume = AUDIO_VOLUME } = options;
+        const { loop = false, volume = AUDIO_VOLUME } = options;
 
-        if (loop) { // Handle looping music
-            const startPlayback = () => {
-                cleanupMusic();
-                const audio = new Audio(src);
-                audio.loop = true;
-                audio.muted = isMuted;
-                audio.volume = isMuted ? 0 : volume;
-                audio.play().catch(error => console.error(`Music play failed for ${src}:`, error));
-                musicAudioRef.current = audio;
-            };
+        if (isMuted) return;
 
-            const currentMusicSrc = musicAudioRef.current ? new URL(musicAudioRef.current.src).pathname : null;
-            const newMusicSrc = new URL(src, window.location.origin).pathname;
+        if (loop) { // Music
+            if (musicAudioRef.current && musicAudioRef.current.src.endsWith(src)) {
+                return;
+            }
             
-            if (currentMusicSrc === newMusicSrc && !musicAudioRef.current?.paused) {
-              return; // Already playing this track
-            }
+            stopAllAudio(); // Stop everything before starting new music
 
-            if (fade && musicAudioRef.current) {
-                fadeOut(startPlayback);
-            } else {
-                startPlayback();
-            }
-        } else { // Handle one-shot sound effects
+            const audio = new Audio(src);
+            audio.loop = true;
+            audio.volume = volume;
+            audio.play().catch(e => console.error("Audio play failed:", e));
+            musicAudioRef.current = audio;
+
+        } else { // Sound Effects
             const sfx = new Audio(src);
-            sfx.loop = false;
-            sfx.muted = isMuted;
-            sfx.volume = isMuted ? 0 : volume;
-            sfx.play().catch(error => console.error(`SFX play failed for ${src}:`, error));
-            
-            sfxAudioRefs.current.add(sfx);
-            sfx.onended = () => {
-                sfxAudioRefs.current.delete(sfx);
-            };
-        }
-    }, [isMuted, fadeOut, cleanupMusic]);
+            sfx.volume = volume;
+            sfx.play().catch(e => console.error("SFX play failed:", e));
 
-    const stopAudio = useCallback(() => {
-        if (musicAudioRef.current) {
-            fadeOut(() => {
-                cleanupMusic();
+            sfxAudioRefs.current.add(sfx);
+            sfx.addEventListener('ended', () => {
+                sfxAudioRefs.current.delete(sfx);
             });
         }
-    }, [fadeOut, cleanupMusic]);
+    }, [isMuted, stopAllAudio]);
 
     const toggleMute = () => {
-        setIsMuted(prevMuted => !prevMuted);
+        const newMuteState = !isMuted;
+        setIsMuted(newMuteState);
+
+        if (newMuteState) {
+            stopAllAudio();
+        }
     };
+    
+    const stopAudio = useCallback(() => {
+        stopAllAudio();
+    }, [stopAllAudio]);
 
     return (
         <AudioContext.Provider value={{ isMuted, toggleMute, playAudio, stopAudio }}>
