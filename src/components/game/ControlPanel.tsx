@@ -96,29 +96,32 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
+  const inventoryItemCount = player.inventory.filter(Boolean).length;
+
 
   return (
-      <div className="w-full">
-        <Tabs defaultValue="equipment" className="w-full">
-            <div className="flex justify-between items-center mb-1">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="equipment">Equipment</TabsTrigger>
-                    <TabsTrigger value="inventory">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</TabsTrigger>
-                    <TabsTrigger value="quests">Quests</TabsTrigger>
-                </TabsList>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={toggleMute} className="ml-2">
-                                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+      <div className="w-full relative">
+        <TooltipProvider>
+            <div className="absolute top-0 right-0 z-10">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={toggleMute}>
+                            {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                    </TooltipContent>
+                </Tooltip>
             </div>
+        </TooltipProvider>
+
+        <Tabs defaultValue="equipment" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="equipment">Equipment</TabsTrigger>
+                <TabsTrigger value="inventory">Inventory ({inventoryItemCount}/{inventoryCapacity})</TabsTrigger>
+                <TabsTrigger value="quests">Quests</TabsTrigger>
+            </TabsList>
             <TabsContent value="equipment">
                 <Card className="bg-card/50 h-[180px]">
                     <CardContent className="p-4 flex items-center justify-center gap-x-4 h-full">
