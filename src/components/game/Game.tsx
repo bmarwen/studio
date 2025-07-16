@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff, Gem, Star, MapPin, UtensilsCrossed } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, LocateOff, Gem, Star, MapPin, UtensilsCrossed, Rabbit } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -730,8 +730,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     </CardHeader>
                     <CardContent className="space-y-1">
                         <div className="grid grid-cols-2 gap-x-4">
-                             <CombatStatDisplay label="INIT" value={player.initiative} icon={<Swords size={16}/>} tooltipText="Initiative: Chance to strike first in combat." isPercent />
-                             <CombatStatDisplay label="SCOUT" value={player.scoutRange} icon={<MapPin size={16}/>} tooltipText="Scout Range: Reveals threats in a wider area." />
+                             <CombatStatDisplay label="INIT" value={player.initiative} icon={<Rabbit size={16}/>} tooltipText="Initiative: Chance to strike first in combat." isPercent />
+                             <CombatStatDisplay label="SCOUT" value={player.scoutRange} icon={<Rabbit size={16}/>} tooltipText="Scout Range: Reveals threats in a wider area." />
                              <CombatStatDisplay label="D.HIT" value={player.doubleHitChance} icon={<UtensilsCrossed size={16}/>} tooltipText="Double Hit: Chance to strike twice in one attack." isPercent/>
                              <CombatStatDisplay label="LUCK" value={player.lootLuck} icon={<Gem size={16}/>} tooltipText="Loot Luck: Increases the chance of finding rare items." isPercent/>
                              <CombatStatDisplay label="XP" value={player.xpGainBonus} icon={<Star size={16}/>} tooltipText="Experience Bonus: Increases XP gained from all sources." isPercent/>
