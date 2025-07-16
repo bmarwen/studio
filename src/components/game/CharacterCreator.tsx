@@ -59,7 +59,7 @@ const STAT_LABELS: Record<string, string> = {
 
 const STAT_DESCRIPTIONS: Record<string, string> = {
     maxHp: "Health Points: Determines how much damage you can take before being defeated.",
-    maxStamina: "Stamina: Used for moving and special actions. Regenerates over time.",
+    maxStamina: "Stamina: Used for moving across the map. Regenerates over time.",
     attack: "Physical Attack: Increases damage dealt by physical attacks.",
     magicAttack: "Magic Attack: Increases damage dealt by spells.",
     defense: "Defense: Reduces incoming physical and magic damage by a flat amount.",
@@ -100,10 +100,10 @@ const AnimatedStatCard = ({ classId }: { classId: PlayerClass }) => {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="w-full"
         >
-            <Card className="bg-secondary/50">
-                <CardContent className="p-4">
+            <Card className="bg-secondary/50 p-2">
+                <CardContent className="p-4 space-y-1">
                     <p className="text-center text-muted-foreground mb-4 min-h-[40px] px-2">{CLASSES.find(c => c.id === classId)?.description}</p>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                    <div className="grid grid-cols-2 gap-x-6">
                         <StatDisplay labelKey="maxHp" value={stats.maxHp} />
                         <StatDisplay labelKey="maxStamina" value={stats.maxStamina} />
                         {classId === 'mage' ? (
@@ -310,5 +310,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
     </div>
   );
 }
+
+    
 
     

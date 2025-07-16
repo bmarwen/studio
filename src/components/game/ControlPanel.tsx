@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Zap, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, ShieldCheck, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Run, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, ShieldCheck, Volume2, VolumeX } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -151,7 +151,7 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
                 Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
             </CardDescription>
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
-            <StatItem icon={<Zap className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
+            <StatItem icon={<Run className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
             <Separator />
             <div className="grid grid-cols-2 gap-2">
                 <SmallStatDisplay label={primaryAttackStat.label} value={primaryAttackStat.value} icon={primaryAttackStat.icon} tooltip={primaryAttackStat.tooltip} />
@@ -297,5 +297,7 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
     </ScrollArea>
   );
 }
+
+    
 
     
