@@ -106,7 +106,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 <TabsTrigger value="quests">Quests</TabsTrigger>
             </TabsList>
             <TabsContent value="equipment">
-                <Card className="bg-card/50">
+                <Card className="bg-card/50 min-h-[160px]">
                     <CardContent className="p-4 flex items-center justify-center gap-x-4">
                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
@@ -117,7 +117,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="inventory">
-                <Card className="bg-card/50">
+                <Card className="bg-card/50 min-h-[160px]">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="font-headline text-lg">Inventory</CardTitle>
                     </CardHeader>
@@ -172,11 +172,11 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="quests">
-                 <Card className="bg-card/50">
+                 <Card className="bg-card/50 min-h-[160px] flex flex-col">
                      <CardHeader>
                         <CardTitle className="font-headline text-lg">Active Quests</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-grow">
                       {player.quests.length > 0 ? (
                         <ul className="space-y-4">
                           {player.quests.map((quest) => (
@@ -187,7 +187,9 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">No active quests.</p>
+                        <div className="flex h-full items-center justify-center">
+                            <p className="text-sm text-muted-foreground text-center py-4">No active quests.</p>
+                        </div>
                       )}
                     </CardContent>
                  </Card>
@@ -197,3 +199,4 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
+
