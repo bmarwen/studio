@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, Sparkles, Wind } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Dices, Settings, ShieldCheck, PersonStanding, ShieldOff } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -692,8 +692,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             )}
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
-                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Sparkles size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<Wind size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<ShieldOff size={16}/>} tooltipText="Magic Resist" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<PersonStanding size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
