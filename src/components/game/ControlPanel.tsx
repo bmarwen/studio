@@ -106,7 +106,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 <TabsTrigger value="quests">Quests</TabsTrigger>
             </TabsList>
             <TabsContent value="equipment">
-                <Card className="bg-card/50 h-[140px]">
+                <Card className="bg-card/50 h-[160px]">
                     <CardContent className="p-4 flex items-center justify-center gap-x-4 h-full">
                        <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
                        <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
@@ -117,7 +117,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="inventory">
-                <Card className="bg-card/50 h-[140px] flex flex-col">
+                <Card className="bg-card/50 h-[160px] flex flex-col justify-center">
                     <CardContent className="pt-4 flex-grow overflow-y-auto custom-scrollbar">
                         <div className="grid grid-cols-5 gap-2">
                             {inventorySlots.map((_, index) => {
@@ -169,7 +169,7 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
                 </Card>
             </TabsContent>
             <TabsContent value="quests">
-                 <Card className="bg-card/50 h-[140px] flex flex-col">
+                 <Card className="bg-card/50 h-[160px] flex flex-col justify-center">
                     <CardContent className="flex-grow p-4 overflow-y-auto custom-scrollbar">
                       {player.quests.length > 0 ? (
                         <ul className="space-y-4">
