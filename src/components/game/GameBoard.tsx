@@ -143,7 +143,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10" />
+                    <img src={iconPath} alt="player icon" className="w-16 h-16 rounded-full drop-shadow-lg z-10 pointer-events-auto" />
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>You</p>
