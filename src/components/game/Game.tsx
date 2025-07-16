@@ -641,7 +641,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="min-h-screen w-screen bg-background font-body text-foreground flex items-center justify-center">
+    <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
        <div className="flex flex-row items-start justify-center gap-2 w-full">
             
             <div className="flex items-center" style={{height: '744px'}}>
