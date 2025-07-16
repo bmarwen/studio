@@ -118,7 +118,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           {isMoving && (
             <motion.div
               key="loader"
-              className="absolute w-16 h-16 z-20 flex items-center justify-center"
+              className="absolute w-[4.5rem] h-[4.5rem] z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
