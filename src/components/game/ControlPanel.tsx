@@ -64,11 +64,8 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         ),
         boots: (
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M16 16h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
-                <path d="M8 16H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"></path>
-                <path d="M7 16v-2a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v2"></path>
-                <path d="M9 16V10"></path>
-                <path d="M15 16V10"></path>
+                 <path d="M16 16h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2v11zM6 16H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2v11z"></path>
+                 <path d="M11 16H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3v12zM16 5h-3v11h3a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"></path>
             </svg>
         )
     }
@@ -112,22 +109,20 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
             </TabsList>
             <TabsContent value="equipment">
                 <Card className="bg-card/50">
-                    <CardContent className="p-4 flex justify-center">
-                       <div className="flex flex-col items-center gap-y-2">
-                            <div className="flex justify-center">
-                                <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
-                            </div>
-                            
-                            <div className="flex justify-center gap-x-4">
-                                <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
-                                <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
-                            </div>
+                    <CardContent className="p-4 flex flex-col items-center gap-y-2">
+                       <div className="flex justify-center">
+                           <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
+                       </div>
+                       
+                       <div className="flex justify-center gap-x-4">
+                           <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
+                           <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                       </div>
 
-                            <div className="flex justify-center gap-x-4">
-                                <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
-                                <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
-                            </div>
-                        </div>
+                       <div className="flex justify-center gap-x-4">
+                           <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
+                           <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
+                       </div>
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -212,6 +207,3 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
-
-    
-    
