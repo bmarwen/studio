@@ -124,9 +124,9 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
         <AnimatePresence>
           {isMoving && (
             <motion.div
+              key="loader"
               className="absolute w-14 h-14"
               exit={{ opacity: 0 }}
-              transition={{ delay: moveCooldown / 1000, duration: 0.2 }}
             >
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
