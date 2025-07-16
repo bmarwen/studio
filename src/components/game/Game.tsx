@@ -403,14 +403,14 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setIsMoving(true);
     playAudio('/audio/move.wav', { volume: 0.3 });
     
+    addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
+
     setPlayer(p => {
         const newPlayerState = {
             ...p,
             stamina: p.stamina - moveCost,
             position: {x: newX, y: newY}
         };
-
-        addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
 
         if (targetTile.monster) {
             initiateCombat(targetTile.monster);
@@ -758,5 +758,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   );
 }
  
+
+    
+
 
     
