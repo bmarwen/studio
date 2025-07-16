@@ -95,12 +95,6 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
     return <div>Loading map...</div>;
   }
 
-  // base: tile = w-16 (4rem), gap = gap-1 (0.25rem), board padding = p-2 (0.5rem)
-  // lg: tile = w-20 (5rem), gap = gap-1 (0.25rem), board padding = p-2 (0.5rem)
-  const playerPositionInGrid = Math.floor(VIEWPORT_SIZE / 2);
-  const baseOffset = `calc(${playerPositionInGrid} * (4rem + 0.25rem) + 0.5rem)`;
-  const lgOffset = `calc(${playerPositionInGrid} * (5rem + 0.25rem) + 0.5rem)`;
-
   return (
     <div className="relative border-4 border-primary rounded-lg shadow-xl p-2 bg-secondary">
       <div className={`grid grid-cols-9 gap-1`}>
@@ -119,10 +113,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
       </div>
       <motion.div 
         className={cn(
-            "absolute flex items-center justify-center pointer-events-none w-14 h-14 lg:w-16 lg:h-16",
-            // Use Tailwind's arbitrary values to set the correct position responsively
-            "top-[calc(4_*_4.25rem_+_0.5rem)] left-[calc(4_*_4.25rem_+_0.5rem)]",
-            "lg:top-[calc(4_*_5.25rem_+_0.5rem)] lg:left-[calc(4_*_5.25rem_+_0.5rem)]"
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         )}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
@@ -133,7 +124,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
               className="absolute w-full h-full z-20 flex items-center justify-center"
               exit={{ opacity: 0 }}
             >
-              <svg className="w-[50px] h-[50px] lg:w-[58px] lg:h-[58px] -rotate-90" viewBox="0 0 100 100">
+              <svg className="w-[52px] h-[52px] lg:w-[60px] lg:h-[60px] -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
                   cx="50"
                   cy="50"
