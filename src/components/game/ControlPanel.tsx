@@ -18,13 +18,12 @@ import { Label } from '../ui/label';
 
 interface ControlPanelProps {
   player: Player;
-  log: string[];
-  moveCooldown: number;
   onReset: () => void;
   onUseItem: (item: Item, index: number) => void;
   onEquipItem: (item: Item, index: number) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
   onMoveSpeedChange: (speed: number) => void;
+  moveCooldown: number;
 }
 
 const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
@@ -134,7 +133,7 @@ const SmallStatDisplay = ({ label, value, isPercent = false, icon, tooltip }: {l
     </TooltipProvider>
 )
 
-export default function ControlPanel({ player, log, moveCooldown, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange }: ControlPanelProps) {
+export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange, moveCooldown }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
@@ -288,16 +287,6 @@ export default function ControlPanel({ player, log, moveCooldown, onReset, onUse
           </AccordionItem>
         </Accordion>
         
-        <Card>
-            <CardHeader className="p-4">
-                <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="text-xs font-mono space-y-2 p-4 h-48 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
-                    {log.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
-                </div>
-            </CardContent>
-        </Card>
       </div>
     </ScrollArea>
   );
