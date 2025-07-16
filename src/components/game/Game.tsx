@@ -84,6 +84,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   const { playAudio } = useAudio();
 
   const combatTimerRef = useRef<NodeJS.Timeout>();
+  const worldGeneratedRef = useRef(false);
 
   // --- Music Effect ---
   useEffect(() => {
@@ -106,6 +107,9 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   // ---------------------------------
 
   useEffect(() => {
+    if (worldGeneratedRef.current) return;
+    worldGeneratedRef.current = true;
+    
     const map = generateWorld();
     setWorldMap(map);
     addLog(`A new world has been generated for ${player.name} the ${player.class}. Your quest begins!`);
@@ -761,5 +765,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     
 
+
+    
 
     
