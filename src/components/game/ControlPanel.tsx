@@ -57,16 +57,18 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         armor: <Shirt className="w-8 h-8 text-muted-foreground opacity-75" />,
         belt: (
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M10.29 2.86a2 2 0 0 1 3.42 0l2.55 4.38a2 2 0 0 0 1.71 1.05h5.03a2 2 0 0 1 1.98 2.29l-1.07 7.51a2 2 0 0 1-2 1.84H4.08a2 2 0 0 1-2-1.84L1.01 10.58a2 2 0 0 1 1.98-2.29h5.03a2 2 0 0 0 1.71-1.05l2.56-4.38z"/>
-                <path d="M9 18V6"/>
-                <path d="M15 18V6"/>
+                <path d="M10.29 2.86a2 2 0 0 1 3.42 0l2.55 4.38a2 2 0 0 0 1.71 1.05h5.03a2 2 0 0 1 1.98 2.29l-1.07 7.51a2 2 0 0 1-2 1.84H4.08a2 2 0 0 1-2-1.84L1.01 10.58a2 2 0 0 1 1.98-2.29h5.03a2 2 0 0 0 1.71-1.05l2.56-4.38z"></path>
+                <path d="M9 18V6"></path>
+                <path d="M15 18V6"></path>
             </svg>
         ),
         boots: (
-             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M7 17v-4h4v4h-4z"/>
-                <path d="M13 17v-4h4v4h-4z"/>
-                <path d="M5.5 13.5A2.5 2.5 0 0 0 3 11V9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2.5 2.5 0 0 0-2.5 2.5V17a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1v-3.5z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
+                <path d="M16 16h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+                <path d="M8 16H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"></path>
+                <path d="M7 16v-2a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v2"></path>
+                <path d="M9 16V10"></path>
+                <path d="M15 16V10"></path>
             </svg>
         )
     }
@@ -212,6 +214,4 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
 }
 
     
-
-
-
+    
