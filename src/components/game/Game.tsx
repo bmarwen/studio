@@ -676,7 +676,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
-       <div className="flex flex-row items-start justify-center gap-2 w-full">
+       <div className="flex flex-row items-start justify-center gap-4 w-full">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
@@ -691,7 +691,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                                     variant="ghost" 
                                     size="icon" 
                                     onClick={toggleMute} 
-                                    className="w-8 h-8 bg-background/50 hover:bg-accent absolute -left-12 top-2.5 z-20"
+                                    className="absolute w-8 h-8 bg-background/50 hover:bg-accent top-2.5 -left-12 z-20"
                                 >
                                     {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                 </Button>
@@ -824,19 +824,4 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       )}
     </div>
   );
-
-    
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
+}
