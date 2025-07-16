@@ -17,10 +17,10 @@ export default function MovementControls({ onMove }: MovementControlsProps) {
       <Button variant="outline" size="lg" className="absolute top-1/2 -right-28 -translate-y-1/2" onClick={() => onMove(1, 0)} aria-label="Move right">
         <ArrowRight />
       </Button>
-      <Button variant="outline" size="lg" className="absolute left-1/2 -top-16 -translate-x-1/2" onClick={() => onMove(0, -1)} aria-label="Move up">
+      <Button variant="outline" size="lg" className="absolute left-1/2 -top-20 -translate-x-1/2" onClick={() => onMove(0, -1)} aria-label="Move up">
         <ArrowUp />
       </Button>
-      <Button variant="outline" size="lg" className="absolute left-1/2 -bottom-16 -translate-x-1/2" onClick={() => onMove(0, 1)} aria-label="Move down">
+      <Button variant="outline" size="lg" className="absolute left-1/2 -bottom-20 -translate-x-1/2" onClick={() => onMove(0, 1)} aria-label="Move down">
         <ArrowDown />
       </Button>
     </>
