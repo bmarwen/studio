@@ -683,11 +683,11 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             </div>
 
             <main className="flex flex-col items-center gap-4">
-                <div className="relative">
-                     <TooltipProvider>
+                <div className="flex items-center gap-2" style={{ marginRight: '40px' }}>
+                    <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={toggleMute} className="absolute -top-12 left-0 w-8 h-8 bg-background/50 hover:bg-background/80 z-10">
+                                <Button variant="ghost" size="icon" onClick={toggleMute} className="w-8 h-8 bg-background/50 hover:bg-background/80">
                                     {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                 </Button>
                             </TooltipTrigger>
@@ -696,6 +696,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
+
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -824,6 +825,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
