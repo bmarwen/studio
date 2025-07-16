@@ -6,8 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Activity, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Heart, Activity, Package, BookUser, Settings, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -15,6 +14,7 @@ import { INVENTORY_SIZE } from '@/lib/game-constants';
 import { useAudio } from '@/context/AudioContext';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ControlPanelProps {
   player: Player;
@@ -123,37 +123,13 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-const SmallStatDisplay = ({ label, value, isPercent = false, icon, tooltip }: {label: string, value: number, isPercent?: boolean, icon: React.ReactNode, tooltip: string}) => (
-    <TooltipProvider>
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <div className="flex items-center justify-between text-sm py-1.5 px-3 bg-secondary/50 rounded-md">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        {icon}
-                        <span className="font-bold uppercase">{label}</span>
-                    </div>
-                    <span className="font-mono text-primary">{value}{isPercent ? '%' : ''}</span>
-                </div>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p>{tooltip}</p>
-            </TooltipContent>
-        </Tooltip>
-    </TooltipProvider>
-)
-
 export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, onUnequipItem, onMoveSpeedChange, moveCooldown }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
 
-  const primaryAttackStat = player.class === 'mage' 
-    ? { label: "M.ATT", value: player.magicAttack, icon: <Sparkles className="w-4 h-4 text-purple-400" />, tooltip: "Magic Attack: Increases damage dealt by spells." }
-    : { label: "P.ATT", value: player.attack, icon: <Swords className="w-4 h-4 text-gray-400" />, tooltip: "Physical Attack: Increases damage dealt by physical attacks." };
-
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col gap-4 pr-4">
+      <div className="flex flex-col gap-4 w-full">
         <Card className="bg-card/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
@@ -165,121 +141,123 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
             </CardDescription>
             <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
             <StatItem icon={<Activity className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
-            <Separator />
-            <div className="grid grid-cols-2 gap-2">
-                <SmallStatDisplay label={primaryAttackStat.label} value={primaryAttackStat.value} icon={primaryAttackStat.icon} tooltip={primaryAttackStat.tooltip} />
-                <SmallStatDisplay label="DEF" value={player.defense} icon={<Shield className="w-4 h-4 text-gray-400" />} tooltip="Defense: Reduces incoming physical and magic damage by a flat amount."/>
-                <SmallStatDisplay label="ARM" value={player.armor} icon={<Shield className="w-4 h-4 text-blue-400" />} tooltip="Armor: Reduces incoming physical damage."/>
-                <SmallStatDisplay label="M.RES" value={player.magicResist} icon={<Shield className="w-4 h-4 text-purple-400" />} tooltip="Magic Resist: Reduces incoming magic damage."/>
-                <SmallStatDisplay label="CRIT" value={player.criticalChance} isPercent icon={<Star className="w-4 h-4 text-gray-400" />} tooltip="Critical Chance: The probability of landing a critical hit for extra damage."/>
-                <SmallStatDisplay label="EVA" value={player.evasion} isPercent icon={<Shield className="w-4 h-4 text-green-400" />} tooltip="Evasion: The chance to completely dodge an incoming attack."/>
-            </div>
           </CardContent>
         </Card>
 
-        <Accordion type="multiple" defaultValue={["equipment", "inventory"]} className="w-full">
-            <AccordionItem value="equipment">
-                <AccordionTrigger className="text-lg font-headline">
-                    <div className="flex items-center gap-2"><Package />Equipment</div>
-                </AccordionTrigger>
-                <AccordionContent>
-                    <div className="flex flex-col items-center gap-y-2">
-                        {/* Row 1: Helmet */}
-                        <div>
-                            <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
-                        </div>
-                        
-                        {/* Row 2: Weapon & Armor */}
-                        <div className="flex gap-x-4">
-                            <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
-                            <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
-                        </div>
+        <Tabs defaultValue="equipment" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="equipment">Equipment</TabsTrigger>
+                <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                <TabsTrigger value="quests">Quests</TabsTrigger>
+            </TabsList>
+            <TabsContent value="equipment">
+                <Card className="bg-card/50">
+                    <CardContent className="p-4 flex justify-center">
+                       <div className="flex flex-col items-center gap-y-2">
+                            {/* Row 1: Helmet */}
+                            <div className="flex justify-center">
+                                <EquipmentSlotDisplay slot="helmet" item={player.equipment.helmet} onUnequip={onUnequipItem} />
+                            </div>
+                            
+                            {/* Row 2: Weapon & Armor */}
+                            <div className="flex justify-center gap-x-4">
+                                <EquipmentSlotDisplay slot="weapon" item={player.equipment.weapon} onUnequip={onUnequipItem} />
+                                <EquipmentSlotDisplay slot="armor" item={player.equipment.armor} onUnequip={onUnequipItem} />
+                            </div>
 
-                        {/* Row 3: Belt & Boots */}
-                        <div className="flex gap-x-4">
-                            <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
-                            <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
+                            {/* Row 3: Belt & Boots */}
+                            <div className="flex justify-center gap-x-4">
+                                <EquipmentSlotDisplay slot="belt" item={player.equipment.belt} onUnequip={onUnequipItem} />
+                                <EquipmentSlotDisplay slot="boots" item={player.equipment.boots} onUnequip={onUnequipItem} />
+                            </div>
                         </div>
-                    </div>
-                </AccordionContent>
-            </AccordionItem>
-          <AccordionItem value="inventory">
-            <AccordionTrigger className="text-lg font-headline">
-                <div className="flex items-center gap-2"><Package />Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</div>
-            </AccordionTrigger>
-            <AccordionContent>
-               <div className="grid grid-cols-4 gap-4">
-                 {inventorySlots.map((_, index) => {
-                    const item = player.inventory[index];
-                    const inventorySlot = (
-                        <div
-                            key={item ? `item-${item.id}-${index}`: `empty-${index}`}
-                            onClick={() => {
-                                if (!item) return;
-                                if (item.type === 'consumable' || item.type === 'utility') {
-                                    onUseItem(item, index);
-                                } else {
-                                    onEquipItem(item, index);
-                                }
-                            }}
-                            className={cn(
-                                'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
-                                item && 'cursor-pointer hover:border-primary'
-                            )}
-                        >
-                            {item && (
-                                <>
-                                    <img src={item.icon} alt={item.name} className="w-10 h-10" />
-                                    {item.quantity && item.quantity > 1 && (
-                                        <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
-                                            {item.quantity}
-                                        </span>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    );
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="inventory">
+                <Card className="bg-card/50">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-lg">Inventory ({player.inventory.filter(i => i).length}/{inventoryCapacity})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-5 gap-2">
+                            {inventorySlots.map((_, index) => {
+                                const item = player.inventory[index];
+                                const inventorySlot = (
+                                    <div
+                                        key={item ? `item-${item.id}-${index}`: `empty-${index}`}
+                                        onClick={() => {
+                                            if (!item) return;
+                                            if (item.type === 'consumable' || item.type === 'utility') {
+                                                onUseItem(item, index);
+                                            } else {
+                                                onEquipItem(item, index);
+                                            }
+                                        }}
+                                        className={cn(
+                                            'w-16 h-16 bg-secondary rounded-lg flex items-center justify-center border-2 border-border relative p-0',
+                                            item && 'cursor-pointer hover:border-primary'
+                                        )}
+                                    >
+                                        {item && (
+                                            <>
+                                                <img src={item.icon} alt={item.name} className="w-10 h-10" />
+                                                {item.quantity && item.quantity > 1 && (
+                                                    <span className="absolute bottom-1 right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full px-1.5 py-0.5 z-10">
+                                                        {item.quantity}
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                );
 
-                    return item ? (
-                        <TooltipProvider key={index}>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    {inventorySlot}
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom">
-                                    <ItemTooltipContent item={item} />
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    ) : inventorySlot;
-                 })}
-               </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="quests">
-            <AccordionTrigger className="text-lg font-headline">
-                <div className="flex items-center gap-2"><BookUser />Quests</div>
-            </AccordionTrigger>
-            <AccordionContent>
-              {player.quests.length > 0 ? (
-                <ul className="space-y-2">
-                  {player.quests.map((quest) => (
-                    <li key={quest.id}>
-                        <p className="font-bold">{quest.title}</p>
-                        <p className="text-sm text-muted-foreground">{quest.description}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">No active quests.</p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+                                return item ? (
+                                    <TooltipProvider key={index}>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                {inventorySlot}
+                                            </TooltipTrigger>
+                                            <TooltipContent side="bottom">
+                                                <ItemTooltipContent item={item} />
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                ) : inventorySlot;
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="quests">
+                 <Card className="bg-card/50">
+                     <CardHeader>
+                        <CardTitle className="font-headline text-lg">Active Quests</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {player.quests.length > 0 ? (
+                        <ul className="space-y-4">
+                          {player.quests.map((quest) => (
+                            <li key={quest.id} className="border-b border-border/50 pb-2">
+                                <p className="font-bold">{quest.title}</p>
+                                <p className="text-sm text-muted-foreground">{quest.description}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">No active quests.</p>
+                      )}
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+        </Tabs>
+        
+        <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="dev">
             <AccordionTrigger className="text-lg font-headline">
                 <div className="flex items-center gap-2"><Settings />Dev Mode</div>
             </AccordionTrigger>
-            <AccordionContent className="p-4 space-y-4">
+            <AccordionContent className="p-4 space-y-4 bg-card/50 rounded-b-lg">
                <p className="text-xs text-muted-foreground">Dev tools for testing.</p>
                <div className='space-y-2'>
                 <Label>Move Cooldown: {(moveCooldown / 1000).toFixed(1)}s</Label>
@@ -309,6 +287,5 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
         </Accordion>
         
       </div>
-    </ScrollArea>
   );
 }

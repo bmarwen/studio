@@ -598,48 +598,43 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
-      <div className="flex w-full items-start justify-center p-4 gap-4">
-        
-        <div className="flex-1 flex justify-center items-center gap-8">
-            <div className="flex justify-center items-center gap-4">
-                <main className="flex flex-col items-center justify-start gap-4">
-                    <h1 className="w-full text-left text-4xl font-headline text-primary mb-4">Square Clash</h1>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-                    </motion.div>
-                    <Card className="w-full max-w-4xl lg:max-w-5xl mt-4 mx-auto">
-                        <CardHeader className="p-4">
-                            <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="text-xs font-mono space-y-2 p-4 h-32 bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
-                                {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </main>
-                <div className="h-full flex items-center">
-                    <MovementControls onMove={handleMove} />
-                </div>
+        <main className="flex flex-1 flex-col items-center justify-start p-4 gap-4">
+            <h1 className="w-full text-left text-4xl font-headline text-primary">Square Clash</h1>
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+            >
+                <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+            </motion.div>
+            <div className="w-full max-w-2xl">
+                 <ControlPanel 
+                    player={player} 
+                    onReset={onReset} 
+                    onUseItem={handleUseItem} 
+                    onEquipItem={handleEquipItem} 
+                    onUnequipItem={handleUnequipItem}
+                    moveCooldown={moveCooldown}
+                    onMoveSpeedChange={setMoveCooldown}
+                />
             </div>
-        </div>
+        </main>
         
-        <aside className="w-1/3 max-w-sm lg:max-w-md bg-card border-l-2 border-border p-4 overflow-y-auto h-full">
-          <ControlPanel 
-              player={player} 
-              onReset={onReset} 
-              onUseItem={handleUseItem} 
-              onEquipItem={handleEquipItem} 
-              onUnequipItem={handleUnequipItem}
-              moveCooldown={moveCooldown}
-              onMoveSpeedChange={setMoveCooldown}
-          />
+        <aside className="flex flex-col justify-center items-start gap-4 p-4">
+             <div className="flex-grow flex items-center">
+                <MovementControls onMove={handleMove} />
+             </div>
+             <Card className="w-full h-1/2">
+                <CardHeader className="p-4">
+                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
+                        {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
+                    </div>
+                </CardContent>
+            </Card>
         </aside>
-      </div>
       
       {pendingCombat && combatCountdown > 0 && (
         <AlertDialog open={true}>
