@@ -676,28 +676,31 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center pt-12">
-       <div className="flex flex-row items-start justify-center gap-2 w-full">
+       <div className="flex flex-row items-center justify-center gap-2 w-full">
             
             <div className="flex flex-col items-center justify-center h-[744px] w-[240px]">
               <MovementControls onMove={handleMove} />
             </div>
 
             <main className="flex flex-col items-center gap-4">
-                <div className="flex items-start">
-                     <div style={{ marginRight: '5px' }}>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={toggleMute} className="w-8 h-8 bg-background/50 hover:bg-background/80">
-                                        {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                    <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
+                <div className="relative">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={toggleMute} 
+                                    className="w-8 h-8 bg-background/50 hover:bg-background/80 absolute -left-10 top-2 z-20"
+                                >
+                                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">
+                                <p>{isMuted ? 'Unmute' : 'Mute'} Music</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -827,6 +830,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
 
     
+
 
 
 
