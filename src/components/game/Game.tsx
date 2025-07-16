@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
-import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE } from '@/lib/game-constants';
+import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, MOVE_COOLDOWN, INITIAL_PLAYER_STATE, PLAYER_CLASSES, INVENTORY_SIZE, TERRAIN_STAMINA_COST } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
 import ControlPanel from './ControlPanel';
 import MovementControls from './MovementControls';
@@ -824,4 +824,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
       )}
     </div>
   );
-}
+
+    
