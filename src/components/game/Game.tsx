@@ -93,7 +93,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   // --- Music Effect ---
   useEffect(() => {
-    playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
+    playAudio('/audio/game-music.wav', { loop: true, fade: true });
   }, [playAudio, isMuted]);
 
   // --- State Ref for Callbacks ---
@@ -329,20 +329,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     newPlayerState.hasBackpack = true;
                     addLog(`You can carry more! Your inventory has expanded.`);
                 } else if (!isBackpack) {
-                    const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
-                    if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                        newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
-                    } else {
-                        const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
-                        const currentItemCount = newInventory.filter(slot => slot !== null).length;
-                        if (currentItemCount < inventoryCapacity) {
+                    const inventoryCapacity = INVENTORY_SIZE + (p.hasBackpack ? 4 : 0);
+                    const currentItemCount = newInventory.filter(slot => slot !== null).length;
+                    if (currentItemCount < inventoryCapacity) {
+                        const existingItemIndex = newInventory.findIndex(i => i?.itemId === loot.itemId && i?.type === 'consumable');
+                        if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                            newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + loot.quantity;
+                        } else {
                             const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
                             if (emptySlotIndex !== -1) {
                                 newInventory[emptySlotIndex] = loot;
                             }
-                        } else {
-                            addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
                         }
+                    } else {
+                        addLog(`Your inventory is full! You couldn't pick up the ${loot.name}.`);
                     }
                 }
             });
@@ -493,19 +493,20 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                 const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
                 const newInventory = [...newPlayerState.inventory];
                 const currentItemCount = newInventory.filter(i => i !== null).length;
-                const existingItemIndex = newInventory.findIndex(i => i?.itemId === foundItem.itemId && i.type === 'consumable');
-
-                if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
-                    newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (foundItem.quantity || 1);
-                } else if (currentItemCount < inventoryCapacity) {
-                    const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
-                    if (emptySlotIndex !== -1) {
-                        newInventory[emptySlotIndex] = foundItem;
+                if (currentItemCount < inventoryCapacity) {
+                    const existingItemIndex = newInventory.findIndex(i => i?.itemId === foundItem.itemId && i.type === 'consumable');
+                    if (existingItemIndex > -1 && newInventory[existingItemIndex] && newInventory[existingItemIndex]!.quantity) {
+                        newInventory[existingItemIndex]!.quantity = (newInventory[existingItemIndex]!.quantity || 1) + (foundItem.quantity || 1);
+                    } else {
+                        const emptySlotIndex = newInventory.findIndex(slot => slot === null || slot === undefined);
+                        if (emptySlotIndex !== -1) {
+                            newInventory[emptySlotIndex] = foundItem;
+                        }
                     }
+                    newPlayerState.inventory = newInventory;
                 } else {
-                    addLog("Your inventory is full! You leave the item on the ground.");
+                    addLog(`Your inventory is full! You leave the item on the ground.`);
                 }
-                newPlayerState.inventory = newInventory;
             }
             
             setWorldMap(prevMap => {
@@ -653,8 +654,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     if (!itemToUnequip) return;
     
     const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
-    const emptySlotIndex = player.inventory.findIndex(i => !i);
-    if (emptySlotIndex === -1 && player.inventory.filter(i => i).length >= inventoryCapacity) {
+    const currentItemCount = player.inventory.filter(i => i).length;
+    if (currentItemCount >= inventoryCapacity) {
         addLog("Cannot unequip, inventory is full!");
         toast({
             title: (
@@ -675,6 +676,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     setPlayer(p => {
         const newInventory = [...p.inventory];
         const newEquipment = { ...p.equipment };
+        const emptySlotIndex = player.inventory.findIndex(i => !i);
         
         newEquipment[slot] = null;
         newInventory[emptySlotIndex] = itemToUnequip;
@@ -731,7 +733,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
   
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-          if (document.activeElement?.tagName === 'INPUT' || isLevelUpDialogOpen) return;
+          if (document.activeElement?.tagName === 'INPUT' || isLevelUpDialogOpen || combatInfo?.open) return;
           if (e.key === 'ArrowUp' || e.key === 'w') handleMove(0, -1);
           if (e.key === 'ArrowDown' || e.key === 's') handleMove(0, 1);
           if (e.key === 'ArrowLeft' || e.key === 'a') handleMove(-1, 0);
@@ -743,7 +745,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         return () => {
           window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [isLevelUpDialogOpen, handleMove]);
+    }, [isLevelUpDialogOpen, combatInfo, handleMove]);
 
   return (
     <div className="min-h-screen w-screen bg-background font-body text-foreground flex justify-center items-start pt-12">

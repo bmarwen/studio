@@ -136,7 +136,7 @@ export default function CharacterCreator({ onPlayerCreate }: Props) {
   const { isMuted, toggleMute, playAudio } = useAudio();
   
   useEffect(() => {
-    playAudio('/audio/menu-music.wav', { loop: true });
+    playAudio('/audio/game-music.wav', { loop: true });
   }, [playAudio, isMuted]);
 
   useEffect(() => {
