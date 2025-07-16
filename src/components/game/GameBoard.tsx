@@ -111,11 +111,10 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           ))
         )}
       </div>
-      <motion.div 
+      <div 
         className={cn(
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         )}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
         <AnimatePresence>
           {isMoving && (
@@ -144,7 +143,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
           )}
         </AnimatePresence>
           <img src={iconPath} alt="player icon" className="w-11 h-11 lg:w-14 lg:h-14 rounded-full drop-shadow-lg z-10" />
-      </motion.div>
+      </div>
     </div>
   );
 };
