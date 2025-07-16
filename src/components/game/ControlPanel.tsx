@@ -209,5 +209,3 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
-
-    
