@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -32,5 +33,9 @@ export default function HomePage() {
     return <CharacterCreator onPlayerCreate={handleCharacterCreation} />;
   }
 
-  return <Game key={gameKey} initialPlayer={player} onReset={handleGameReset} />;
+  return (
+    <div className="w-screen h-screen overflow-hidden">
+      <Game key={gameKey} initialPlayer={player} onReset={handleGameReset} />
+    </div>
+  );
 }

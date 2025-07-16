@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect } from '@/types/game';
+import type { Player, TileData, Monster, CombatLogEntry, Item, EquipmentSlot, PlayerEffect, PlayerClass } from '@/types/game';
 import { generateWorld } from '@/lib/world-generator';
 import { MAP_SIZE, VIEWPORT_SIZE, STAMINA_REGEN_RATE, TERRAIN_STAMINA_COST, PLAYER_CLASSES, INVENTORY_SIZE, MOVE_COOLDOWN } from '@/lib/game-constants';
 import GameBoard from './GameBoard';
@@ -13,10 +13,31 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+
+
+const CLASS_ICONS: Record<PlayerClass, string> = {
+    warrior: '/icons/warrior-icon.png',
+    mage: '/icons/mage-icon.png',
+    ranger: '/icons/ranger-icon.png',
+    assassin: '/icons/assassin-icon.png',
+}
+
+const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
+  <div>
+    <div className="flex justify-between items-center mb-1 text-sm">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span className="font-medium">{label}</span>
+      </div>
+      <span className={`font-mono ${colorClass}`}>{maxValue ? `${Math.round(value)}/${maxValue}` : value}</span>
+    </div>
+    {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={indicatorClassName} />}
+  </div>
+);
 
 interface GameProps {
   initialPlayer: Player;
@@ -597,45 +618,66 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     }, []);
 
   return (
-    <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
-        <main className="flex flex-1 flex-col items-center justify-start p-4 gap-4">
-            <h1 className="w-full text-left text-4xl font-headline text-primary">Square Clash</h1>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-            >
-                <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
-            </motion.div>
-            <div className="w-full max-w-2xl">
-                 <ControlPanel 
-                    player={player} 
-                    onReset={onReset} 
-                    onUseItem={handleUseItem} 
-                    onEquipItem={handleEquipItem} 
-                    onUnequipItem={handleUnequipItem}
-                    moveCooldown={moveCooldown}
-                    onMoveSpeedChange={setMoveCooldown}
-                />
-            </div>
-        </main>
-        
-        <aside className="flex flex-col justify-center items-start gap-4 p-4">
-             <div className="flex-grow flex items-center">
+    <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 gap-4">
+       <div className="flex flex-row flex-grow gap-4">
+            {/* Left Column - Movement Controls */}
+            <aside className="flex flex-col justify-center items-center w-44">
                 <MovementControls onMove={handleMove} />
-             </div>
-             <Card className="w-full h-1/2">
-                <CardHeader className="p-4">
-                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
-                        {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
-                    </div>
-                </CardContent>
-            </Card>
-        </aside>
-      
+            </aside>
+            
+            {/* Center Column - Game Board */}
+            <main className="flex-1 flex flex-col items-center justify-center">
+                <h1 className="w-full text-left text-4xl font-headline text-primary mb-4">Square Clash</h1>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <GameBoard viewport={viewport} playerIcon={player.icon} isMoving={isMoving} moveCooldown={moveCooldown} />
+                </motion.div>
+            </main>
+
+            {/* Right Column - Player Info & Log */}
+            <aside className="w-72 flex flex-col gap-4">
+                 <Card className="bg-card/50">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
+                        <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-14 h-14 rounded-full bg-secondary p-1" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <CardDescription className="flex items-center gap-2">
+                            Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
+                        </CardDescription>
+                        <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
+                        <StatItem icon={<Activity className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
+                    </CardContent>
+                </Card>
+                 <Card className="flex-grow">
+                    <CardHeader className="p-4">
+                        <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 h-[calc(100%-4rem)]">
+                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
+                            {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
+                        </div>
+                    </CardContent>
+                </Card>
+            </aside>
+       </div>
+       
+       {/* Bottom Section - Control Panel */}
+       <div className="w-full">
+            <ControlPanel 
+                player={player} 
+                onReset={onReset} 
+                onUseItem={handleUseItem} 
+                onEquipItem={handleEquipItem} 
+                onUnequipItem={handleUnequipItem}
+                moveCooldown={moveCooldown}
+                onMoveSpeedChange={setMoveCooldown}
+            />
+       </div>
+
       {pendingCombat && combatCountdown > 0 && (
         <AlertDialog open={true}>
             <AlertDialogContent>

@@ -2,11 +2,10 @@
 "use client";
 
 import type { Player, Item, EquipmentSlot, ItemRarity, PlayerClass } from '@/types/game';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Activity, Package, BookUser, Settings, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
+import { Settings, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -26,32 +25,12 @@ interface ControlPanelProps {
   moveCooldown: number;
 }
 
-const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName }: { icon: React.ReactNode, label: string, value: number, maxValue?: number, colorClass: string, indicatorClassName?: string }) => (
-  <div>
-    <div className="flex justify-between items-center mb-1 text-sm">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="font-medium">{label}</span>
-      </div>
-      <span className={`font-mono ${colorClass}`}>{maxValue ? `${Math.round(value)}/${maxValue}` : value}</span>
-    </div>
-    {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={indicatorClassName} />}
-  </div>
-);
-
 const RARITY_COLORS: Record<ItemRarity, string> = {
     Common: 'text-gray-400',
     Rare: 'text-blue-400',
     Epic: 'text-purple-500',
     Legendary: 'text-orange-400',
 };
-
-const CLASS_ICONS: Record<PlayerClass, string> = {
-    warrior: '/icons/warrior-icon.png',
-    mage: '/icons/mage-icon.png',
-    ranger: '/icons/ranger-icon.png',
-    assassin: '/icons/assassin-icon.png',
-}
 
 const ItemTooltipContent = ({ item }: { item: Item }) => (
     <div className="p-2 space-y-2 text-sm w-64">
@@ -129,21 +108,7 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
   const { isMuted, toggleMute } = useAudio();
 
   return (
-      <div className="flex flex-col gap-4 w-full">
-        <Card className="bg-card/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
-            <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-14 h-14 rounded-full bg-secondary p-1" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <CardDescription className="flex items-center gap-2">
-                Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
-            </CardDescription>
-            <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
-            <StatItem icon={<Activity className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
-          </CardContent>
-        </Card>
-
+      <div className="w-full">
         <Tabs defaultValue="equipment" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="equipment">Equipment</TabsTrigger>
@@ -252,7 +217,7 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
             </TabsContent>
         </Tabs>
         
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full mt-4">
           <AccordionItem value="dev">
             <AccordionTrigger className="text-lg font-headline">
                 <div className="flex items-center gap-2"><Settings />Dev Mode</div>
