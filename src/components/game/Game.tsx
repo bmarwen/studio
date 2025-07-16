@@ -42,7 +42,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   // --- Music Effect ---
   useEffect(() => {
-    playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
+    // playAudio('/audio/in-game-music.wav', { loop: true, fade: true });
   }, [playAudio]);
 
   // --- State Ref for Callbacks ---
@@ -288,7 +288,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     if (gameStateRef.current.combatInfo?.open || gameStateRef.current.pendingCombat) return;
 
     setTimeout(() => {
-        playAudio('/audio/combat-start.wav');
+        // playAudio('/audio/combat-start.wav');
         setPendingCombat(monster);
         setCombatCountdown(3);
     }, 1300); // 1.3s delay
