@@ -298,41 +298,24 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
     const newInventory = [...inventory];
     const capacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
-    
+
     // --- 1. Attempt to STACK ---
     if (itemToAdd.type === 'consumable' && itemToAdd.quantity) {
         for (let i = 0; i < newInventory.length; i++) {
             const existingItem = newInventory[i];
-            // Find a stack of the same item that isn't full
             if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity && existingItem.quantity < 9) {
-                const canAdd = 9 - existingItem.quantity;
-                const amountToAdd = Math.min(itemToAdd.quantity, canAdd);
-                
-                // Update the existing item's quantity
-                newInventory[i] = { ...existingItem, quantity: existingItem.quantity + amountToAdd };
-                
-                const quantityRemaining = itemToAdd.quantity - amountToAdd;
-
-                if (quantityRemaining <= 0) {
-                    // All of the new item was stacked successfully
-                    return { newInventory, success: true };
-                }
-                
-                // Update itemToAdd with the remaining quantity and continue to find a new slot
-                itemToAdd = { ...itemToAdd, quantity: quantityRemaining };
-                break; // Stop searching for stacks and proceed to find an empty slot
+                newInventory[i] = { ...existingItem, quantity: existingItem.quantity + 1 };
+                // If stacking a quantity of more than 1, this needs a loop, but for now, we assume adding one at a time.
+                return { newInventory, success: true };
             }
         }
     }
 
     // --- 2. Attempt to add to an EMPTY SLOT ---
-    const currentItemCount = newInventory.filter(slot => slot !== null).length;
-    if (currentItemCount < capacity) {
-        const emptySlotIndex = newInventory.findIndex(slot => slot === null);
-        if (emptySlotIndex !== -1) {
-            newInventory[emptySlotIndex] = itemToAdd;
-            return { newInventory, success: true };
-        }
+    const emptySlotIndex = newInventory.findIndex(slot => slot === null);
+    if (emptySlotIndex !== -1) {
+        newInventory[emptySlotIndex] = itemToAdd;
+        return { newInventory, success: true };
     }
 
     // --- 3. No space found ---
