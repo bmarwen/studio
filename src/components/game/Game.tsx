@@ -715,12 +715,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-                <Card className="h-64">
+                <Card className="h-80">
                     <CardHeader className="p-4">
                         <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 h-[calc(100%-4rem)]">
-                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse">
+                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto flex flex-col-reverse custom-scrollbar">
                             {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
                         </div>
                     </CardContent>
