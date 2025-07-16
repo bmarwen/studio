@@ -297,28 +297,34 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
 const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, player: Player): { newInventory: (Item | null)[], success: boolean } => {
     const newInventory = [...inventory];
-    const capacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
-
-    // --- 1. Attempt to STACK ---
+    
+    // 1. Attempt to STACK stackable items
     if (itemToAdd.type === 'consumable' && itemToAdd.quantity) {
         for (let i = 0; i < newInventory.length; i++) {
             const existingItem = newInventory[i];
+            // Check if items can be stacked
             if (existingItem?.itemId === itemToAdd.itemId && existingItem.quantity && existingItem.quantity < 9) {
-                newInventory[i] = { ...existingItem, quantity: existingItem.quantity + 1 };
-                // If stacking a quantity of more than 1, this needs a loop, but for now, we assume adding one at a time.
-                return { newInventory, success: true };
+                 const canAdd = 9 - existingItem.quantity;
+                 const toAdd = Math.min(itemToAdd.quantity, canAdd);
+                 newInventory[i] = { ...existingItem, quantity: existingItem.quantity + toAdd };
+                 itemToAdd.quantity -= toAdd; // Reduce quantity of item being added
+                 if (itemToAdd.quantity <= 0) {
+                    return { newInventory, success: true }; // Fully stacked
+                 }
             }
         }
     }
 
-    // --- 2. Attempt to add to an EMPTY SLOT ---
-    const emptySlotIndex = newInventory.findIndex(slot => slot === null);
-    if (emptySlotIndex !== -1) {
-        newInventory[emptySlotIndex] = itemToAdd;
-        return { newInventory, success: true };
+    // 2. If item (or remainder) still exists, find an EMPTY SLOT
+    if (itemToAdd.quantity > 0) {
+        const emptySlotIndex = newInventory.findIndex(slot => slot === null);
+        if (emptySlotIndex !== -1) {
+            newInventory[emptySlotIndex] = itemToAdd;
+            return { newInventory, success: true };
+        }
     }
 
-    // --- 3. No space found ---
+    // 3. No space found
     return { newInventory: inventory, success: false };
 };
 
@@ -480,10 +486,6 @@ const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, pl
     
     addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
 
-    if (targetTile.item) {
-        playAudio('/audio/item-found.wav', { volume: 0.7 });
-    }
-
     setPlayer(p => {
         let newPlayerState = {
             ...p,
@@ -501,12 +503,13 @@ const attemptToAddToInventory = (inventory: (Item | null)[], itemToAdd: Item, pl
         }
         
         if (targetTile.item) {
+            playAudio('/audio/item-found.wav', { volume: 0.7 });
             const foundItem = targetTile.item;
             const { newInventory, success } = attemptToAddToInventory(p.inventory, foundItem, p);
             
             if(success) {
                 newPlayerState.inventory = newInventory;
-                 addLog(`You found: ${foundItem.name}!`);
+                addLog(`You found: ${foundItem.name}!`);
 
                 setWorldMap(prevMap => {
                     const newMap = prevMap.map(row => [...row]);
