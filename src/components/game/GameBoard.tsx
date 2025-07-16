@@ -121,13 +121,9 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
         className={cn(
             "absolute flex items-center justify-center pointer-events-none w-16 h-16 lg:w-20 lg:h-20",
             // Use Tailwind's arbitrary values to set the correct position responsively
-            "top-[--base-offset] left-[--base-offset]",
-            "lg:top-[--lg-offset] lg:left-[--lg-offset]"
+            "top-[calc(4_*_4.25rem_+_0.5rem)] left-[calc(4_*_4.25rem_+_0.5rem)]",
+            "lg:top-[calc(4_*_5.25rem_+_0.5rem)] lg:left-[calc(4_*_5.25rem_+_0.5rem)]"
         )}
-        style={{
-            '--base-offset': baseOffset,
-            '--lg-offset': lgOffset,
-        } as React.CSSProperties}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
         <AnimatePresence>
@@ -137,7 +133,7 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
               className="absolute w-full h-full z-20"
               exit={{ opacity: 0 }}
             >
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+              <svg className="w-[44px] h-[44px] lg:w-[58px] lg:h-[58px] -rotate-90" viewBox="0 0 100 100">
                 <motion.circle
                   cx="50"
                   cy="50"
@@ -156,10 +152,12 @@ const GameBoard = ({ viewport, playerIcon, isMoving, moveCooldown }: GameBoardPr
             </motion.div>
           )}
         </AnimatePresence>
-          <img src={iconPath} alt="player icon" className="w-12 h-12 lg:w-16 lg:h-16 rounded-full drop-shadow-lg z-10" />
+          <img src={iconPath} alt="player icon" className="w-10 h-10 lg:w-14 lg:h-14 rounded-full drop-shadow-lg z-10" />
       </motion.div>
     </div>
   );
 };
 
 export default GameBoard;
+
+    
