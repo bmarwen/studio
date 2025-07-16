@@ -715,7 +715,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-                 <Card className="flex-grow">
+                <Card className="h-64">
                     <CardHeader className="p-4">
                         <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
                     </CardHeader>
