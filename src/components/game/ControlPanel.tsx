@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Heart, Activity, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, ShieldCheck, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Activity, Swords, Shield, Star, Scroll, Package, BookUser, Settings, Sparkles, Gavel, Crown, Shirt, RectangleHorizontal, Volume2, VolumeX } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -83,7 +83,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         weapon: <Gavel className="w-8 h-8 text-muted-foreground" />,
         helmet: <Crown className="w-8 h-8 text-muted-foreground" />,
         armor: <Shirt className="w-8 h-8 text-muted-foreground" />,
-        belt: <ShieldCheck className="w-8 h-8 text-muted-foreground" />,
+        belt: <RectangleHorizontal className="w-8 h-8 text-muted-foreground" />,
     }
 
     const buttonContent = (
