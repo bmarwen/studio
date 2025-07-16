@@ -4,7 +4,7 @@
 import type { Player, Item, EquipmentSlot, ItemRarity, PlayerClass } from '@/types/game';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Gavel, Crown, Shirt, Volume2, VolumeX } from 'lucide-react';
+import { Settings, Gavel, Crown, Shirt, Footprints } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -20,9 +20,6 @@ interface ControlPanelProps {
   onUseItem: (item: Item, index: number) => void;
   onEquipItem: (item: Item, index: number) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
-  moveCooldown: number;
-  onMoveCooldownChange: (value: number) => void;
-  onReset: () => void;
 }
 
 const RARITY_COLORS: Record<ItemRarity, string> = {
@@ -63,16 +60,12 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         armor: <Shirt className="w-8 h-8 text-muted-foreground opacity-75" />,
         belt: (
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                <path d="M10.29 2.86a2 2 0 0 1 3.42 0l2.55 4.38a2 2 0 0 0 1.71 1.05h5.03a2 2 0 0 1 1.98 2.29l-1.07 7.51a2 2 0 0 1-2 1.84H4.08a2 2 0 0 1-2-1.84L1.01 10.58a2 2 0 0 1 1.98-2.29h5.03a2 2 0 0 0 1.71-1.05l2.56-4.38z"></path>
-                <path d="M9 18V6"></path>
-                <path d="M15 18V6"></path>
+                <rect x="3" y="8" width="18" height="8" rx="2"></rect>
+                <circle cx="12" cy="12" r="2"></circle>
             </svg>
         ),
         boots: (
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-muted-foreground opacity-75">
-                 <path d="M16 16h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2v11zM6 16H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2v11z"></path>
-                 <path d="M11 16H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3v12zM16 5h-3v11h3a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"></path>
-            </svg>
+            <Footprints className="w-8 h-8 text-muted-foreground opacity-75" />
         )
     }
 
@@ -100,7 +93,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     )
 }
 
-export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem, moveCooldown, onMoveCooldownChange, onReset }: ControlPanelProps) {
+export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequipItem }: ControlPanelProps) {
   const inventoryCapacity = INVENTORY_SIZE + (player.hasBackpack ? 4 : 0);
   const inventorySlots = Array.from({ length: inventoryCapacity });
   const { isMuted, toggleMute } = useAudio();
@@ -213,5 +206,3 @@ export default function ControlPanel({ player, onUseItem, onEquipItem, onUnequip
       </div>
   );
 }
-
-    
