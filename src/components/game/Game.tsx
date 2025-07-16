@@ -583,10 +583,10 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
           if (document.activeElement?.tagName === 'INPUT') return;
-          if (e.key === 'ArrowUp') handleMove(0, -1);
-          if (e.key === 'ArrowDown') handleMove(0, 1);
-          if (e.key === 'ArrowLeft') handleMove(-1, 0);
-          if (e.key === 'ArrowRight') handleMove(1, 0);
+          if (e.key === 'ArrowUp' || e.key === 'w') handleMove(0, -1);
+          if (e.key === 'ArrowDown' || e.key === 's') handleMove(0, 1);
+          if (e.key === 'ArrowLeft' || e.key === 'a') handleMove(-1, 0);
+          if (e.key === 'ArrowRight' || e.key === 'd') handleMove(1, 0);
         };
     
         window.addEventListener('keydown', handleKeyDown);
@@ -600,7 +600,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     <div className="flex h-screen w-screen bg-background font-body text-foreground overflow-hidden">
       <main className="flex-1 flex flex-col items-center justify-start p-4 pt-16 gap-4">
         <h1 className="w-full text-left text-4xl font-headline text-primary pl-12">Square Clash</h1>
-         <div className="relative mt-4">
+         <div className="flex items-center justify-center gap-8 mt-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -610,7 +610,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
             </motion.div>
             <MovementControls onMove={handleMove} />
         </div>
-         <Card className="w-full max-w-2xl mt-24">
+         <Card className="w-full max-w-4xl mt-4">
             <CardHeader className="p-4">
                 <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
             </CardHeader>
@@ -662,7 +662,3 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
-
-    
-
-    
