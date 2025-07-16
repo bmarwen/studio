@@ -692,8 +692,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             )}
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
-                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<ShieldOff size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<PersonStanding size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<Dices size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
@@ -724,7 +724,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <CardTitle className="font-headline text-lg flex items-center gap-2"><Scroll />Game Log</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 h-[calc(100%-4rem)]">
-                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar flex flex-col-reverse flex-grow">
+                        <div className="text-xs font-mono space-y-2 p-4 h-full bg-secondary rounded-b-lg overflow-y-auto custom-scrollbar">
                             {gameLog.map((msg, i) => <p key={i} className={i === 0 ? 'text-foreground' : 'text-muted-foreground'}>{`> ${msg}`}</p>)}
                         </div>
                     </CardContent>
@@ -765,6 +765,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     
 
+
+    
 
     
 
