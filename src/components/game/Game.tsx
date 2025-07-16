@@ -409,6 +409,12 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     
     addLog(`You move to (${newX}, ${newY}). Stamina spent: ${moveCost}.`);
 
+    if (targetTile.item) {
+        const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
+        addLog(`You found a ${logMessage}!`);
+        playAudio('/audio/item-found.wav', { volume: 0.7 });
+    }
+
     setPlayer(p => {
         const newPlayerState = {
             ...p,
@@ -428,9 +434,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
         const inventoryCapacity = INVENTORY_SIZE + (newPlayerState.hasBackpack ? 4 : 0);
 
         if (targetTile.item) {
-            const logMessage = targetTile.item.quantity && targetTile.item.quantity > 1 ? `${targetTile.item.quantity}x ${targetTile.item.name}`: targetTile.item.name;
-            addLog(`You found a ${logMessage}!`);
-            playAudio('/audio/item-found.wav', { volume: 0.7 });
             const newInventory = [...newPlayerState.inventory];
             const existingItemIndex = newInventory.findIndex(i => i?.itemId === targetTile.item!.itemId && i.type === 'consumable');
 
@@ -510,6 +513,16 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     if(itemUsed) {
         playAudio('/audio/use-potion.wav');
+        let logMessage = `You used ${itemToUse.name}.`;
+        if (itemToUse.itemId?.includes('elixir_of_power')) {
+            logMessage = `You feel a surge of power from the ${itemToUse.name}!`;
+        } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
+            logMessage = `You feel energized by the ${itemToUse.name}!`;
+        } else if (itemToUse.inventorySlots) {
+            logMessage = `You equip the ${itemToUse.name}, gaining more inventory space!`;
+        }
+        addLog(logMessage);
+
         setPlayer(p => {
             let newPlayerState = {...p};
             const newHp = Math.min(p.maxHp, p.hp + (itemToUse.hp || 0));
@@ -521,7 +534,6 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                  } else {
                     newPlayerState.attack += itemToUse.attack || 0;
                  }
-                 addLog(`You feel a surge of power from the ${itemToUse.name}!`);
             } else if (itemToUse.staminaRegenBonus && itemToUse.effectDuration) {
                 const newEffect: PlayerEffect = {
                     id: `effect_${itemToUse.id}_${Date.now()}`,
@@ -530,12 +542,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                     expiresAt: Date.now() + itemToUse.effectDuration * 1000,
                 };
                 newPlayerState.activeEffects = [...newPlayerState.activeEffects, newEffect];
-                addLog(`You feel energized by the ${itemToUse.name}!`);
             } else if (itemToUse.inventorySlots) {
                 newPlayerState.hasBackpack = true;
-                addLog(`You equip the ${itemToUse.name}, gaining more inventory space!`);
-            } else {
-                addLog(`You used ${itemToUse.name}.`);
             }
 
             newPlayerState.inventory = newInventory;
@@ -693,7 +701,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                             <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
                             <CombatStatDisplay label="ARM" value={player.armor} icon={<ShieldCheck size={16}/>} tooltipText="Armor" />
                             <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Wand size={16}/>} tooltipText="Magic Resist" />
-                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<PersonStanding size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<ShieldOff size={16}/>} tooltipText="Evasion" />
                             <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
                         </div>
                     </CardContent>
@@ -765,6 +773,8 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
     
 
+
+    
 
     
 
