@@ -254,3 +254,5 @@ export default function ControlPanel({ player, onReset, onUseItem, onEquipItem, 
       </div>
   );
 }
+
+    

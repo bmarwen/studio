@@ -13,10 +13,12 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { Progress } from '../ui/progress';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity } from 'lucide-react';
+import { AlertTriangle, Hourglass, ZapOff, Scroll, Heart, Activity, Shield, Swords, Wand, Footprints, Dices } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { createItem } from '@/lib/game-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Separator } from '../ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 
 const CLASS_ICONS: Record<PlayerClass, string> = {
@@ -38,6 +40,23 @@ const StatItem = ({ icon, label, value, maxValue, colorClass, indicatorClassName
     {maxValue && <Progress value={(value / maxValue) * 100} className="h-2" indicatorClassName={indicatorClassName} />}
   </div>
 );
+
+const CombatStatDisplay = ({ label, value, icon, tooltipText }: { label: string, value: number, icon: React.ReactNode, tooltipText: string }) => (
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className="flex justify-between items-center text-sm py-1 border-b border-border/50">
+                    <span className="font-bold uppercase text-muted-foreground flex items-center gap-1">{icon}{label}</span>
+                    <span className="font-mono text-primary">{value}</span>
+                </div>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{tooltipText}</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+);
+
 
 interface GameProps {
   initialPlayer: Player;
@@ -619,15 +638,15 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-background font-body text-foreground p-4 gap-4">
-       <div className="flex flex-row flex-grow gap-4">
+      {/* Top Section */}
+       <div className="flex flex-row flex-grow gap-2 items-center">
             {/* Left Column - Movement Controls */}
-            <aside className="flex flex-col justify-center items-center w-44">
+            <aside className="flex flex-col justify-center items-center">
                 <MovementControls onMove={handleMove} />
             </aside>
             
             {/* Center Column - Game Board */}
             <main className="flex-1 flex flex-col items-center justify-center">
-                <h1 className="w-full text-left text-4xl font-headline text-primary mb-4">Square Clash</h1>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -644,12 +663,26 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
                         <CardTitle className="font-headline text-2xl text-primary">{player.name}</CardTitle>
                         <img src={CLASS_ICONS[player.class]} alt={player.class} className="w-14 h-14 rounded-full bg-secondary p-1" />
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-2">
                         <CardDescription className="flex items-center gap-2">
                             Level 1 {player.class.charAt(0).toUpperCase() + player.class.slice(1)}
                         </CardDescription>
+                         <Separator />
                         <StatItem icon={<Heart className="text-red-500" />} label="Health" value={player.hp} maxValue={player.maxHp} colorClass="text-red-500" indicatorClassName="bg-red-500" />
                         <StatItem icon={<Activity className="text-yellow-400" />} label="Stamina" value={player.stamina} maxValue={player.maxStamina} colorClass="text-yellow-400" indicatorClassName="bg-yellow-400" />
+                         <Separator />
+                         <div className="grid grid-cols-2 gap-x-4">
+                            {player.magicAttack > player.attack ? (
+                                 <CombatStatDisplay label="M.ATT" value={player.magicAttack} icon={<Wand size={16}/>} tooltipText="Magic Attack" />
+                            ) : (
+                                 <CombatStatDisplay label="P.ATT" value={player.attack} icon={<Swords size={16}/>} tooltipText="Physical Attack" />
+                            )}
+                            <CombatStatDisplay label="DEF" value={player.defense} icon={<Shield size={16}/>} tooltipText="Defense" />
+                            <CombatStatDisplay label="ARM" value={player.armor} icon={<Shield size={16}/>} tooltipText="Armor" />
+                            <CombatStatDisplay label="M.RES" value={player.magicResist} icon={<Shield size={16}/>} tooltipText="Magic Resist" />
+                            <CombatStatDisplay label="EVA" value={player.evasion} icon={<Footprints size={16}/>} tooltipText="Evasion" />
+                            <CombatStatDisplay label="CRIT" value={player.criticalChance} icon={<Dices size={16}/>} tooltipText="Crit Chance" />
+                        </div>
                     </CardContent>
                 </Card>
                  <Card className="flex-grow">
@@ -666,7 +699,7 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
        </div>
        
        {/* Bottom Section - Control Panel */}
-       <div className="w-full">
+       <div className="w-[592px] mx-auto">
             <ControlPanel 
                 player={player} 
                 onReset={onReset} 
@@ -707,3 +740,5 @@ export default function Game({ initialPlayer, onReset }: GameProps) {
     </div>
   );
 }
+
+    
